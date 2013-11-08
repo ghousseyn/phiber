@@ -2,8 +2,8 @@
 /**
  * Configuration class.
  * @version 	1.0
- * @author 	Hussein Guettaf <ghoucine@gmail.com>
- * @package 	abook
+ * @author 	Hussein Guettaf <ghussein@coda-dz.com>
+ * @package 	codup
  */
 class config extends main{
 	
