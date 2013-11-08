@@ -1,4 +1,10 @@
 <?php
+/**
+ * Configuration class.
+ * @version 	1.0
+ * @author 	Hussein Guettaf <ghussein@coda-dz.com>
+ * @package 	codup
+ */
 class bootstrap extends main {
 	protected $modules = array();
 
