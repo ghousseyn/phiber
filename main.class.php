@@ -36,6 +36,17 @@ class main {
 		$_SESSION['user']['activity'] = time();
 	
 	}
+	function _redirect($url, $replace = true, $code = 307){
+	
+		header("Location: $url",$replace,$code);
+	}
+	function plugins(){
+	
+		foreach($this->bootstrap->plugins as $plugin){
+			$this->load($plugin,null,"./plugins/".$plugin."/")->run();
+		}
+	}
+	
 	function checkSession(){
 		if (isset($_SESSION['user']['activity']) && (time() - $_SESSION['user']['activity'] > 1800)) {
 			 
@@ -43,7 +54,7 @@ class main {
 			session_destroy();
 		}
 	
-		if (time() - $_SESSION['user']['created'] > 1800) {
+		if (isset($_SESSION['user']['created']) && (time() - $_SESSION['user']['created'] > 1800)) {
 			session_regenerate_id(true);
 			$_SESSION['user']['created'] = time();
 		}
