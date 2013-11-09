@@ -25,17 +25,15 @@ class config extends main{
 	protected $_dbuser = "root";
 	protected $_dbname = "abook";
 	
+	protected $layoutEnabled = true;
 	
 	protected function __construct(){
 		
 	}
 	
 	static function getInstance(){
-		if(null === self::$instance){
-			$instance = new config();
-		}
 		
-		return $instance;
+		return new self();
 	}
 	
 	/*
