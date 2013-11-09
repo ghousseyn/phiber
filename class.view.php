@@ -5,6 +5,7 @@
  * @author 	Hussein Guettaf <ghussein@coda-dz.com>
  * @package 	codup
  */
+
 class view extends main {
 
 	protected $vars = array();
