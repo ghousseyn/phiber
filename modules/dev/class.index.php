@@ -1,13 +1,8 @@
 <?php
 class index extends main{
 	
-	
-	function init(){
-		
-	}	
-
 	static function getInstance(){
-		return new index;
+		return new self();
 	}
 
 	function index(){
@@ -16,9 +11,9 @@ class index extends main{
 
 	function action(){
 		
-		$this->_view()->text = $_SERVER;
-		$this->_view()->origin = __class__;
-		$this->_view()->file = __file__;
+		$this->template->text = $_REQUEST;
+		$this->template->origin = __class__;
+		$this->template->file = __file__;
 	}
 }
 ?>

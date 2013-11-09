@@ -2,13 +2,10 @@
 class view extends main {
 
 	protected $vars = array();
-	public static $instance = null;
 
 	static function getInstance(){
-		if(null == self::$instance){
-			self::$instance = new view;
-		}
-		return self::$instance;
+		
+		return new self();
 	}
 
 	function showTime(){
@@ -20,12 +17,6 @@ class view extends main {
 		}
 		
 	} 
-
-	function __set($var, $val){
-		$this->vars[$var] = $val;
-	}
-	function __get($var){
-		return $this->vars[$var];
-	}
+	
 }
 ?>
