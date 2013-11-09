@@ -5,7 +5,6 @@
  * @author 	Hussein Guettaf <ghussein@coda-dz.com>
  * @package 	codup
  */
-
 class main {
 	
 	private $route = array();

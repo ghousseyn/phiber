@@ -5,6 +5,7 @@
  * @author 	Hussein Guettaf <ghussein@coda-dz.com>
  * @package 	codup
  */
+
 class tools extends main {
 	static function getInstance(){
 		return new self();
