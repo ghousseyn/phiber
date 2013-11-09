@@ -4,7 +4,7 @@ class main {
 	private $route = array();
 	private $path = null;
 	
-	protected $_layoutEnabled = false;
+	protected $_layoutEnabled = true;
 	protected $_requestVars = array();	
 	protected $view = null;
 	protected $vars = array();
@@ -58,9 +58,10 @@ class main {
 			session_regenerate_id(true);
 			$_SESSION['user']['created'] = time();
 		}
-		$this->stack("Inactivity: ".($this->load('tools')->convertTime(time() - $_SESSION['user']['activity'])));
+		//$this->stack("Inactivity: ".($this->load('tools')->convertTime(time() - $_SESSION['user']['activity'])));
 	}
 	function getView(){	
+		$this->view = $this->load('view');
 			$path[] = $this->route['module'];
 			$path[] = $this->route['controller'];
 			$path[] = $this->route['action'];
@@ -84,7 +85,7 @@ class main {
 			}
 			
 
-		$this->view = $this->load('view');
+		
 
 		$this->view->viewPath = $path;	
 
@@ -150,7 +151,9 @@ class main {
 			$this->register('_request',$this->_requestVars);
 
 			$this->route = array("module" => $module, "controller" => $controller, "action" => $action, "vars" => $this->get('_request'));
-			
+			if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'){
+				$this->register('ajax', true);
+			}
 		}else{		
 			$route = array("module" => "default", "controller" => "index", "action" => "index"); 
 			$this->route = $route;	
@@ -160,7 +163,11 @@ class main {
 	
 	}
 	function isValidURI($uri){
-	
+		$uri = str_replace("/?","/",$uri);
+		$uri = str_replace("?","/?",$uri);
+		$uri = str_replace("&","/",$uri);
+		$uri = str_replace("=","/",$uri);
+		
 		if (preg_match("~^(?:[/\w\s-]+)+/?$~", $uri) ) {
     			return true;
 		}
@@ -278,6 +285,9 @@ class main {
 		$this->vars[$var] = $val;
 	}
 	function __get($var){
+		if($var == 'template'){
+			return $this->get('view');
+		}
 		return $this->vars[$var];
 	}
 }

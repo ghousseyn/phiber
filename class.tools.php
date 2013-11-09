@@ -4,6 +4,9 @@ class tools extends main {
 		return new self();
 	}
 	function convertTime($size){
+		if(0 == $size){
+			return;
+		}
 		$s = array('s','min','H');
 		$e = floor(log($size)/log(60));
 	 
