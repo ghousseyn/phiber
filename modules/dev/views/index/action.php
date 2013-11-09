@@ -1,7 +1,7 @@
 Some awsomeness:
 <br />
 <?php
-var_dump( $this->text);
+echo $this->text;
 ?>
 <br />
 <?php

@@ -1,4 +1,11 @@
 <?php
+/**
+ * Configuration class.
+ * @version 	1.0
+ * @author 	Hussein Guettaf <ghussein@coda-dz.com>
+ * @package 	codup
+ */
+
 class main {
 	
 	private $route = array();
@@ -6,14 +13,16 @@ class main {
 	
 	protected $_layoutEnabled = true;
 	protected $_requestVars = array();	
-	protected $view = null;
+	protected $_view = null;
 	protected $vars = array();
 	protected $bootstrap = null;
 	protected $plugins = null;
 	protected $tools = null;
+	protected $config = null;
 	
 	protected function __construct(){
-
+		$this->config = $this->load('config');
+		$this->_layoutEnabled = $this->config->layoutEnabled;
 		if(!isset($_SESSION)){
 			session_start();
 		}
@@ -32,7 +41,7 @@ class main {
 		$this->router();
 		$this->getView();
 		$this->dispatch();
-		$this->view->showTime();
+		$this->_view->showTime();
 		$_SESSION['user']['activity'] = time();
 	
 	}
@@ -61,7 +70,7 @@ class main {
 		//$this->stack("Inactivity: ".($this->load('tools')->convertTime(time() - $_SESSION['user']['activity'])));
 	}
 	function getView(){	
-		$this->view = $this->load('view');
+			$this->_view = $this->load('view');
 			$path[] = $this->route['module'];
 			$path[] = $this->route['controller'];
 			$path[] = $this->route['action'];
@@ -87,9 +96,9 @@ class main {
 
 		
 
-		$this->view->viewPath = $path;	
+		$this->_view->viewPath = $path;	
 
-		$this->register('view',$this->view);
+		$this->register('view',$this->_view);
 		//var_dump($path);
 	}
 	function _view(){
@@ -285,8 +294,11 @@ class main {
 		$this->vars[$var] = $val;
 	}
 	function __get($var){
-		if($var == 'template'){
+		if($var == 'view'){
 			return $this->get('view');
+		}
+		if($var == 'content'){
+			return $this->viewPath;
 		}
 		return $this->vars[$var];
 	}

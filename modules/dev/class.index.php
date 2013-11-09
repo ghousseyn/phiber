@@ -11,9 +11,9 @@ class index extends main{
 
 	function action(){
 		
-		$this->template->text = $_REQUEST;
-		$this->template->origin = __class__;
-		$this->template->file = __file__;
+		$this->view->text = "test";
+		$this->view->origin = __class__;
+		$this->view->file = __file__;
 	}
 }
 ?>
