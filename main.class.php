@@ -1,41 +1,54 @@
 <?php
 class main {
 	
-	private	static $instance = null;
-	
 	private $route = array();
 	private $path = null;
+	
 	protected $_layoutEnabled = false;
 	protected $_requestVars = array();	
 	protected $view = null;
 	protected $vars = array();
-
-
+	protected $bootstrap = null;
+	protected $plugins = null;
+	protected $tools = null;
+	
 	protected function __construct(){
 
 		if(!isset($_SESSION)){
 			session_start();
 		}
 				
-		$this->stack(__class__);
 	}
 	
 	static function getInstance(){
-		if(null == self::$instance){
-			self::$instance = new main;
-		}
-		return self::$instance;
+		return new self();
 	}
 	function run(){
+		$this->checkSession();
+		$this->bootstrap = $this->load('bootstrap');
 		$this->register('post',false);
 		$this->register('get',true);
+		$this->register('ajax',false);
 		$this->router();
 		$this->getView();
 		$this->dispatch();
 		$this->view->showTime();
+		$_SESSION['user']['activity'] = time();
 	
 	}
+	function checkSession(){
+		if (isset($_SESSION['user']['activity']) && (time() - $_SESSION['user']['activity'] > 1800)) {
+			 
+			session_unset();
+			session_destroy();
+		}
 	
+		if (time() - $_SESSION['user']['created'] > 1800) {
+			session_regenerate_id(true);
+			$_SESSION['user']['created'] = time();
+		}
+		$this->stack("Inactivity: ".($this->load('tools')->convertTime(time() - $_SESSION['user']['activity'])));
+	}
 	function getView(){	
 			$path[] = $this->route['module'];
 			$path[] = $this->route['controller'];
@@ -83,9 +96,9 @@ class main {
 		if($this->isValidURI($uri)){
 			$parts = explode("/",$uri);
 			array_shift($parts);
-			$bootstrap = $this->load('bootstrap');
 			
-			if(!empty($parts[0]) && $bootstrap->isModule($parts[0])){
+			
+			if(!empty($parts[0]) && $this->bootstrap->isModule($parts[0])){
 				
 				$module = array_shift($parts);
 				
@@ -246,6 +259,7 @@ class main {
 		}else{
 			$parameters = $params;
 		}
+		
 		return $class::getInstance($parameters);
 	}
 	
