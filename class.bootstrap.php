@@ -7,9 +7,11 @@
  */
 class bootstrap extends main {
 	protected $modules = array();
+	protected $plugins = null;
 	
 	function __construct(){
 		$this->getModules();
+		$this->getPlugins();
 	}
 	static function getInstance(){
 		return new self();
@@ -24,7 +26,7 @@ class bootstrap extends main {
 				$dir = $mods->getFilename();
 				$settings = "./modules/".$dir."/settings.xml";
 				
-				if(file_exists($file)){
+				if(file_exists($settings)){
 					$this->modules[$mods->getFilename()]['settings_path']  = $settings;
 				}
 				$this->modules[$dir] = $dir;
@@ -39,6 +41,22 @@ class bootstrap extends main {
 		}
 		return false;
 	}
+	function getPlugins(){
+		$this->plugins = array();
+		$path = __dir__.'/plugins';
+		foreach (new DirectoryIterator($path) as $plugin) {
+			if($plugin->isDot()){
+				continue;
+			}
 	
+			$dir = $path."/".$plugin->getFilename();
+			if(is_dir($dir)){
+	
+				$this->plugins[] = $plugin->getFilename();
+			}
+	
+		}
+		
+	}
 }
 ?>
