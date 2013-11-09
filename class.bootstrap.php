@@ -7,25 +7,25 @@
  */
 class bootstrap extends main {
 	protected $modules = array();
-
+	
 	function __construct(){
 		$this->getModules();
 	}
 	static function getInstance(){
-		return new bootstrap;
+		return new self();
 	}
 	function getModules(){
-		foreach (new DirectoryIterator('/home/hussein/Documents/www/dev/modules') as $mods) {
+		foreach (new DirectoryIterator(__dir__.'/modules') as $mods) {
     			if($mods->isDot()){
 				continue;
 			}
 			
 			if(is_dir("./modules/".$mods->getFilename())){
 				$dir = $mods->getFilename();
-				$file = "./modules/".$dir."/defaults.xml";
-				$this->modules[$mods->getFilename()]  = $file;
+				$settings = "./modules/".$dir."/settings.xml";
+				
 				if(file_exists($file)){
-					
+					$this->modules[$mods->getFilename()]['settings_path']  = $settings;
 				}
 				$this->modules[$dir] = $dir;
 			}
@@ -39,8 +39,6 @@ class bootstrap extends main {
 		}
 		return false;
 	}
-	function getmods(){
-		return $this->modules;
-	}
+	
 }
 ?>
