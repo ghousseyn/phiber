@@ -1,0 +1,48 @@
+<?php
+
+require_once 'PHPUnit\Framework\TestCase.php';
+
+/**
+ * test case.
+ */
+class Test extends PHPUnit_Framework_TestCase {
+	
+	/**
+	 * Prepares the environment before running a test.
+	 */
+	protected function setUp() {
+		parent::setUp ();
+		
+		// TODO Auto-generated Test::setUp()
+	
+	}
+	
+	/**
+	 * Cleans up the environment after running a test.
+	 */
+	protected function tearDown() {
+		// TODO Auto-generated Test::tearDown()
+		
+		parent::tearDown ();
+	}
+	
+	/**
+	 * Constructs the test case.
+	 */
+	public function __construct() {
+		// TODO Auto-generated constructor
+	}
+	public function testPushAndPop()
+	{
+		$stack = array();
+		$this->assertEquals(0, count($stack));
+	
+		array_push($stack, 'foo');
+		$this->assertEquals('foo', $stack[count($stack)-1]);
+		$this->assertEquals(1, count($stack));
+	
+		$this->assertEquals('foo', array_pop($stack));
+		$this->assertEquals(0, count($stack));
+	}
+}
+
