@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 /**
  * Configuration class.
@@ -57,6 +58,10 @@ class bootstrap extends main {
 	
 		}
 		
+	}
+
+	function getmods(){
+		return $this->modules;
 	}
 }
 ?>
