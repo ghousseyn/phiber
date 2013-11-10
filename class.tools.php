@@ -19,4 +19,12 @@ class tools extends main {
 	 
 		return sprintf('%d '.$s[$e], ($size/pow(60, floor($e))));
 	}
+	
+	function convertSize($size){
+		if(0 == $size){
+			return;
+		}
+		$unit=array('b','kb','mb','gb','tb','pb');
+		return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
+	}
 }
