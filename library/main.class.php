@@ -16,7 +16,6 @@ class main implements app{
 	protected $vars = array();
 	protected $bootstrap = null;
 	protected $plugins = null;
-	protected $tools = null;
 	protected $config = null;
 	protected $debug = null;
 	
@@ -33,6 +32,9 @@ class main implements app{
 		}
 				
 	}
+	/*
+	 * Implement the getInstance() method
+	 */
 	
 	static function getInstance(){
 		return new self();
@@ -66,15 +68,18 @@ class main implements app{
 	}
 	
 	function checkSession(){
-		if (isset($_SESSION['user']['activity']) && (time() - $_SESSION['user']['activity'] > 1800)) {
+		if($this->config->inactive){
+			if (isset($_SESSION['user']['activity']) && (time() - $_SESSION['user']['activity'] > $this->load('tools')->orDefault($this->config->inactive,1800))) {
 			 
-			session_unset();
-			session_destroy();
+				session_unset();
+				session_destroy();
+			}
 		}
-	
-		if (isset($_SESSION['user']['created']) && (time() - $_SESSION['user']['created'] > 1800)) {
-			session_regenerate_id(true);
-			$_SESSION['user']['created'] = time();
+		if($this->config->sessionReginerate){
+			if (isset($_SESSION['user']['created']) && (time() - $_SESSION['user']['created'] > $this->load('tools')->orDefault($this->config->sessionReginerate,1800))) {
+				session_regenerate_id(true);
+				$_SESSION['user']['created'] = time();
+			}
 		}
 		//$this->stack("Inactivity: ".($this->load('tools')->convertTime(time() - $_SESSION['user']['activity'])));
 	}

@@ -11,6 +11,18 @@ class config extends main{
 	
 	protected $library = null;
 	/*
+	 * Regenerate session id or not (false will disable the functionality)
+	 * Set it to true for a default value of 1800 seconds (30 minutes)
+	 * Or set it to whatever value you like to set in seconds
+	 */
+	protected $sessionReginerate = true; 
+	/*
+	 * If set to true the session will be destroyed after 1800 seconds (30 minutes) of inactivity
+	 * Alternatively set the value that you like in seconds
+	 * Set it to false to disable the functionality
+	 */
+	protected $inactive = true;
+	/*
 	 * Enable/disable debug
 	 */
 	public $debug = true;
