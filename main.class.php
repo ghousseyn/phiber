@@ -5,7 +5,7 @@
  * @author 	Hussein Guettaf <ghussein@coda-dz.com>
  * @package 	codup
  */
-class main {
+class main implements app{
 	
 	private $route = array();
 	private $path = null;
@@ -76,7 +76,7 @@ class main {
 			session_regenerate_id(true);
 			$_SESSION['user']['created'] = time();
 		}
-		$this->stack("Inactivity: ".($this->load('tools')->convertTime(time() - $_SESSION['user']['activity'])));
+		//$this->stack("Inactivity: ".($this->load('tools')->convertTime(time() - $_SESSION['user']['activity'])));
 	}
 	function getView(){	
 			$this->_view = $this->load('view');
@@ -319,5 +319,9 @@ class main {
 		}
 		return $this->vars[$var];
 	}
+}
+
+interface app {
+	static function getInstance();
 }
 ?>
