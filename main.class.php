@@ -21,6 +21,7 @@ class main {
 	protected $debug = null;
 	
 	protected function __construct(){
+		
 		$this->config = $this->load('config');
 		if($this->config->debug){
 			$this->debug = $this->load('debug');
@@ -60,7 +61,7 @@ class main {
 	function plugins(){
 	
 		foreach($this->bootstrap->plugins as $plugin){
-			$this->load($plugin,null,"./plugins/".$plugin."/")->run();
+			$this->load($plugin,null,"../plugins/".$plugin."/")->run();
 		}
 	}
 	
@@ -84,9 +85,9 @@ class main {
 			$path[] = $this->route['action'];
 			if($path[0] == 'default'){
 				array_shift($path);
-				$path = "./views/".implode("/",$path).".php";
+				$path = "../views/".implode("/",$path).".php";
 			}else{
-				$path = "./modules/".array_shift($path)."/views/".implode("/",$path).".php";
+				$path = "../modules/".array_shift($path)."/views/".implode("/",$path).".php";
 			}
 			
  			
@@ -94,7 +95,7 @@ class main {
 			$layout = null;
 
 			if($this->_layoutEnabled){
-				$layout = "./layouts/layout.php";
+				$layout = "../layouts/layout.php";
 
 				if(file_exists($layout)){
 					$layout = file_get_contents($layout);
@@ -116,7 +117,7 @@ class main {
 		if(null != $layout){
 			include_once $layout;
 		}else{
-			include_once "./layouts/layout.php";
+			include_once "../layouts/layout.php";
 		}
 	}
 	function router(){
@@ -236,9 +237,9 @@ class main {
 	}
 	private function hasController($parts, $module){
 		if($module == "default"){
-			$this->path = "./";
+			$this->path = "../";
 		}else{
-			$this->path = "./modules/".$module."/";		
+			$this->path = "../modules/".$module."/";		
 		}
 		
 		if(!empty($parts[0]) && file_exists($this->path."class.".$parts[0].".php")){
