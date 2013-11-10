@@ -18,9 +18,14 @@ class main {
 	protected $plugins = null;
 	protected $tools = null;
 	protected $config = null;
+	protected $debug = null;
 	
 	protected function __construct(){
 		$this->config = $this->load('config');
+		if($this->config->debug){
+			$this->debug = $this->load('debug');
+			$this->debug->start();
+		}
 		$this->_layoutEnabled = $this->config->layoutEnabled;
 		if(!isset($_SESSION)){
 			session_start();
@@ -32,6 +37,7 @@ class main {
 		return new self();
 	}
 	function run(){
+		
 		$this->checkSession();
 		$this->bootstrap = $this->load('bootstrap');
 		$this->register('post',false);
@@ -40,9 +46,12 @@ class main {
 		$this->router();
 		$this->getView();
 		$this->dispatch();
+		if($this->config->debug){
+			$this->debug->output();
+		}
 		$this->_view->showTime();
 		$_SESSION['user']['activity'] = time();
-	
+		
 	}
 	function _redirect($url, $replace = true, $code = 307){
 	
@@ -66,7 +75,7 @@ class main {
 			session_regenerate_id(true);
 			$_SESSION['user']['created'] = time();
 		}
-		//$this->stack("Inactivity: ".($this->load('tools')->convertTime(time() - $_SESSION['user']['activity'])));
+		$this->stack("Inactivity: ".($this->load('tools')->convertTime(time() - $_SESSION['user']['activity'])));
 	}
 	function getView(){	
 			$this->_view = $this->load('view');
@@ -293,11 +302,19 @@ class main {
 		$this->vars[$var] = $val;
 	}
 	function __get($var){
-		if($var == 'view'){
-			return $this->get('view');
-		}
-		if($var == 'content'){
-			return $this->viewPath;
+		switch($var){
+			case 'view':
+				return $this->get('view');
+				break;
+			case 'content':
+				return $this->viewPath;
+				break;
+			case 'db':
+				return $this->load('db');
+				break;
+			case 'conf':
+				return $this->load('config');
+				break;
 		}
 		return $this->vars[$var];
 	}
