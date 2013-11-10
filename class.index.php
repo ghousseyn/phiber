@@ -11,7 +11,9 @@ class index extends main{
 	}
 
 	function index(){
-		return "this is cool<br />";
+		$this->stack("default:index");
+		$this->db->select(array('translation',array('*'),''));
+		$this->view->text = __class__;
 	}
 
 	function action(){

@@ -3,8 +3,7 @@
 include "main.class.php";
 $main = main::getInstance();
 
-$debug = $main->load('debug');
-$debug->start();
+
 /*
 $conf = $main->load('config');
 
@@ -36,9 +35,9 @@ $main->run();
 //echo "Module: ".$route['module']."<br />";
 //echo "Controller: ".$route['controller']."<br />";
 //echo "Action: ".$route['action']."<br />";
-$debug->stackPush(__file__);
+//$debug->stackPush(__file__);
 //var_dump($main->get("config")->_dbhost);
-echo $debug;
+//echo $debug;
 
 
 

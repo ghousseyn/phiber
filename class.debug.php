@@ -1,7 +1,7 @@
 <?php
 class debug extends main {
 
-	public $enabled = true;
+
 	public $stack;
 
 	private $timestart;
@@ -13,10 +13,8 @@ class debug extends main {
 	}
 	
 	static function getInstance(){
-		if(null == self::$dbg){
-			self::$dbg = new debug;
-		}	
-		return self::$dbg;
+		
+		return new self();
 	}
 
 	function start(){
@@ -27,14 +25,9 @@ class debug extends main {
 		return number_format((microtime(true)-$this->timestart),4);
 	}	
 
-	function convert($size){
-	    	$unit=array('b','kb','mb','gb','tb','pb');
-    		return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
- 	}
-
 	function memoryUsage(){
 
-		return $this->convert(memory_get_usage());
+		return $this->load('tools')->convertSize(memory_get_usage());
 	}
 
 	function stackPush($msg){
@@ -57,11 +50,13 @@ class debug extends main {
 			$str .= "[$key] : $entry <br />";
 		}
 		}
-		parent::stackFlush();
+
+		unset($_SESSION['stack']);
+		
 		return $str;
 	}
 
-	function __toString(){
+	function output(){
 		$str = "<br />-------------------------Debug output-------------------------<br />";
 		$str .= "Stack: <br />".$this->stackTrace()."<br />";
 		$str .= "Execution Time: ".$this->execTime()."<br />";
@@ -69,7 +64,7 @@ class debug extends main {
 		
 		
 		parent::errorStackFlush();
-		return $str;
+		$this->view->debug = $str;
 	}
 }
 

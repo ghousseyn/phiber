@@ -10,12 +10,8 @@ class config extends main{
 	/*
 	 * Enable/disable debug
 	 */
-	public $debug = false;
-	
-	/*
-	 * Instance of this class
-	 */
-	private static $instance = null;
+	public $debug = true;
+
 	
 	/*
 	 * Configuration properties
@@ -23,7 +19,7 @@ class config extends main{
 	protected $_dbhost = "127.0.0.1";
 	protected $_dbpass = "hggiHmfv";
 	protected $_dbuser = "root";
-	protected $_dbname = "abook";
+	protected $_dbname = "fq";
 	
 	protected $layoutEnabled = true;
 	
@@ -41,7 +37,7 @@ class config extends main{
 	 */
 	function __get($var){
 		if(key_exists($var, get_class_vars(__CLASS__))){
-			parent::stack(__class__." --> $var");
+		//	parent::stack(__class__." --> $var");
 			return $this->{$var};
 		}
 		

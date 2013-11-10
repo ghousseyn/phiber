@@ -2,9 +2,9 @@
 
 	/**
 	* DB function wrapper.
-    	* @version 	1.0
-	* @author 	Hussein Guettaf <ghoucine@gmail.com>
-	* @package 	abook
+    * @version 	1.0
+	* @author 	Hussein Guettaf <ghussein@coda-dz.com>
+	* @package 	codup
 	*/
 
 class db extends main {
@@ -14,10 +14,7 @@ class db extends main {
 	 */
 	public $query = array();
 	
-	/*
-	 * Configuration instance
-	 */
-	protected $config = null;
+	
 	/*
 	 * The actual link to the db (a mysqli object)
 	 */
@@ -35,11 +32,9 @@ class db extends main {
 	 * @return void
 	 */
 	
-	protected function __construct($conf){
-		
-		$this->config = $conf;
-		
-		$this->con = new mysqli($this->config->_dbhost, $this->config->_dbuser, $this->config->_dbpass, $this->config->_dbname);
+	function __construct(){
+		$config = $this->load('config');
+		$this->con = new mysqli($config->_dbhost, $config->_dbuser, $config->_dbpass, $config->_dbname);
 		
 		if (mysqli_connect_errno()) {
 				throw new Exception("Error: ".mysqli_connect_errno()." ".mysqli_connect_error());
@@ -56,14 +51,9 @@ class db extends main {
 	 * @return db $link Returns the available link to the db
 	 */
 	
-	static function getInstance(config $conf){
-		
-		if(null === self::$link){
-			
-			self::$link = new db($conf);
-		}
+	static function getInstance(){
 
-		return self::$link;
+		return new self();
 	}
 	
 	/**
@@ -159,7 +149,6 @@ class db extends main {
 
 	function __get($var){
 		if(key_exists($var, get_class_vars(__CLASS__))){
-			parent::stack(__class__." --> $var");
 			return $this->{$var};
 		}
 		
@@ -167,7 +156,7 @@ class db extends main {
 
 	function __call($name, $param){
 		if(array_search($name, get_class_methods(__CLASS__))){
-			parent::stack(__class__." --> $name(".implode(',',$param).")");
+			//parent::stack(__class__." --> $name(".implode(',',$param).")");
 			call_user_func_array(array(__class__,$name),$param);
 			parent::stack(__class__.":".array_pop($this->query));
 			
