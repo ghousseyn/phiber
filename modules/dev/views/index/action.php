@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 Some awsomeness:
 <br />
 <?php
@@ -30,4 +29,4 @@ echo $this->file;
 
 ?>
 <br />
->>>>>>> refs/remotes/upstream/comvc
+
