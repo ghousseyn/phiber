@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <?php
 /**
  * Configuration class.
