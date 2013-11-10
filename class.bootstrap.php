@@ -17,14 +17,15 @@ class bootstrap extends main {
 		return new self();
 	}
 	function getModules(){
+	
 		foreach (new DirectoryIterator(__dir__.'/modules') as $mods) {
     			if($mods->isDot()){
 				continue;
 			}
 			
-			if(is_dir("./modules/".$mods->getFilename())){
+			if(is_dir(__dir__."/modules/".$mods->getFilename())){
 				$dir = $mods->getFilename();
-				$settings = "./modules/".$dir."/settings.xml";
+				$settings = __dir__."/modules/".$dir."/settings.xml";
 				
 				if(file_exists($settings)){
 					$this->modules[$mods->getFilename()]['settings_path']  = $settings;

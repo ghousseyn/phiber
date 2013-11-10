@@ -1,6 +1,6 @@
 <?php
 
-include "main.class.php";
+include "../main.class.php";
 $main = main::getInstance();
 
 
