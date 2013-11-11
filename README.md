@@ -5,7 +5,7 @@ A lightweight MVC PhP framework featuring:
 
 - A comprehensive router 
 
-``` apache
+```
 # for this ugly url
   http://127.0.0.1/dev/index/action/var1/va%20l1?var%202=v%20al2/?var3/val3
 
@@ -30,7 +30,7 @@ Array
 ``` php
   //to get var1 for instance in your controller
 
-  $var = $this->_request('var1');
+  $var1 = $this->_request('var1');
   
   //Check request type
   
@@ -52,14 +52,29 @@ Array
 - Easily extensible with modules/plugins (automatically loaded and extremely easy to create) 
 
 ``` php
-  //For modules just create a folder under modules directory and toss your controllers there
-  // all classes should extend main and files with
+  /* For modules just create a folder under modules directory and toss your controllers there
+   * all classes should extend main and implement static function getInstance()
+   * you don't need the xord controller in the class name and your actions doesn't need the word action neither
+   */
+  class cool extends main {
+    static function getInstance(){
+      return new self;
+    }
+    function index(){
+      $this->view->message = "message";
+    }
+  }
+  // if this is in a directory called firstmod the url http://localhost/firstmod/cool will fire the index method
+  
+  /*
+  *  The template should be in a subdirectory called 'cool' and a template file in it mapping the actions
+  *  so for our controller we need a file called 'index.php' containing what ever html you like
+  */
 
-  $this->view->variable = "some text";
+  <div class="cool-style">
+    <?php echo $this->message ?>
+  </div>
   
-  //in the template 
-  
-  $this->variable;
 ```
 - ZF like templating
 
