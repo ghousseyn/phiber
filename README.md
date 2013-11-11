@@ -6,8 +6,9 @@ A lightweight MVC PhP framework featuring:
 - A comprehensive router 
 
 ```
-# for this ugly url
-  http://127.0.0.1/dev/index/action/var1/va%20l1?var%202=v%20al2/?var3/val3
+# for this url for exmaple
+
+  http://127.0.0.1/dev/index/action/var1/val1?var2=val2/?var3/val3
 
 # the router will pass your application an array like (for GET and POST and Ajax calls alike)
 
@@ -18,8 +19,8 @@ Array
     [action] => action
     [vars] => Array
         (
-            [var1] => va l1
-            [var_2] => v al2
+            [var1] => val1
+            [var2] => val2
             [var3] => val3
         )
 
@@ -41,7 +42,7 @@ Array
   /* 
    * For ajax requests the default behaviour is to disable the layout if there is any 
    * along with action template unless the 'html' context is specified
-   * in which case only the action emplate is returned
+   * in which case only the action template is returned
    */
   if($this->isAjax()){
   
