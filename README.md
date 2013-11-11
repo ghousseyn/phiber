@@ -71,14 +71,16 @@ Array
   // if this is in a directory called firstmod the url http://localhost/firstmod/cool will fire the index method
   
   /*
-  *  The template should be in a subdirectory called 'cool' and a template file in it mapping the actions
+  *  The template should be in a subdirectory called 'cool' with template files in it mapping the actions
   *  so for our controller we need a file called 'index.php' containing what ever html you like
   */
 
   <div class="cool-style">
     <?php echo $this->message ?>
   </div>
-  
+```
+
+``` php
   // Plugins
   
   /*
@@ -145,7 +147,7 @@ Array
         /* do some processing */
   }
     
-  $this->view->msg1 = "reult one";
+  $this->view->msg1 = "result one";
   $this->view->someothervar = "some cool findings";
     
   //Then switch to the 'html' context to send the contents of the corresponding template file as it is (no layout)
