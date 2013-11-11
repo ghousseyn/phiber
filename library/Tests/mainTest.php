@@ -18,7 +18,9 @@ class mainTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * Prepares the environment before running a test.
 	 */
-	
+	protected function setUp(){
+		$this->main = main::getInstance();
+	}
 	
 	/**
 	 * Cleans up the environment after running a test.
@@ -45,7 +47,7 @@ class mainTest extends PHPUnit_Framework_TestCase {
 		// TODO Auto-generated mainTest::testGetInstance()
 		//$this->markTestIncomplete ( "getInstance test not implemented" );
 		
-		$this->assertInstanceOf('main', main::getInstance());
+		$this->assertInstanceOf('main', $this->main);
 	
 	}
 	
@@ -104,16 +106,16 @@ class mainTest extends PHPUnit_Framework_TestCase {
 	
 // 	}
 	
-// 	/**
-// 	 * Tests main->isValidURI()
-// 	 */
-// 	public function testIsValidURI() {
-// 		// TODO Auto-generated mainTest->testIsValidURI()
-// 		$this->markTestIncomplete ( "isValidURI test not implemented" );
-		
-// 		$this->main->isValidURI(/* parameters */);
-	
-// 	}
+ 	/**
+ 	 * Tests main->isValidURI()
+ 	 */
+ 	public function testIsValidURI() {
+ 		// TODO Auto-generated mainTest->testIsValidURI()
+ 		//$this->markTestIncomplete ( "isValidURI test not implemented" );
+		//test doesn't work when the uri is passed by reference 
+ 		//$this->assertSame(true, $this->main->isValidURI("/var1/va l1?var2=v al2/?var3/val3"));
+
+ 	}
 	
 // 	/**
 // 	 * Tests main->isPost()

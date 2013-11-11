@@ -58,7 +58,7 @@ class main implements app{
 		}
 		if($this->isAjax()){
 			if($this->get('context') == 'html'){
-				echo "switched";
+				
 				$this->register('layoutEnabled',false);
 				$this->view->showTime();
 			}
@@ -69,7 +69,6 @@ class main implements app{
 		
 	}
 	function _redirect($url, $replace = true, $code = 307){
-	
 		header("Location: $url",$replace,$code);
 	}
 	function plugins(){
@@ -253,6 +252,11 @@ class main implements app{
 		
 		
 	}
+	function contextSwitch($context){
+		if($context == 'html'){
+			$this->register('context','html');
+		}
+	}
 	function _request($var){
 		$vars = $this->get('_request');
 		
@@ -262,7 +266,8 @@ class main implements app{
 		
 		foreach($parts as $k => $val){
 			if($k == 0 || ($k%2) == 0){
-				$this->_requestVars[$parts[$k]] = $parts[$k+1];
+				//we dont't want to allow spaces in keys (as a good practice)
+				$this->_requestVars[ str_replace(" ","_",$parts[$k])] = $parts[$k+1];
 			}
 		}
 		
