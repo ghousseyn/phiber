@@ -8,7 +8,7 @@ class index extends main{
 
 	function index(){
 		
-	$this->view->text = "here's some text!";
+		$this->view->text = "here's some text!";
 	}
 
 	function action(){
