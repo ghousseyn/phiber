@@ -10,8 +10,8 @@ class context extends main{
 	 * @override this to execute your code
 	 */
 	function run(){
-		echo "<pre>";
-		print_r($this->route);
+		//echo "<pre>";
+	//print_r($this->route);
 		if($this->isAjax()){
 			$this->register('context','html');
 			echo "AJax";
