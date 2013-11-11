@@ -165,8 +165,8 @@ Array
 ```
 - and more other cool features to come.
 
-This project is under havey developement and still in alpha stage. Please come back soon, and follow us so we can notify you 
-as soon as we get to the first release. 
+This project is under heavy developement and still in alpha stage. Please come back soon.
+
 Needless to say, any help is much appreciated.
 
 
