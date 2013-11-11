@@ -147,7 +147,7 @@ class main implements app{
 					array_shift($parts);
 				}
 
-				if($this->hasAction($parts, $controller)){
+				if($this->hasAction($parts, $controller,$module)){
 					$action = array_shift($parts);
 				}else{
 					$action = "index";
@@ -156,10 +156,21 @@ class main implements app{
 			}else{
 				$module = "default";
 				array_shift($parts);
-				$controller = "index";
-				array_shift($parts);
-				$action = "index";
-				array_shift($parts);
+				if($this->hasController($parts,$module)){
+					$controller = array_shift($parts);
+				
+				}else{
+					$controller = "index";
+					//array_shift($parts);
+				}
+				if($this->hasAction($parts, $controller,$module)){
+					$action = array_shift($parts);
+				}else{
+					$action = "index";
+					array_shift($parts);
+				}
+				
+				
 			}
 			
 			
@@ -185,11 +196,12 @@ class main implements app{
 			$this->errorStack(__class__.":".__line__.": Error: Not a valid URI");
 					
 		}
-	
+	$this->register('route', $this->route);
 	}
-	function isValidURI($uri){
+	function isValidURI(&$uri){
 		$uri = str_replace("/?","/",$uri);
 		$uri = str_replace("?","/?",$uri);
+		$uri = str_replace("/?","/",$uri);
 		$uri = str_replace("&","/",$uri);
 		$uri = str_replace("=","/",$uri);
 		
@@ -244,7 +256,7 @@ class main implements app{
 	}
 	private function hasController($parts, $module){
 		if($module == "default"){
-			$this->path = $this->config->library;
+			$this->path = $this->config->library."/";
 		}else{
 			$this->path = $this->config->library."/modules/".$module."/";		
 		}
@@ -255,11 +267,18 @@ class main implements app{
 
 		return false;
 	} 
-	private function hasAction($parts, $controller){
+	private function hasAction($parts, $controller,$module){
 		
-		if(!empty($parts[0])){
+		if($module == "default"){
+			$this->path = $this->config->library."/";
+		}else{
+			$this->path = $this->config->library."/modules/".$module."/";		
+		}
+		echo "looking for ".$parts[0]." in $module/$controller";
+		if(!empty($parts[0]) && method_exists($this->load($controller,null,$this->path),$parts[0])){
 			return true;
 		}
+
 		return false;
 	} 
 	function register($name, $value){
@@ -275,6 +294,7 @@ class main implements app{
 	}
 
 	protected function errorStack($msg){
+		$_SESSION['stack'] = array();
 		$_SESSION['error'][] = $msg;
 		$_SESSION['error'] = array_merge($_SESSION['error'], $_SESSION['stack']);
 		
@@ -340,6 +360,9 @@ class main implements app{
 		switch($var){
 			case 'view':
 				return $this->get('view');
+				break;
+			case 'route':
+				return $this->get('route');
 				break;
 			case 'content':
 				return $this->viewPath;

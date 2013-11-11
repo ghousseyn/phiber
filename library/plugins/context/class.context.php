@@ -10,6 +10,6 @@ class context extends main{
 	 * @override this to execute your code
 	 */
 	function run(){
-		
+		print_r($this->route);
 	}
 }
