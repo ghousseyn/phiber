@@ -71,10 +71,12 @@ Array
   // if this is in a directory called firstmod the url http://localhost/firstmod/cool will fire the index method
   
   /*
-  *  The template should be in a subdirectory called 'cool' with template files in it mapping the actions
+  *  The template should be in a subdirectory under views called 'cool' with template files in it mapping the actions
   *  so for our controller we need a file called 'index.php' containing what ever html you like
   */
 
+  //file: /modules/cool/views/cool/index.php
+  
   <div class="cool-style">
     <?php echo $this->message ?>
   </div>
