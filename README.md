@@ -9,7 +9,7 @@ A lightweight MVC PhP framework featuring:
 # for this ugly url
   http://127.0.0.1/dev/index/action/var1/va%20l1?var%202=v%20al2/?var3/val3
 
-# the router will pass your application an array like
+# the router will pass your application an array like (for GET and POST and Ajax calls alike)
 
 Array
 (
@@ -28,7 +28,7 @@ Array
 ```
 
 ``` php
-  //to get var1 for instance in your controller
+  //to get var1 for instance in your controller (POST and AJAX calls also)
 
   $var1 = $this->_request('var1');
   
