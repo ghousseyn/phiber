@@ -69,9 +69,14 @@ Array
     function index(){
       $this->view->message = "message";
     }
+    function action(){
+      $this->view->title = "Cool title from action";
+    }
   }
   // if this is in a directory called firstmod 
   // the url http://localhost/firstmod/cool will fire the index method
+  // the url http://localhost/firstmod/cool/action will fire the action method
+  // and so on
   
   /*
   *  The template should be in a subdirectory under views called 'cool' with template files in it mapping 
@@ -81,8 +86,14 @@ Array
 
   //file: /modules/firstmod/views/cool/index.php
   
-  <div class="cool-style">
+  <div class="cool-msg-style">
     <?php echo $this->message ?>
+  </div>
+  
+  //file: /modules/firstmod/views/cool/action.php
+  
+  <div class="cool-title-style">
+    <?php echo $this->title ?>
   </div>
 ```
 
