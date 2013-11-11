@@ -10,9 +10,9 @@ class context extends main{
 	 * @override this to execute your code
 	 */
 	function run(){
+	
 		if($this->isAjax()){
-			$this->register('context','html');
-			echo "AJax";
+			echo json_encode(array('success'=>true));
 		}
 	}
 }
