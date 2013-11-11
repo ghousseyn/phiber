@@ -79,9 +79,7 @@ Array
     <?php echo $this->message ?>
   </div>
   
-  //////////////////
   // Plugins
-  //////////////////
   
   /*
   * For plugins just create a folder named after your plugin and place it in the plugins folder
@@ -89,6 +87,7 @@ Array
   * The class should also extend main and implement the static function getInstance()
   * The run() method is the entry point and should hold the code to initialize and execute your plugin
   */
+  
   //file: /plugins/coolplugin/class.coolplugin.php
   
   class coolplugin extends main {
@@ -136,6 +135,23 @@ Array
     {"success":true}
     
     */
+    
+    }
+    
+  //alternatively you could just leave your action as it is
+    
+  if(true){
+          
+        /* do some processing */
+  }
+    
+  $this->view->msg1 = "reult one";
+  $this->view->someothervar = "some cool findings";
+    
+  //Then switch to the 'html' context to send the contents of the corresponding template file as it is (no layout)
+  
+  if($this->isAjax()){
+        $this->contextSwitch('html');
   }
 
 ```
