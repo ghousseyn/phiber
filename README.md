@@ -6,6 +6,7 @@ A lightweight MVC PhP framework featuring:
 - A comprehensive router 
 - Easily extensible with modules/plugins (automatically loaded and extremely easy to create) 
 - ZF like templating 
+
 ``` php
   //from your controller
 
@@ -14,8 +15,8 @@ A lightweight MVC PhP framework featuring:
   //in the template 
   
   $this->variable;
+```
 
-``` 
 - Ajax context aware (html, plain-text or json)
 - and more other cool features to come.
 
