@@ -10,14 +10,15 @@ class main implements app{
 	private $route = array();
 	private $path = null;
 	
-	protected $_layoutEnabled = true;
+	//protected $_layoutEnabled = true;
 	protected $_requestVars = array();	
-	protected $_view = null;
+
 	protected $vars = array();
 	protected $bootstrap = null;
 	protected $plugins = null;
 	protected $config = null;
 	protected $debug = null;
+	protected $context = null;
 	
 	protected function __construct(){
 	
@@ -26,7 +27,7 @@ class main implements app{
 			$this->debug = $this->load('debug');
 			$this->debug->start();
 		}
-		$this->_layoutEnabled = $this->config->layoutEnabled;
+		$this->register('layoutEnabled', $this->config->layoutEnabled);
 		if(!isset($_SESSION)){
 			session_start();
 			$_SESSION['user']['activity'] = time();
@@ -47,6 +48,7 @@ class main implements app{
 		$this->register('post',false);
 		$this->register('get',true);
 		$this->register('ajax',false);
+		$this->register('context',null);
 		$this->router();
 		$this->getView();
 		$this->plugins();
@@ -54,7 +56,15 @@ class main implements app{
 		if($this->config->debug){
 			$this->debug->output();
 		}
-		$this->_view->showTime();
+		if($this->isAjax()){
+			if($this->get('context') == 'html'){
+				echo "switched";
+				$this->register('layoutEnabled',false);
+				$this->view->showTime();
+			}
+		}else{
+			$this->view->showTime();
+		}
 		
 		
 	}
@@ -86,7 +96,7 @@ class main implements app{
 		//$this->stack("Inactivity: ".($this->load('tools')->convertTime(time() - $_SESSION['user']['activity'])));
 	}
 	function getView(){	
-			$this->_view = $this->load('view');
+			$this->view = $this->load('view');
 			$path[] = $this->route['module'];
 			$path[] = $this->route['controller'];
 			$path[] = $this->route['action'];
@@ -101,7 +111,7 @@ class main implements app{
 			$tpl = file_get_contents($path);
 			$layout = null;
 
-			if($this->_layoutEnabled){
+			if($this->get('layoutEnabled')){
 				$layout = $this->config->library."/layouts/layout.php";
 
 				if(file_exists($layout)){
@@ -112,9 +122,9 @@ class main implements app{
 
 		
 
-		$this->_view->viewPath = $path;	
+		$this->view->viewPath = $path;	
 
-		$this->register('view',$this->_view);
+		$this->register('view',$this->view);
 		//var_dump($path);
 	}
 	function _view(){
@@ -216,6 +226,9 @@ class main implements app{
 	function isGet(){
 		return $this->get('get');
 	}
+	function isAjax(){
+		return $this->get('ajax');
+	}
 	function getRoute(){
 		return $this->route;
 	}
@@ -274,7 +287,7 @@ class main implements app{
 		}else{
 			$this->path = $this->config->library."/modules/".$module."/";		
 		}
-		echo "looking for ".$parts[0]." in $module/$controller";
+		
 		if(!empty($parts[0]) && method_exists($this->load($controller,null,$this->path),$parts[0])){
 			return true;
 		}
@@ -359,7 +372,7 @@ class main implements app{
 	function __get($var){
 		switch($var){
 			case 'view':
-				return $this->get('view');
+				return $this->load('view');
 				break;
 			case 'route':
 				return $this->get('route');

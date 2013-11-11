@@ -15,10 +15,10 @@ class view extends main {
 	}
 
 	function showTime(){
-		if($this->_layoutEnabled){
+		
+		if($this->get('layoutEnabled')){
 			$this->renderLayout();
 		}else{
-
 			include $this->viewPath;
 		}
 		

@@ -24,10 +24,7 @@ try{
 //$db->select(array("entries as en", array("en.id", "en.name","en.fname","en.street","en.zip", "city.name as city"), " LEFT JOIN city ON en.city = city.id"));
 //print_r($db);
 //echo $conf->_dbuser;
-?>
-<br />
-<pre>
-<?php 
+ 
 $main->run();
 
 //$route = $main->getRoute();
@@ -45,4 +42,4 @@ $main->run();
 
 
 ?>
-</pre>
+
