@@ -1,5 +1,5 @@
 
 <button id="click">click</button>
-<?php 
+<?php
 echo $this->text;
 ?>

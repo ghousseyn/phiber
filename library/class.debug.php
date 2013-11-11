@@ -1,72 +1,81 @@
 <?php
-class debug extends main {
 
+class debug extends main
+{
 
-	public $stack;
+    public $stack;
 
-	private $timestart;
-	protected $queries = array();
-	protected static $dbg = null; 	
+    private $timestart;
 
-       	protected function __construct(){
-		
-	}
-	
-	static function getInstance(){
-		
-		return new self();
-	}
+    protected $queries = array();
 
-	function start(){
-		$this->timestart=microtime(true);
-	}
+    protected static $dbg = null;
 
-	function execTime(){
-		return number_format((microtime(true)-$this->timestart),4);
-	}	
+    protected function __construct ()
+    {
 
-	function memoryUsage(){
+    }
 
-		return $this->load('tools')->convertSize(memory_get_usage());
-	}
+    static function getInstance ()
+    {
+        
+        return new self();
+    }
 
-	function stackPush($msg){
-		array_unshift($_SESSION['stack'],$msg);
-	}
+    function start ()
+    {
+        $this->timestart = microtime(true);
+    }
 
-	function stackTrace(){
-		$str = "";
-		if(isset($_SESSION['error']) && count($_SESSION['error'])){
-			$str = "<br /> ================== Errors ================<br />";
+    function execTime ()
+    {
+        return number_format((microtime(true) - $this->timestart), 4);
+    }
 
-			foreach($_SESSION['error'] as $k => $en){
-			
-			$str .= "[$k] : $en <br />";
-		}
-		}elseif(isset($_SESSION['stack']) && count($_SESSION['stack'])){
-		$str .= "<br /> ================== Steps =================<br />";
-		foreach($_SESSION['stack'] as $key => $entry){
-			
-			$str .= "[$key] : $entry <br />";
-		}
-		}
+    function memoryUsage ()
+    {
+        
+        return $this->load('tools')->convertSize(memory_get_usage());
+    }
 
-		unset($_SESSION['stack']);
-		
-		return $str;
-	}
+    function stackPush ($msg)
+    {
+        array_unshift($_SESSION['stack'], $msg);
+    }
 
-	function output(){
-		$str = "<br />-------------------------Debug output-------------------------<br />";
-		$str .= "Stack: <br />".$this->stackTrace()."<br />";
-		$str .= "Execution Time: ".$this->execTime()."<br />";
-		$str .= "Memory Usage: ".$this->memoryUsage()."<br />";
-		
-		
-		parent::errorStackFlush();
-		$this->view->debug = $str;
-	}
+    function stackTrace ()
+    {
+        $str = "";
+        if (isset($_SESSION['error']) && count($_SESSION['error'])) {
+            $str = "<br /> ================== Errors ================<br />";
+            
+            foreach ($_SESSION['error'] as $k => $en) {
+                
+                $str .= "[$k] : $en <br />";
+            }
+        } elseif (isset($_SESSION['stack']) && count($_SESSION['stack'])) {
+            $str .= "<br /> ================== Steps =================<br />";
+            foreach ($_SESSION['stack'] as $key => $entry) {
+                
+                $str .= "[$key] : $entry <br />";
+            }
+        }
+        
+        unset($_SESSION['stack']);
+        
+        return $str;
+    }
+
+    function output ()
+    {
+        $str = "<br />-------------------------Debug output-------------------------<br />";
+        $str .= "Stack: <br />" . $this->stackTrace() . "<br />";
+        $str .= "Execution Time: " . $this->execTime() . "<br />";
+        $str .= "Memory Usage: " . $this->memoryUsage() . "<br />";
+        
+        parent::errorStackFlush();
+        $this->view->debug = $str;
+    }
 }
-
 
 ?>
