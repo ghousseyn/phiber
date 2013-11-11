@@ -56,7 +56,8 @@ Array
   /* For modules just create a folder under modules directory and toss your controllers there
    * all class files in the format class.{classname}.php will be accessible as controllers 
    * classes should extend main and implement static function getInstance()
-   * you don't need the word controller in the class name and your actions doesn't need the word action neither
+   * you don't need the word controller in the class name and your actions
+   * doesn't need the word action neither
    */
    
    //file: /modules/cool/class.cool.php
@@ -69,10 +70,12 @@ Array
       $this->view->message = "message";
     }
   }
-  // if this is in a directory called firstmod the url http://localhost/firstmod/cool will fire the index method
+  // if this is in a directory called firstmod 
+  // the url http://localhost/firstmod/cool will fire the index method
   
   /*
-  *  The template should be in a subdirectory under views called 'cool' with template files in it mapping the actions
+  *  The template should be in a subdirectory under views called 'cool' with template files in it mapping 
+  *  the actions
   *  so for our controller we need a file called 'index.php' containing what ever html you like
   */
 
