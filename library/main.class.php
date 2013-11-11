@@ -20,7 +20,7 @@ class main implements app{
 	protected $debug = null;
 	
 	protected function __construct(){
-		
+	
 		$this->config = $this->load('config');
 		if($this->config->debug){
 			$this->debug = $this->load('debug');
@@ -29,6 +29,7 @@ class main implements app{
 		$this->_layoutEnabled = $this->config->layoutEnabled;
 		if(!isset($_SESSION)){
 			session_start();
+			$_SESSION['user']['activity'] = time();
 		}
 				
 	}
@@ -48,12 +49,13 @@ class main implements app{
 		$this->register('ajax',false);
 		$this->router();
 		$this->getView();
+		$this->plugins();
 		$this->dispatch();
 		if($this->config->debug){
 			$this->debug->output();
 		}
 		$this->_view->showTime();
-		$_SESSION['user']['activity'] = time();
+		
 		
 	}
 	function _redirect($url, $replace = true, $code = 307){
@@ -63,7 +65,7 @@ class main implements app{
 	function plugins(){
 	
 		foreach($this->bootstrap->plugins as $plugin){
-			$this->load($plugin,null,$this->config->library."plugins/".$plugin."/")->run();
+			$this->load($plugin,null,$this->config->library."/plugins/".$plugin."/")->run();
 		}
 	}
 	
@@ -72,7 +74,7 @@ class main implements app{
 			if (isset($_SESSION['user']['activity']) && (time() - $_SESSION['user']['activity'] > $this->load('tools')->orDefault($this->config->inactive,1800))) {
 			 
 				session_unset();
-				session_destroy();
+				//session_destroy();
 			}
 		}
 		if($this->config->sessionReginerate){
@@ -90,9 +92,9 @@ class main implements app{
 			$path[] = $this->route['action'];
 			if($path[0] == 'default'){
 				array_shift($path);
-				$path = $this->config->library."views/".implode("/",$path).".php";
+				$path = $this->config->library."/views/".implode("/",$path).".php";
 			}else{
-				$path = $this->config->library."modules/".array_shift($path)."/views/".implode("/",$path).".php";
+				$path = $this->config->library."/modules/".array_shift($path)."/views/".implode("/",$path).".php";
 			}
 			
  			
@@ -100,7 +102,7 @@ class main implements app{
 			$layout = null;
 
 			if($this->_layoutEnabled){
-				$layout = $this->config->library."layouts/layout.php";
+				$layout = $this->config->library."/layouts/layout.php";
 
 				if(file_exists($layout)){
 					$layout = file_get_contents($layout);
@@ -122,7 +124,7 @@ class main implements app{
 		if(null != $layout){
 			include_once $layout;
 		}else{
-			include_once $this->config->library."layouts/layout.php";
+			include_once $this->config->library."/layouts/layout.php";
 		}
 	}
 	function router(){
@@ -244,7 +246,7 @@ class main implements app{
 		if($module == "default"){
 			$this->path = $this->config->library;
 		}else{
-			$this->path = $this->config->library."modules/".$module."/";		
+			$this->path = $this->config->library."/modules/".$module."/";		
 		}
 		
 		if(!empty($parts[0]) && file_exists($this->path."class.".$parts[0].".php")){
@@ -291,17 +293,44 @@ class main implements app{
 		}	
 	}
 
-	function load($class, $params = null, $path = ""){
-		include_once $path."class.".$class.".php";
+	function load($class, $params = null, $path = null){
+		if(null == $path){
+			$path = __DIR__."/";
+		}
+		$incpath = $path."class.".$class.".php";
 		
+		$hash = substr(md5($incpath), 0, 8);
+		
+		if($this->isLoaded($hash)){
+			//echo "$class already loaded <br />";
+			return $this->get($hash);
+		}
+		if(!file_exists($incpath)){
+			return;
+		}
+		
+		
+		include_once $incpath;
+	
 		$parameters = "";
 		if(null != $params && is_array($params) && !is_object($params)){
 			$parameters = implode(",",$params);
 		}else{
 			$parameters = $params;
 		}
+		$instance = $class::getInstance($parameters);
+		//echo "$class instanciated <br />";
+		$this->register($hash, $instance);
 		
-		return $class::getInstance($parameters);
+		return $instance;
+	}
+	function isLoaded($hash){
+		if(isset($_SESSION)){
+			if(key_exists($hash, $_SESSION)){
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	function __set($var, $val){

@@ -43,7 +43,7 @@ class debug extends main {
 			
 			$str .= "[$k] : $en <br />";
 		}
-		}else{
+		}elseif(isset($_SESSION['stack']) && count($_SESSION['stack'])){
 		$str .= "<br /> ================== Steps =================<br />";
 		foreach($_SESSION['stack'] as $key => $entry){
 			

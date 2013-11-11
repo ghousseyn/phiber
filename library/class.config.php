@@ -8,7 +8,10 @@
 
 class config extends main{
 	
-	
+	/*
+	 * 
+	 * Path to the library relative to this file (set in the construct)
+	 */
 	protected $library = null;
 	/*
 	 * Regenerate session id or not (false will disable the functionality)
@@ -27,9 +30,13 @@ class config extends main{
 	 */
 	public $debug = true;
 
+	protected $inMemory = array('debug',
+								'config',
+								'tools',								
+								); 
 	
 	/*
-	 * Configuration properties
+	 * DB configuration properties
 	 */
 	protected $_dbhost = "127.0.0.1";
 	protected $_dbpass = "hggiHmfv";
@@ -39,11 +46,10 @@ class config extends main{
 	protected $layoutEnabled = true;
 	
 	protected function __construct(){
-		$this->library = __dir__."/";
+		$this->library = __dir__;
 	}
 	
-	static function getInstance(){
-		
+	static function getInstance(){		
 		return new self();
 	}
 	
