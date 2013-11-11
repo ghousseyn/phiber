@@ -53,9 +53,13 @@ Array
 
 ``` php
   /* For modules just create a folder under modules directory and toss your controllers there
-   * all classes should extend main and implement static function getInstance()
-   * you don't need the xord controller in the class name and your actions doesn't need the word action neither
+   * all class files in the format class.{classname}.php will be accessible as controllers 
+   * classes should extend main and implement static function getInstance()
+   * you don't need the word controller in the class name and your actions doesn't need the word action neither
    */
+   
+   //file: /modules/cool/class.cool.php
+   
   class cool extends main {
     static function getInstance(){
       return new self;
@@ -75,6 +79,30 @@ Array
     <?php echo $this->message ?>
   </div>
   
+  //////////////////
+  // Plugins
+  //////////////////
+  
+  /*
+  * For plugins just create a folder named after your plugin and place it in the plugins folder
+  * follwing the same conventions your plugin loader would be expected to be in class.{pluginName}.php
+  * The class should also extend main and implement the static function getInstance()
+  * The run() method is the entry point and should hold the code to initialize and execute your plugin
+  */
+  //file: /plugins/coolplugin/class.coolplugin.php
+  
+  class coolplugin extends main {
+    static function getInstance(){
+      return new self;
+    }
+    
+    function run(){
+      
+      /* Your usefull code here */
+      
+    }
+  }
+  
 ```
 - ZF like templating
 
@@ -89,6 +117,28 @@ Array
 ```
 
 - Ajax context aware (html, plain-text or json)
+
+``` php
+  //check for ajax calls
+
+  if($this->isAjax()){
+    
+    //send what you want through ajax
+    
+    echo "text here";
+    
+    //or json
+    
+    echo json_encode(array('success'=>true));
+    
+    /*
+    
+    {"success":true}
+    
+    */
+  }
+
+```
 - and more other cool features to come.
 
 This project is under havey developement and still in alpha stage. Please come back soon, and follow us so we can notify you 
