@@ -1,6 +1,7 @@
 codup
 =====
 
+
 A lightweight MVC PhP framework featuring:
 
 - A comprehensive router 
@@ -180,5 +181,5 @@ This project is under heavy developement and still in alpha stage. Please come b
 
 Needless to say, any help is much appreciated.
 
-
+We try to keep up with [Semantic Versioning](http://semver.org/)
 
