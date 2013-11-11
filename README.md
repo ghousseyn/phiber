@@ -10,7 +10,7 @@ A lightweight MVC PhP framework featuring:
 
   http://127.0.0.1/dev/index/action/var1/val1?var2=val2/?var3/val3
 
-# the router will pass your application an array like (for GET and POST and Ajax calls alike)
+# the router will pass your application an array (for GET and POST and Ajax calls alike)
 
 Array
 (
