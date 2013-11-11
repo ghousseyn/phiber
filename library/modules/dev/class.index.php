@@ -1,21 +1,26 @@
 <?php
-class index extends main{
-	
-	static function getInstance(){
-		return new self();
-	}
 
-	function index(){
+class index extends main
+{
 
-	}
+    static function getInstance ()
+    {
+        return new self();
+    }
 
-	function action(){
-		$this->stack("dev:action");
-		$this->db->select(array('translation',array('*'),''));
+    function index ()
+    {
 
-		$this->view->text = "test";
-		$this->view->origin = __class__;
-		$this->view->file = __file__;
-	}
+    }
+
+    function action ()
+    {
+        $this->stack("dev:action");
+        $this->db->select(array('translation', array('*'), ''));
+        
+        $this->view->text = "test";
+        $this->view->origin = __class__;
+        $this->view->file = __file__;
+    }
 }
 ?>

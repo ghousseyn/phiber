@@ -1,19 +1,23 @@
 <?php
-class index extends main{
-	
 
-	static function getInstance(){
-		return new self();
-	}
+class index extends main
+{
 
-	function index(){
-		
-		$this->view->text = "here's some text!";
-	}
+    static function getInstance ()
+    {
+        return new self();
+    }
 
-	function action(){
-		$this->stack("default:".__method__);
-		
-	}
+    function index ()
+    {
+        
+        $this->view->text = "here's some text!";
+    }
+
+    function action ()
+    {
+        $this->stack("default:" . __method__);
+    
+    }
 }
 ?>
