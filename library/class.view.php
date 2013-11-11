@@ -29,4 +29,4 @@ class view extends main
     }
 
 }
-?>
+

@@ -20,4 +20,4 @@ class index extends main
     
     }
 }
-?>
+
