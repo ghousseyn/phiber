@@ -60,7 +60,7 @@ Array
    * doesn't need the word action neither
    */
    
-   //file: /modules/cool/class.cool.php
+   //file: /modules/firstmod/class.cool.php
    
   class cool extends main {
     static function getInstance(){
@@ -79,7 +79,7 @@ Array
   *  so for our controller we need a file called 'index.php' containing what ever html you like
   */
 
-  //file: /modules/cool/views/cool/index.php
+  //file: /modules/firstmod/views/cool/index.php
   
   <div class="cool-style">
     <?php echo $this->message ?>
