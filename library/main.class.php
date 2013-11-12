@@ -321,12 +321,13 @@ class main implements app
                             
     }
 
-    function _request ($var)
-                            {
-                                $vars = $this->get('_request');
+    function _request ($var)                                
+    {
+        $vars = $this->get('_request');
                                 
-                                return $vars[$var];
-                            }
+        return $vars[$var];
+
+    }
 
     function setVars ($parts)
     {
@@ -340,186 +341,219 @@ class main implements app
     }
 
     private function hasController ($parts, $module)
-                            {
-                                if ($module == "default") {
-                                    $this->path = $this->config->library . "/";
-                                } else {
-                                    $this->path = $this->config->library .
-                                             "/modules/" . $module . "/";
-                                        }
+    {
+        if ($module == "default") {
+            
+            $this->path = $this->config->library . "/"; 
+                                           
+        } else {
+            
+            $this->path = $this->config->library . "/modules/" . $module . "/";
                                         
-                                        if (! empty($parts[0]) &&
-                                                 file_exists(
-                                                        $this->path . "class." .
-                                                         $parts[0] . ".php")) {
-                                                    return true;
-                                        }
+        }
                                         
-                                        return false;
-                                    }
-
-                                    private function hasAction ($parts, 
-                                            $controller, $module)
-                                    {
+            if (! empty($parts[0]) && file_exists($this->path . "class." . $parts[0] . ".php")) {
+                
+                return true;
                                         
-                                        if ($module == "default") {
-                                            $this->path = $this->config->library .
-                                                     "/";
-                                                } else {
-                                                    $this->path = $this->config->library .
-                                                             "/modules/" .
-                                                             $module . "/";
-                                                }
+            }
+                                        
+        return false;
+                                    
+    }
+
+    private function hasAction ($parts,  $controller, $module)                                    
+    {
+                                        
+        if ($module == "default") {
+            
+            $this->path = $this->config->library . "/";
                                                 
-                                                if (! empty($parts[0]) && method_exists(
-                                                        $this->load($controller, 
-                                                                null, 
-                                                                $this->path), 
-                                                        $parts[0])) {
-                                                    return true;
-                                                }
+        } else {
+            
+            $this->path = $this->config->library . "/modules/" . $module . "/";
                                                 
-                                                return false;
-                                            }
-
-                                            function register ($name, $value)
-                                            {
-                                                $_SESSION[$name] = $value;
-                                            }
-
-                                            protected function stack ($msg)
-                                            {
-                                                $_SESSION['stack'][] = $msg;
-                                            }
-
-                                            protected function stackFlush ()
-                                            {
-                                                unset($_SESSION['stack']);
-                                            }
-
-                                            protected function errorStack ($msg)
-                                            {
-                                                $_SESSION['stack'] = array();
-                                                $_SESSION['error'][] = $msg;
-                                                $_SESSION['error'] = array_merge(
-                                                        $_SESSION['error'], 
-                                                        $_SESSION['stack']);
+        }
                                                 
-                                                $this->stackFlush();
+        if (! empty($parts[0]) && method_exists($this->load($controller, null, $this->path), $parts[0])) {
+                                                    
+            return true;
+                                                
+        }
+                                                
+                                                
+        return false;
                                             
-                                            }
+    }
 
-                                            protected function errorStackFlush ()
-                                            {
+                                            
+    function register ($name, $value)                                            
+    {
                                                 
-                                                unset($_SESSION['error']);
-                                            }
+        $_SESSION[$name] = $value;
+                                            
+    }
 
-                                            function get ($index)
-                                            {
-                                                if (array_key_exists($index, 
-                                                        $_SESSION)) {
-                                                    return $_SESSION[$index];
-                                                }
-                                            }
+    protected function stack ($msg)                                            
+    {
+                                                
+        $_SESSION['stack'][] = $msg;
+                                            
+    }
 
-                                            function load ($class, 
-                                                    $params = null, $path = null)
-                                            {
-                                                if (null == $path) {
-                                                    $path = __DIR__ . "/";
-                                                }
-                                                $incpath = $path . "class." .
-                                                         $class . ".php";
+    protected function stackFlush ()                                            
+    {
+                                                
+        unset($_SESSION['stack']);
+                                            
+    }
+
+    protected function errorStack ($msg)                                            
+    {
+                                                
+        $_SESSION['stack'] = array();
+                                                
+        $_SESSION['error'][] = $msg;
+                                                
+        $_SESSION['error'] = array_merge($_SESSION['error'], $_SESSION['stack']);                                                
+                                                
+        $this->stackFlush();
+                                            
+                                            
+    }
+
+    protected function errorStackFlush ()                                  
+    {                                                
+                                                
+        unset($_SESSION['error']);
+                                            
+    }
+
+    function get ($index)                                            
+    {                                                
+        if (array_key_exists($index, $_SESSION)) {
+                                                    
+            return $_SESSION[$index];
+                                                
+        }
+                                            
+    }
+
+    function load ($class, $params = null, $path = null)                                            
+    {
+                                                
+        if (null == $path) {
+                                                    
+            $path = __DIR__ . "/";
+                                                
+        }
+                                                
+        $incpath = $path . "class." . $class . ".php";
                                                         
-                                                        $hash = substr(
-                                                                md5($incpath), 0, 
-                                                                8);
+        $hash = substr(md5($incpath), 0, 8);
                                                         
-                                                        if ($this->isLoaded(
-                                                                $hash)) {
-                                                            // echo "$class
-                                                            // already loaded
-                                                            // <br />";
-                                                            return $this->get(
-                                                                    $hash);
-                                                        }
-                                                        if (! file_exists(
-                                                                $incpath)) {
-                                                            return;
-                                                        }
+        if ($this->isLoaded($hash)) {
+                                                                        
+            return $this->get($hash);
                                                         
-                                                        include_once $incpath;
+        }
+        if (! file_exists($incpath)) {
+                                                            
+            return;
                                                         
-                                                        $parameters = "";
-                                                        if (null != $params &&
-                                                                 is_array(
-                                                                        $params) &&
-                                                                 ! is_object(
-                                                                        $params)) {
-                                                                    $parameters = implode(
-                                                                            ",", 
-                                                                            $params);
-                                                        } else {
-                                                            $parameters = $params;
-                                                        }
-                                                        $instance = $class::getInstance(
-                                                                $parameters);
-                                                        // echo "$class
-                                                        // instanciated <br />";
-                                                        $this->register($hash, 
-                                                                $instance);
+        }
                                                         
-                                                        return $instance;
-                                                    }
+        include_once $incpath;
+                                                        
+        $parameters = "";
 
-                                                    function isLoaded ($hash)
-                                                    {
-                                                        if (isset($_SESSION)) {
-                                                            if (key_exists(
-                                                                    $hash, 
-                                                                    $_SESSION)) {
-                                                                return true;
-                                                            }
-                                                        }
-                                                        return false;
-                                                    }
+        if (null != $params && is_array($params) && ! is_object($params)) {
+             
+            $parameters = implode(",", $params);
+                                                        
+        } else {
+                                                            
+            $parameters = $params;
+                                                        
+        }
+            $instance = $class::getInstance($parameters);
+            
+            $this->register($hash, $instance);
+                                                        
+            return $instance;
+                                                    
+    }
 
-                                                    function __set ($var, $val)
-                                                    {
-                                                        $this->vars[$var] = $val;
-                                                    }
+    function isLoaded ($hash)                                                    
+    {
+        if (isset($_SESSION)) {
+            
+            if (key_exists($hash, $_SESSION)) {
+                
+                 return true;
+                                                            
+            }
+                                                        
+        }
+                                                        
+        return false;
+                                                    
+    }
 
-                                                    function __get ($var)
-                                                    {
-                                                        switch ($var) {
-                                                            case 'view':
-                                                                return $this->load(
-                                                                        'view');
-                                                                break;
-                                                            case 'route':
-                                                                return $this->get(
-                                                                        'route');
-                                                                break;
-                                                            case 'content':
-                                                                return $this->viewPath;
-                                                                break;
-                                                            case 'db':
-                                                                return $this->load(
-                                                                        'db');
-                                                                break;
-                                                            case 'conf':
-                                                                return $this->load(
-                                                                        'config');
-                                                                break;
-                                                        }
-                                                        return $this->vars[$var];
-                                                    }
-                                                }
+    function __set ($var, $val)                                                    
+    {
+                                                                
+        $this->vars[$var] = $val;
+                                                    
+    }
 
-                                                interface app
-                                                {
+    function __get ($var)                                                    
+    {
+        switch ($var) {
+                                                            
+            case 'view':
+                                                                
+                return $this->load('view');
+                                                                
+                break;
+                                                            
+            case 'route':
+                                                                
+                return $this->get('route');
+                                                                
+                break;
+                                                            
+            case 'content':
 
-                                                    static function getInstance ();
-                                                }
-                                                ?>
+                return $this->viewPath;
+                                                                
+                break;
+                                                            
+            case 'db':
+                                                                
+                return $this->load('db');
+                                                                
+                break;
+                                                            
+            case 'conf':
+                                                                
+                return $this->load('config');
+                                                                
+                break;
+                                                        
+        }
+                                                        
+        return $this->vars[$var];
+                                                    
+    }
+                                                
+}
+
+interface app
+{
+                                                    
+    static function getInstance ();
+                                                
+}
+                                                
+?>
