@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Configuration class.
+ * Tools class.
  * @version 	1.0
  * @author 	Hussein Guettaf <ghussein@coda-dz.com>
  * @package 	codup
  */
 
-class tools extends main
+class tools extends Codup\main
 {
 
     static function getInstance ()

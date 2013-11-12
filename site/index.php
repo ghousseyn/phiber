@@ -1,5 +1,5 @@
 <?php
-
+namespace Codup;
 include "../library/main.class.php";
 $main = main::getInstance();
 

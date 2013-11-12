@@ -7,7 +7,7 @@
  * @package 	codup
  */
 
-class config extends main
+class config extends Codup\main
 {
     
     /*
@@ -30,8 +30,6 @@ class config extends main
      * Enable/disable debug
      */
     public $debug = true;
-
-    protected $inMemory = array('debug', 'config', 'tools');
     
     /*
      * DB configuration properties

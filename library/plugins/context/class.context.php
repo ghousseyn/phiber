@@ -1,6 +1,6 @@
 <?php
 
-class context extends main
+class context extends Codup\main
 {
     /*
      * Implement getInstance from app interface
@@ -14,6 +14,8 @@ class context extends main
      */
     function run ()
     {
+        echo "<pre>";
+        print_r($_SESSION);
         
         if ($this->isAjax()) {
             $this->register('context', 'html');
