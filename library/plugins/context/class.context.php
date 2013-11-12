@@ -14,9 +14,6 @@ class context extends Codup\main
      */
     function run ()
     {
-        echo "<pre>";
-        print_r($_SESSION);
-        
         if ($this->isAjax()) {
             $this->register('context', 'html');
             echo "AJax";
