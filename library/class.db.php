@@ -7,7 +7,7 @@
 	* @package 	codup
 	*/
 
-class db extends main
+class db extends Codup\main
 {
     
     /*

@@ -1,16 +1,15 @@
 <?php
 
 /**
- * Configuration class.
+ * The main framework class
  * @version 	1.0
- * @author 	Hussein Guettaf <ghussein@coda-dz.com>
+ * @author 		Hussein Guettaf <ghussein@coda-dz.com>
  * @package 	codup
  */
+namespace Codup;
 
 class main implements app
 {
-
-    private $route = array();
 
     private $path = null;
 
@@ -18,25 +17,14 @@ class main implements app
 
     protected $vars = array();
 
-    protected $bootstrap = null;
-
-    protected $plugins = null;
-
-    protected $config = null;
-
-    protected $debug = null;
-
-    protected $context = null;
-
     protected function __construct ()
     {
         
-        $this->config = $this->load('config');
-        if ($this->config->debug) {
-            $this->debug = $this->load('debug');
+      
+        if ($this->conf->debug) {
             $this->debug->start();
         }
-        $this->register('layoutEnabled', $this->config->layoutEnabled);
+        $this->register('layoutEnabled', $this->conf->layoutEnabled);
         if (! isset($_SESSION)) {
             session_start();
             $_SESSION['user']['activity'] = time();
@@ -56,7 +44,6 @@ class main implements app
     {
         
         $this->checkSession();
-        $this->bootstrap = $this->load('bootstrap');
         $this->register('post', false);
         $this->register('get', true);
         $this->register('ajax', false);
@@ -65,7 +52,7 @@ class main implements app
         $this->getView();
         $this->plugins();
         $this->dispatch();
-        if ($this->config->debug) {
+        if ($this->conf->debug) {
             $this->debug->output();
         }
         if ($this->isAjax()) {
@@ -89,53 +76,52 @@ class main implements app
     {
         
         foreach ($this->bootstrap->plugins as $plugin) {
-            $this->load($plugin, null, $this->config->library . "/plugins/" . $plugin . "/")->run();
+            $this->load($plugin, null, $this->conf->library . "/plugins/" . $plugin . "/")->run();
         }
     }
 
     function checkSession ()
     {
-        if ($this->config->inactive) {
+        if ($this->conf->inactive) {
             if (isset($_SESSION['user']['activity']) &&
                      (time() - $_SESSION['user']['activity'] >
-                     $this->load('tools')->orDefault($this->config->inactive, 
+                     $this->load('tools')->orDefault($this->conf->inactive, 
                             1800))) {
                         
                         session_unset();
                 // session_destroy();
             }
         }
-        if ($this->config->sessionReginerate) {
+        if ($this->conf->sessionReginerate) {
             if (isset($_SESSION['user']['created']) &&
                      (time() - $_SESSION['user']['created'] >
-                     $this->load('tools')->orDefault(
-                            $this->config->sessionReginerate, 1800))) {
+                     $this->tools->orDefault(
+                            $this->conf->sessionReginerate, 1800))) {
                         session_regenerate_id(true);
                 $_SESSION['user']['created'] = time();
             }
         }
-        // $this->stack("Inactivity: ".($this->load('tools')->convertTime(time()
-    // - $_SESSION['user']['activity'])));
+       
     }
 
     function getView ()
     {
-        $this->view = $this->load('view');
+
         $path[] = $this->route['module'];
         $path[] = $this->route['controller'];
         $path[] = $this->route['action'];
         if ($path[0] == 'default') {
             array_shift($path);
-            $path = $this->config->library . "/views/" . implode("/", $path) . ".php";
+            $path = $this->conf->library . "/views/" . implode("/", $path) . ".php";
         } else {
-            $path = $this->config->library . "/modules/" . array_shift($path) . "/views/" . implode("/",$path) . ".php";
+            $path = $this->conf->library . "/modules/" . array_shift($path) . "/views/" . implode("/",$path) . ".php";
         }
                         
         $tpl = file_get_contents($path);
         $layout = null;
                         
         if ($this->get('layoutEnabled')) {
-            $layout = $this->config->library . "/layouts/layout.php";
+            $layout = $this->conf->library . "/layouts/layout.php";
                                     
             if (file_exists($layout)) {
                  $layout = file_get_contents($layout);
@@ -144,13 +130,11 @@ class main implements app
                                 
         $this->view->viewPath = $path;
                                 
-        $this->register('view', $this->view);
-                                
     }
 
     function _view ()
     {
-        return $this->get('view');
+        return $this->load('view');
     }
 
     function renderLayout ($layout = null)
@@ -158,7 +142,7 @@ class main implements app
         if (null != $layout) {
              include_once $layout;
         } else {
-             include_once $this->config->library . "/layouts/layout.php";
+             include_once $this->conf->library . "/layouts/layout.php";
         }
     }
 
@@ -238,7 +222,7 @@ class main implements app
                                                     
             $this->register('_request', $this->_requestVars);
                                                     
-            $this->route = array("module" => $module, 
+            $route = array("module" => $module, 
                                  "controller" => $controller, 
                                  "action" => $action, 
                                  "vars" => $this->get('_request'));
@@ -250,11 +234,9 @@ class main implements app
              $route = array("module" => "default", 
                             "controller" => "index", 
                             "action" => "index");
-             $this->route = $route;
-             $this->errorStack( __class__ . ":" .__line__ . ": Error: Not a valid URI");
                                         
         }
-             $this->register('route', $this->route);
+             $this->register('route', $route);
 
     }
 
@@ -303,7 +285,6 @@ class main implements app
         if (array_search($action, get_class_methods($instance))) {
             return $instance->{$action}();
         } else {
-            $this->errorStack( __class__ . ":" . __line__ . ": Error: Action " . $action . " does not exist!");
             return $instance->index();            
                                
         }
@@ -344,11 +325,11 @@ class main implements app
     {
         if ($module == "default") {
             
-            $this->path = $this->config->library . "/"; 
+            $this->path = $this->conf->library . "/"; 
                                            
         } else {
             
-            $this->path = $this->config->library . "/modules/" . $module . "/";
+            $this->path = $this->conf->library . "/modules/" . $module . "/";
                                         
         }
                                         
@@ -367,11 +348,11 @@ class main implements app
                                         
         if ($module == "default") {
             
-            $this->path = $this->config->library . "/";
+            $this->path = $this->conf->library . "/";
                                                 
         } else {
             
-            $this->path = $this->config->library . "/modules/" . $module . "/";
+            $this->path = $this->conf->library . "/modules/" . $module . "/";
                                                 
         }
                                                 
@@ -457,6 +438,9 @@ class main implements app
             return $this->get($hash);
                                                         
         }
+        
+        $serialisable = array('config','debug','tools','view','bootstrap');
+        
         if (! file_exists($incpath)) {
                                                             
             return;
@@ -476,11 +460,16 @@ class main implements app
             $parameters = $params;
                                                         
         }
-            $instance = $class::getInstance($parameters);
+        
+        $instance = $class::getInstance($parameters);
             
+        if(in_array($class,$serialisable)){
+
             $this->register($hash, $instance);
-                                                        
-            return $instance;
+        
+        }                                            
+        
+        return $instance;
                                                     
     }
 
@@ -539,6 +528,21 @@ class main implements app
                                                                 
                 return $this->load('config');
                                                                 
+                break;
+            case 'bootstrap':
+                
+                return $this->load('bootstrap');
+                
+                break;
+            case 'tools':
+                
+                return $this->load('tools');
+                
+                break;
+            case 'debug':
+                
+                return $this->load('debug');
+                
                 break;
                                                         
         }

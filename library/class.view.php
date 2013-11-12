@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Configuration class.
+ * The view class.
  * @version 	1.0
  * @author 	Hussein Guettaf <ghussein@coda-dz.com>
  * @package 	codup
  */
-class view extends main
+class view extends Codup\main
 {
 
     protected $vars = array();

@@ -1,6 +1,6 @@
 <?php
 
-class index extends main
+class index extends Codup\main
 {
 
     static function getInstance ()

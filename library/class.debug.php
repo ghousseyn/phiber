@@ -1,6 +1,6 @@
 <?php
 
-class debug extends main
+class debug extends Codup\main
 {
 
     public $stack;
@@ -74,7 +74,7 @@ class debug extends main
         $str .= "Memory Usage: " . $this->memoryUsage() . "<br />";
         
         parent::errorStackFlush();
-        $this->view->debug = $str;
+        $this->view->debuginfo = $str;
     }
 }
 

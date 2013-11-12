@@ -6,7 +6,7 @@
  * @author 	Hussein Guettaf <ghussein@coda-dz.com>
  * @package 	codup
  */
-class bootstrap extends main
+class bootstrap extends Codup\main
 {
 
     protected $modules = array();
