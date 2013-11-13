@@ -55,7 +55,6 @@ Array
 ``` php
   /* For modules just create a folder under modules directory and toss your controllers there
    * all class files in the format class.{classname}.php will be accessible as controllers 
-   * classes should extend main and implement static function getInstance()
    * you don't need the word controller in the class name and your actions
    * doesn't need the word action neither
    */
@@ -63,9 +62,7 @@ Array
    //file: /modules/firstmod/class.cool.php
    
   class cool extends main {
-    static function getInstance(){
-      return new self;
-    }
+
     function index(){
       $this->view->message = "message";
     }
@@ -103,17 +100,14 @@ Array
   /*
   * For plugins just create a folder named after your plugin and place it in the plugins folder
   * follwing the same conventions your plugin loader would be expected to be in class.{pluginName}.php
-  * The class should also extend main and implement the static function getInstance()
+  * The class should also extend main 
   * The run() method is the entry point and should hold the code to initialize and execute your plugin
   */
   
   //file: /plugins/coolplugin/class.coolplugin.php
   
   class coolplugin extends main {
-    static function getInstance(){
-      return new self;
-    }
-    
+
     function run(){
       
       /* Your usefull code here */
