@@ -2,9 +2,9 @@
 
 /**
  * The main framework class
- * @version 	1.0
- * @author 		Hussein Guettaf <ghussein@coda-dz.com>
- * @package 	codup
+ * @version     1.0
+ * @author      Hussein Guettaf <ghussein@coda-dz.com>
+ * @package     codup
  */
 namespace Codup;
 
@@ -19,8 +19,7 @@ class main
 
     protected function __construct ()
     {
-        
-      
+       
         if ($this->conf->debug) {
             $this->debug->start();
         }
@@ -96,8 +95,8 @@ class main
                      $this->load('tools')->orDefault($this->conf->inactive, 
                             1800))) {
                         
-                        session_unset();
-                // session_destroy();
+                        //session_unset();
+                  session_destroy();
             }
         }
         if ($this->conf->sessionReginerate) {
@@ -118,6 +117,7 @@ class main
         $path[] = $this->route['module'];
         $path[] = $this->route['controller'];
         $path[] = $this->route['action'];
+        
         if ($path[0] == 'default') {
             array_shift($path);
             $path = $this->conf->library . "/views/" . implode("/", $path) . ".php";
@@ -125,7 +125,7 @@ class main
             $path = $this->conf->library . "/modules/" . array_shift($path) . "/views/" . implode("/",$path) . ".php";
         }
                         
-        $tpl = file_get_contents($path);
+       // $tpl = file_get_contents($path);
         $layout = null;
                         
         if ($this->get('layoutEnabled')) {
@@ -284,7 +284,7 @@ class main
 
     function dispatch ()                                    
     {
-        $mod = $this->route["module"];
+        //$mod = $this->route["module"];
         $controller = $this->route["controller"];
         $action = $this->route["action"];
                                         
@@ -496,7 +496,7 @@ class main
         return false;
                                                     
     }
-
+	
     function __set ($var, $val)                                                    
     {
                                                                 

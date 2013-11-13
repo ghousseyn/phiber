@@ -9,11 +9,13 @@ class debug extends Codup\main
 
     protected $queries = array();
 
+    protected $mem = null;
+    
     protected static $dbg = null;
 
     protected function __construct ()
     {
-
+        $this->mem = memory_get_usage();
     }
 
     function start ()
@@ -28,8 +30,7 @@ class debug extends Codup\main
 
     function memoryUsage ()
     {
-        
-        return $this->load('tools')->convertSize(memory_get_usage());
+        return $this->load('tools')->convertSize(memory_get_usage() - $this->mem);
     }
 
     function stackPush ($msg)
