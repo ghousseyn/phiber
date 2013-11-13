@@ -82,14 +82,17 @@ Array
   *  so for our controller we need a file called 'index.php' containing what ever html you like
   */
 
-  //file: /modules/firstmod/views/cool/index.php
+  /*
+  * file: /modules/firstmod/views/cool/index.php
+  */
   
   <div class="cool-msg-style">
     <?php echo $this->message ?>
   </div>
   
-  //file: /modules/firstmod/views/cool/action.php
-  
+  /*
+  * file: /modules/firstmod/views/cool/action.php
+  */
   <div class="cool-title-style">
     <?php echo $this->title ?>
   </div>
@@ -142,7 +145,7 @@ Array
     
     //or json
     
-    echo json_encode(array('success'=>true));
+    $this->sendJSON(array('success'=>true));
     
     /*
     
