@@ -5,7 +5,7 @@ class index extends Codup\main
 
     function index ()
     {
-
+		$this->view->message = "Hello world";
     }
 
     function action ()

@@ -1,2 +1,2 @@
- ici
+<?php echo $this->message?>
 
