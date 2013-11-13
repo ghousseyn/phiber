@@ -11,11 +11,6 @@ class view extends Codup\main
 
     protected $vars = array();
 
-    static function getInstance ()
-    {
-        
-        return new self();
-    }
 
     function showTime ()
     {

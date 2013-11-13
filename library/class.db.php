@@ -48,22 +48,7 @@ class db extends Codup\main
     
     }
 
-    /**
-     *
-     * @method getInstance
-     * @access public
-     * @static
-     *
-     * @param $conf config
-     *            An instance of the configuration class
-     * @return db $link Returns the available link to the db
-     */
-    
-    static function getInstance ()
-    {
-        
-        return new self();
-    }
+
 
     /**
      * In case we need to create a new link to the DB

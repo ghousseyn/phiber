@@ -16,12 +16,6 @@ class debug extends Codup\main
 
     }
 
-    static function getInstance ()
-    {
-        
-        return new self();
-    }
-
     function start ()
     {
         $this->timestart = microtime(true);

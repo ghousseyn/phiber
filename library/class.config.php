@@ -49,12 +49,7 @@ class config extends Codup\main
         $this->library = __dir__;
     }
 
-    static function getInstance ()
-    {
-        return new self();
-    }
-    
-    /*
+     /*
      * No need for a getter for each of the properties or the methods
      */
     function __get ($var)
