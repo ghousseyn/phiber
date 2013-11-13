@@ -10,11 +10,6 @@
 class tools extends Codup\main
 {
 
-    static function getInstance ()
-    {
-        return new self();
-    }
-
     function convertTime ($size)
     {
         if (0 == $size) {

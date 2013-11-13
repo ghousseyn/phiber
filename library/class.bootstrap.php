@@ -19,11 +19,6 @@ class bootstrap extends Codup\main
         $this->getPlugins();
     }
 
-    static function getInstance ()
-    {
-        return new self();
-    }
-
     function getModules ()
     {
         

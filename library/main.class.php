@@ -8,7 +8,7 @@
  */
 namespace Codup;
 
-class main implements app
+class main
 {
 
     private $path = null;
@@ -37,7 +37,7 @@ class main implements app
     
     static function getInstance ()
     {
-        return new self();
+        return new static();
     }
 
     function run ()
@@ -561,11 +561,5 @@ class main implements app
                                                 
 }
 
-interface app
-{
-                                                    
-    static function getInstance ();
-                                                
-}
                                                 
 ?>

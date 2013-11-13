@@ -3,11 +3,6 @@
 class index extends Codup\main
 {
 
-    static function getInstance ()
-    {
-        return new self();
-    }
-
     function index ()
     {
 
