@@ -19,7 +19,8 @@ class main
 
     protected function __construct ()
     {
-       
+        spl_autoload_register(array($this, 'autoload'));
+        
         if ($this->conf->debug) {
             $this->debug->start();
         }
@@ -428,16 +429,62 @@ class main
                                             
     }
 
+    function autoload($class){
+
+            $path = __dir__."/";
+            
+            if(! strstr($class ,'\\')){
+               
+                if(file_exists($path.$class.".php")){
+                    
+                    include $class.".php";
+              
+                }
+                return;                 
+        	}
+        	//echo "loadin $path$class.php <br />";
+        	$parts = explode('\\',$class);
+        	
+        	$i = 0;
+        	if($parts[0] == '\\'){
+        	    $i = 1;
+        	}
+        
+        	$count = count($parts);
+        	for($i; $i < $count;$i++){
+        	    if($parts[$i] == 'Codup'){
+        	        continue;
+        	    }
+        	    if($i == $count-1){
+        	        $path .= $parts[$i].".php";
+        	        break;
+        	    }
+        	    $path = $path. $parts[$i]."/";
+        	 
+        	}    
+        
+        	if(file_exists($path)){
+        		include $path;
+        	
+        	}
+     
+       
+  
+    
+    }
+                    
     function load ($class, $params = null, $path = null)                                            
     {
-                                                
-        if (null == $path) {
+   
+        $newpath = $path;
+        
+        if (null == $newpath) {
                                                     
-            $path = __DIR__ . "/";
+            $newpath = __DIR__ . "/";
                                                 
         }
                                                 
-        $incpath = $path . "class." . $class . ".php";
+        $incpath = $newpath . $class . ".php";
                                                         
         $hash = substr(md5($incpath), 0, 8);
                                                         
@@ -446,16 +493,17 @@ class main
             return $this->get($hash);
                                                         
         }
-        
+      
         $serialisable = array('config','debug','tools','view','bootstrap');
         
         if (! file_exists($incpath)) {
                                                             
-            return;
+            return false;
                                                         
         }
-                                                        
-        include_once $incpath;
+        if($path != null){                                                
+        	include_once $incpath;
+        }
                                                         
         $parameters = "";
 
@@ -534,7 +582,7 @@ class main
                                                             
             case 'conf':
                                                                 
-                return $this->load('config');
+                return new config;
                                                                 
                 break;
             case 'bootstrap':

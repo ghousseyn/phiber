@@ -16,11 +16,12 @@ class debug extends Codup\main
     protected function __construct ()
     {
         $this->mem = memory_get_usage();
+        $this->timestart = microtime(true);
     }
 
     function start ()
     {
-        $this->timestart = microtime(true);
+       
     }
 
     function execTime ()
