@@ -7,7 +7,10 @@ class customer_transaction_status extends model
     public $status;
     public function getPrimary() 
     {
+        return "id";
+    }
+    public function getPrimaryValue() 
+    {
         return $this->id;
     }
 }
-?>

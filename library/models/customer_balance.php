@@ -9,7 +9,14 @@ class customer_balance extends model
     public $currency;
     public function getPrimary() 
     {
+        return "id";
+    }
+    public function getPrimaryValue() 
+    {
         return $this->id;
     }
+    public function getRelations() 
+    {
+        return array('uid'=>'customer_profile.id',);
+    }
 }
-?>

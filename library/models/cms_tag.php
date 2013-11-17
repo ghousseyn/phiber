@@ -8,7 +8,10 @@ class cms_tag extends model
     public $value;
     public function getPrimary() 
     {
+        return "id";
+    }
+    public function getPrimaryValue() 
+    {
         return $this->id;
     }
 }
-?>

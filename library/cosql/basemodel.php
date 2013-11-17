@@ -1,10 +1,25 @@
 <?php
 namespace cosql;
 
-class basemodel
+class basemodel extends cosql
 {
-
-    
+	
+	
+    function __construct($class){
+    	
+		$table  = strstr($class,'\\');
+		if($table){
+			$table = str_replace('\\','',$table);
+		}else{
+		    $table = "";
+		}
+		$this->class = $class;
+		$this->table = $table;
+    	
+    }
+    function getCoSQL(){
+        return new cosql($this->table,$this->class);
+    }
     function getCollection($query,$class = null){
     	 try{
     		$this->dbh = new \PDO('mysql:host=localhost;dbname=edinar', 'root', 'hggiHmfv');

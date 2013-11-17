@@ -13,7 +13,10 @@ class filestore_volume extends model
     public $last_filenum;
     public function getPrimary() 
     {
+        return "id";
+    }
+    public function getPrimaryValue() 
+    {
         return $this->id;
     }
 }
-?>

@@ -9,7 +9,10 @@ class cms_page extends model
     public $page_layout;
     public function getPrimary() 
     {
+        return "id";
+    }
+    public function getPrimaryValue() 
+    {
         return $this->id;
     }
 }
-?>

@@ -9,7 +9,10 @@ class filestore_type extends model
     public $extension;
     public function getPrimary() 
     {
+        return "id";
+    }
+    public function getPrimaryValue() 
+    {
         return $this->id;
     }
 }
-?>
