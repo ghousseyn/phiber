@@ -6,9 +6,9 @@
  * @author 	Hussein Guettaf <ghussein@coda-dz.com>
  * @package 	codup
  */
-namespace Codup;
 
-class config extends main
+
+class config extends Codup\main
 {
     
     /*

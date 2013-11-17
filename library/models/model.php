@@ -39,7 +39,7 @@ class model implements \ArrayAccess
 	
 	}
 	function __set($var, $val){
-		$this->{$var}($val);
+		$this->{$var}=$val;
 		
 	}
 	function __get ($var)

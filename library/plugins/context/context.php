@@ -10,13 +10,17 @@ class context extends Codup\main
         
          //$cosql = new cosql\basemodel();
          $test = models\cms_component::getInstance();
-         $res = $test->find(array('id'=>12))->fetch();
-         $res->name = "hussein";
-         //$res->cms_componenttype_id = 6;
-         //$res->is_enabled = 'N';        
-         $res->save();
-         
-         //var_dump($res);
+         $res = $test->find(array('name'=>'hussein%'),'like',array('id'))->fetch();
+        
+         while ( $r = $res->iterate()){
+         //$test2 = (array) $res; 
+         $r->name = "hussein";
+         $r->cms_componenttype_id = 6;
+         //$r->is_enabled = 'Y';    
+         $r->save();
+
+         }
+        // ;
         /*
          $q = "SHOW TABLES";
          $tables = $cosql->getCollection($q);

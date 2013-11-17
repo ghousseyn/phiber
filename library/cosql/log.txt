@@ -1,1 +1,1 @@
-UPDATE cms_component SET  name = ?, cms_componenttype_id = ?, config = ?, is_enabled = ? WHERE id = ?
+UPDATE cms_component SET  name = ?, cms_componenttype_id = ? WHERE id = ?
