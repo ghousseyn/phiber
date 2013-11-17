@@ -5,6 +5,8 @@ use \Codup\main;
 
 class cosql extends \PDO {
     
+    public static $result;
+    
     protected $link = null;
     protected $class;
     protected $table;
@@ -22,7 +24,7 @@ class cosql extends \PDO {
       
         $this->class = $class;
         $this->table = $table;;
-        $conf = \Codup\config::getInstance();
+        $conf = \config::getInstance();
         try {
         	 
         
@@ -124,25 +126,45 @@ class cosql extends \PDO {
 
         if(null != $object->getPrimaryValue()){
             
-            $primary = $object[$object->getPrimary()];
-var_dump($object);
-            foreach($object as $key => $value){
-                if($key == $object->getPrimary() || $key == 'changed'){
-                    continue;
+            $primary = $object->getPrimaryValue();
+
+            while($t = self::$result->iterate()){
+                if($t->getPrimaryValue() == $primary){
+	                $old = $t;
                 }
-                $data[$key] = $value;
             }
-            $this->update()->set($data)->where($object->getPrimary().' = ?',$primary);//->exec();
+            if(count((array)$old) >= count((array)$object)){
+               
+                foreach(array_diff((array)$object,(array)$old) as $key => $value){
+                
+                    $data[$key] = $value;
+                }
+            }else{
+              
+                foreach($object as $k => $v){
+                    if($object->getPrimary() == $k){
+                        continue;
+                    }
+                    $data[$k] = $v;
+                }
+            }
+           
+            if(null == $data){
+                return false;
+            }
+            $this->update()->set($data)->where($object->getPrimary().' = ?',$primary)->exec();
             
-            
-         	$f = fopen(__DIR__."\\log.txt","w+");
-         	fputs($f, $this->sql);
-         	fclose($f);
+        }else{
+            //This is an insert
         }
        // if(isset($object->{$object->getPrimary()})){
             
         //}
-    	
+        /*
+        $f = fopen(__DIR__."\\log.txt","w+");
+        fputs($f, $this->sql);
+        fclose($f);
+        */
     	return ;
     }
    
@@ -240,14 +262,16 @@ var_dump($object);
     {     
         $this->stmt = $this->select->exec();
         $result = $this->stmt->fetchAll();
-        if(count($result) == 1){
-            return $result[0];
+       
+        if(count($result) == 0){
+            return false;
         }
         
         $collection = new collection();
         for($i=0;$i <count($result);$i++){
             $collection->add($result[$i]);
         }
+        self::$result = clone $collection;
         return $collection;
     }
     
@@ -255,16 +279,6 @@ var_dump($object);
     	$this->sql .= sprintf(" LIMIT %d, %d", $from, $to);
     	return $this;
     }    
-    public function getPrimaryByValue($value)
-    {
-    	return $this->findOne(array('id' => $value));
-    }
-    
-    public function getByValue($arg, $operator = null, $fields = array('*'))
-    {
-    	return $this->find($arg,$fields,$operator);
-    }
-    
     public function findOne( $arg, $operator = null, $fields = array('*'))
     {
     	return $this->find($arg,$operator,$fields)->limit(0,1);

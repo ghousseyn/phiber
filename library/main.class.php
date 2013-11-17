@@ -22,6 +22,7 @@ class main
         spl_autoload_register(array($this, 'autoload'));
         
         if ($this->conf->debug) {
+
             $this->debug->start();
         }
         $this->register('layoutEnabled', $this->conf->layoutEnabled);
@@ -437,7 +438,7 @@ class main
                
                 if(file_exists($path.$class.".php")){
                     
-                    include $class.".php";
+                    include_once $path.$class.".php";
               
                 }
                 return;                 
@@ -464,7 +465,7 @@ class main
         	}    
         
         	if(file_exists($path)){
-        		include $path;
+        		include_once $path;
         	
         	}
      
@@ -475,7 +476,7 @@ class main
                     
     function load ($class, $params = null, $path = null)                                            
     {
-   
+      
         $newpath = $path;
         
         if (null == $newpath) {
@@ -493,17 +494,17 @@ class main
             return $this->get($hash);
                                                         
         }
-      
+        
         $serialisable = array('config','debug','tools','view','bootstrap');
         
         if (! file_exists($incpath)) {
-                                                            
+            
             return false;
                                                         
         }
-        if($path != null){                                                
-        	include_once $incpath;
-        }
+                                                     
+        	include_once($incpath);
+      
                                                         
         $parameters = "";
 
@@ -582,7 +583,7 @@ class main
                                                             
             case 'conf':
                                                                 
-                return new config;
+                return $this->load('config');
                                                                 
                 break;
             case 'bootstrap':
