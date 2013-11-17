@@ -13,7 +13,14 @@ class filestore_file extends model
     public $deleted;
     public function getPrimary() 
     {
+        return "id";
+    }
+    public function getPrimaryValue() 
+    {
         return $this->id;
     }
+    public function getRelations() 
+    {
+        return array('filestore_volume_id'=>'filestore_volume.id','filestore_type_id'=>'filestore_type.id',);
+    }
 }
-?>

@@ -7,7 +7,10 @@ class customer_transaction_type extends model
     public $type;
     public function getPrimary() 
     {
+        return "id";
+    }
+    public function getPrimaryValue() 
+    {
         return $this->id;
     }
 }
-?>

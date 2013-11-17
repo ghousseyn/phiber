@@ -41,7 +41,7 @@ class config extends main
 
     protected $_dbuser = "root";
 
-    protected $_dbname = "fq";
+    protected $_dbname = "edinar";
 
     protected $layoutEnabled = true;
 

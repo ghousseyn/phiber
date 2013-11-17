@@ -22,7 +22,10 @@ class customer_transactions_history extends model
     public $tiid;
     public function getPrimary() 
     {
+        return "id";
+    }
+    public function getPrimaryValue() 
+    {
         return $this->id;
     }
 }
-?>

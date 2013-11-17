@@ -10,7 +10,10 @@ class cms_route extends model
     public $ord;
     public function getPrimary() 
     {
+        return "id";
+    }
+    public function getPrimaryValue() 
+    {
         return $this->id;
     }
 }
-?>

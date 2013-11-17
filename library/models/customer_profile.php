@@ -18,7 +18,14 @@ class customer_profile extends model
     public $owner;
     public function getPrimary() 
     {
+        return "id";
+    }
+    public function getPrimaryValue() 
+    {
         return $this->id;
     }
+    public function getRelations() 
+    {
+        return array('gid'=>'customer_group.id',);
+    }
 }
-?>
