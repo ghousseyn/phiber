@@ -1,13 +1,12 @@
 <?php
 namespace models;
 use Codup;
-class translation extends model  
+class customer_api extends model  
 {
     public $id;
-    public $tr_en;
-    public $tr_fr;
-    public $tr_ar;
-    public $key;
+    public $uid;
+    public $api_key;
+    public $locked;
     public function getPrimary() 
     {
         return "id";
@@ -15,5 +14,9 @@ class translation extends model
     public function getPrimaryValue() 
     {
         return $this->id;
+    }
+    public function getRelations() 
+    {
+        return array('uid'=>'customer_profile.id',);
     }
 }

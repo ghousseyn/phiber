@@ -6,9 +6,9 @@
  * @author 	Hussein Guettaf <ghussein@coda-dz.com>
  * @package 	codup
  */
-namespace Codup;
 
-class config extends main
+
+class config extends Codup\main
 {
     
     /*
@@ -41,7 +41,7 @@ class config extends main
 
     protected $_dbuser = "root";
 
-    protected $_dbname = "fq";
+    protected $_dbname = "edinar";
 
     protected $layoutEnabled = true;
 
