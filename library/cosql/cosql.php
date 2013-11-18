@@ -303,7 +303,7 @@ class cosql extends \PDO {
     
     function getCollection(){
      
-           //	$this->dbh = new \PDO('mysql:host=localhost;dbname=fq', 'root', 'hggiHmfv');
+           //	$this->dbh = new \PDO('mysql:host=localhost;dbname=fq', 'root', '');
         	
 
         $q = $this->link->query('SELECT * from dvd');
