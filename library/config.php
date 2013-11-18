@@ -37,11 +37,11 @@ class config extends Codup\main
      */
     protected $_dbhost = "127.0.0.1";
 
-    protected $_dbpass = "hggiHmfv";
+    protected $_dbpass = "";
 
     protected $_dbuser = "root";
 
-    protected $_dbname = "edinar";
+    protected $_dbname = "";
 
     protected $layoutEnabled = true;
 
