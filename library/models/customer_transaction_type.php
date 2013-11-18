@@ -1,13 +1,10 @@
 <?php
 namespace models;
 use Codup;
-class translation extends model  
+class customer_transaction_type extends model  
 {
     public $id;
-    public $tr_en;
-    public $tr_fr;
-    public $tr_ar;
-    public $key;
+    public $type;
     public function getPrimary() 
     {
         return "id";

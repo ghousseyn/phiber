@@ -222,6 +222,17 @@ class collection
 	{
 		return $this->objects[$this->iterateNum];
 	}
+	public function getObject($offset)
+	{
+	    return $this->objects[$offset];
+	}
+	public function __clone() 
+	{
+		foreach ($this->objects as &$a) {
+		    $a = clone $a;
+		}
+	}
+	
 	public function setCurrent($obj)
 	{
 		$this->objects[$this->iterateNum] = $obj;

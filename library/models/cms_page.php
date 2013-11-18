@@ -1,13 +1,12 @@
 <?php
 namespace models;
 use Codup;
-class translation extends model  
+class cms_page extends model  
 {
     public $id;
-    public $tr_en;
-    public $tr_fr;
-    public $tr_ar;
-    public $key;
+    public $name;
+    public $api_layout;
+    public $page_layout;
     public function getPrimary() 
     {
         return "id";
