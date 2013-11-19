@@ -10,8 +10,12 @@ class context extends Codup\main
         
          //$cosql = new cosql\basemodel();
          $test = models\cms_component::getInstance();
-         $res = $test->find(array('name'=>'hussein%'),'like',array('id'))->fetch();
+         $res = $test->delete()->where('id = ?',17)->exec();
+         var_dump($res);var_dump($test->cosql_sql);exit;
+         $res->getObject()->name = "guettaf5";
+         $res->getObject()->save();
         
+         /*
          while ( $r = $res->iterate()){
          //$test2 = (array) $res; 
          $r->name = "hussein";
@@ -19,7 +23,7 @@ class context extends Codup\main
          //$r->is_enabled = 'Y';    
          $r->save();
 
-         }
+         }*/
         // ;
         /*
          $q = "SHOW TABLES";

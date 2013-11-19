@@ -222,7 +222,7 @@ class collection
 	{
 		return $this->objects[$this->iterateNum];
 	}
-	public function getObject($offset)
+	public function getObject($offset=0)
 	{
 	    return $this->objects[$offset];
 	}

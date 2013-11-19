@@ -5,38 +5,43 @@ use \Codup\main;
 
 class cosql extends \PDO {
     
+    public $errors = array();
     public static $result;
     
-    protected $link = null;
-    protected $class;
-    protected $table;
+    private $cosql_model_obj = null;
+    private $limit = null;
     
-    public $stmt;
-    public $conValues = array();
-    public $numargs;
-    public $fromFlag = false;
-    public $multiFlag = false;
-    public $sql;
-    public $select;
+    protected $cosql_class;
+    protected $cosql_table;
     
-    function __construct($table,$class){
+    public $cosql_stmt;
+    public $cosql_conValues = array();
+    public $cosql_numargs;
+    public $cosql_fromFlag = false;
+    public $cosql_multiFlag = false;
+    public $cosql_del_multiFlag = false;
+    public $cosql_del_numargs;
+    public $cosql_sql;
+    public $cosql_select;
+    
+    function __construct($cosql_table,$cosql_class){
         
       
-        $this->class = $class;
-        $this->table = $table;;
+        $this->cosql_class = $cosql_class;
+        $this->cosql_table = $cosql_table;;
         $conf = \config::getInstance();
         try {
         	 
         
-        	$this->link = parent::__construct('mysql:host='.$conf->_dbhost.';dbname='.$conf->_dbname, $conf->_dbuser, $conf->_dbpass);
+        	 parent::__construct('mysql:host='.$conf->_dbhost.';dbname='.$conf->_dbname, $conf->_dbuser, $conf->_dbpass);
         	
         } catch (\PDOException $e) {
         	print "Erreur !: " . $e->getMessage() . "<br/>";
         	die();
         }
-        return $this->link;
+ 
     }
-    public function link(){
+    public function create(){
         
     }
     public static function getInstance(){
@@ -45,86 +50,134 @@ class cosql extends \PDO {
     
     public function select()
     {
-    	$this->sql = "SELECT";
+    	$this->cosql_sql = "SELECT";
     	$numargs = func_num_args();
     
     	if ($numargs > 0) {
     		$arg_list = func_get_args();
     		for ($i = 0; $i < $numargs; $i++) {
     			if($i != 0 && $numargs > 1){
-    				$this->sql .= ",";
+    				$this->cosql_sql .= ",";
     			}
-    			$this->sql .= " ".$arg_list[$i];
+    			$this->cosql_sql .= " ".$arg_list[$i];
     		}
+    	}else{
+    	    $this->cosql_sql .= " * ";
     	}
     
-    	$this->fromFlag = true;
+    	$this->cosql_fromFlag = true;
+    	$this->cosql_select = $this;
     	return $this;
     }
     public function insert()
     {
-        $this->sql = "INSERT INTO $this->table";
+        $this->cosql_sql = "INSERT INTO $this->cosql_table";
         
-        $numargs = func_num_args();
+        $arg_list = func_get_args();
+        $arg_list = explode(',',implode('',$arg_list));
+        $numargs = count($arg_list);
         
         if ($numargs > 0) {
-            $this->numargs = $numargs;
-            $this->sql .= " ("; 
-        	$arg_list = func_get_args();
-        	for ($i = 0; $i < $numargs; $i++) {
-        		if($i != 0 && $numargs > 1){
-        			$this->sql .= ",";
-        		}
-        		$this->sql .= " ".$arg_list[$i];
-        	}
-        	$this->sql .= ")";
+            $this->cosql_numargs = $numargs;
+            $this->cosql_sql .= " ("; 
+        
+        	
+        	$this->cosql_sql .= implode(",",$arg_list);
+        	
+        	
+        	$this->cosql_sql .= ")";
         }
     	
     	return $this;
     }
     public function update(){
         
-        $this->sql = "UPDATE";
+        $this->cosql_sql = "UPDATE";
         
         $numargs = func_num_args();
         
         if ($numargs > 0) {
             if($numargs > 1){
-                $this->multiFlag = true;
+                $this->cosql_multiFlag = true;
             }
         	$arg_list = func_get_args();
         	for ($i = 0; $i < $numargs; $i++) {
         		if($i != 0 && $numargs > 1){
-        			$this->sql .= ",";
+        			$this->cosql_sql .= ",";
         		}
-        		$this->sql .= " ".$arg_list[$i];
+        		$this->cosql_sql .= " ".$arg_list[$i];
         	}
         }else{
-            $this->sql .= " $this->table";
+            $this->cosql_sql .= " $this->cosql_table";
         }
         
-    	$this->sql .= " SET ";
+    	$this->cosql_sql .= " SET ";
+        return $this;
+    }
+    public function delete(){
+        
+        $this->cosql_sql = "DELETE";
+        
+        $numargs = func_num_args();
+        
+        if ($numargs > 0) {
+        	if($numargs > 1){
+        		$this->cosql_del_multiFlag = true;
+        		$this->cosql_del_numargs = $numargs;
+        	}
+        	$arg_list = func_get_args();
+        	for ($i = 0; $i < $numargs; $i++) {
+        		if($i != 0 && $numargs > 1){
+        			$this->cosql_sql .= ",";
+        		}
+        		$this->cosql_sql .= " ".$arg_list[$i];
+        	}
+        	
+        }else{
+            $this->cosql_sql .= " FROM $this->cosql_table ";
+        }
+        
+        
         return $this;
     }
     public function set($data){
         if(! is_array($data)){
+            $msg = "Data should be passed as an array!";
+            $this->errors[] = array('method'=> __METHOD__.':'.__LINE__,
+                                    'message'=>$msg,
+                                    'errno'=>9906,
+                                    'query'=>$this->cosql_sql,
+                                    'values'=>implode(',',$this->cosql_conValues)
+                              ); 
             return false;
         }
         foreach($data as $field => $value){
-            if($this->multiFlag){
-                $this->sql .= " $field = $value,";
+            if($this->cosql_multiFlag){
+                $this->cosql_sql .= " $field = $value,";
             }else{
-                $this->sql .= " $field = ?,";
-                $this->conValues[] = $value;
+                $this->cosql_sql .= " $field = ?,";
+                $this->cosql_conValues[] = $value;
             }
             
         }
-        $this->sql = rtrim($this->sql,',');
+        $this->cosql_sql = rtrim($this->cosql_sql,',');
         return $this;
     }
-    public function save($object){
-
-        if(null != $object->getPrimaryValue()){
+    public function save($object=null){
+		if(null == $object){
+		    if(null == $this->cosql_model_obj){
+		    	$msg = "Nothing to save!";
+                $this->errors[] = array('method'=> __METHOD__.':'.__LINE__,
+                                    'message'=>$msg,
+                                    'errno'=>9902,
+                                    'query'=>$this->cosql_sql,
+                                    'values'=>implode(',',$this->cosql_conValues)
+                              ); 
+		    	return false;
+		    }
+		   // var_dump((array)$this->cosql_model_obj);
+		   $this->insert(implode(',',array_keys((array)$this->cosql_model_obj)))->values(implode(',',array_values((array)$this->cosql_model_obj)))->exec();
+		}else{
             
             $primary = $object->getPrimaryValue();
 
@@ -150,120 +203,178 @@ class cosql extends \PDO {
             }
            
             if(null == $data){
+                $msg = "Nothing to save!";
+                $this->errors[] = array('method'=> __METHOD__.':'.__LINE__,
+                                    'message'=>$msg,
+                                    'errno'=>9903,
+                                    'query'=>$this->cosql_sql,
+                                    'values'=>implode(',',$this->cosql_conValues)
+                              );
                 return false;
             }
             $this->update()->set($data)->where($object->getPrimary().' = ?',$primary)->exec();
             
-        }else{
-            //This is an insert
         }
        // if(isset($object->{$object->getPrimary()})){
             
         //}
-        /*
+        
         $f = fopen(__DIR__."\\log.txt","w+");
-        fputs($f, $this->sql);
+        fputs($f, $this->cosql_sql);
         fclose($f);
-        */
+     
     	return ;
     }
    
     public function values(){
         
-        $numargs = func_num_args();
+        $arg_list = func_get_args();
+        $arg_list = explode(',',implode('',$arg_list));
+        $numargs = count($arg_list);
         
-        if(($this->numargs != 0 && $numargs != $this->numargs) || $numargs == 0){
+        if(($this->cosql_numargs != 0 && $numargs != $this->cosql_numargs) || $numargs == 0){
+            $msg = "Columns and passed data do not match!";
+            $this->errors[] = array('method'=> __METHOD__.':'.__LINE__,
+                                    'message'=>$msg,
+                                    'errno'=>9904,
+                                    'query'=>$this->cosql_sql,
+                                    'values'=>implode(',',$this->cosql_conValues)
+                              );
             return false;
         }
         if ($numargs > 0) {
-        	$this->sql .= " VALUES (";
-        	$arg_list = func_get_args();
+        	$this->cosql_sql .= " VALUES (";
+        	
+
         	for ($i = 0; $i < $numargs; $i++) {
         		if($i != 0 && $numargs > 1){
-        			$this->sql .= ",";
+        			$this->cosql_sql .= ",";
         		}
-        		$this->sql .= " '".$arg_list[$i]."'";
+        		$this->cosql_sql .= " ?";
+        		
         	}
-        	$this->sql .= ")";
+        	$this->cosql_conValues = $arg_list;
+        	$this->cosql_sql .= ")";
         }
-        $this->fromFlag = false;
+        
+        $this->cosql_fromFlag = false;
         return $this;
     }
     public function from()
     {
-    	
-    	$this->sql .= " FROM $this->table";
-    	$this->fromFlag = false;
+    	if($this->cosql_del_multiFlag){
+    	    
+    	    $numargs = func_num_args();
+    	    if($numargs < $this->cosql_del_numargs){
+    	        $msg = "Columns and passed data do not match!";
+    	        $this->errors[] = array('method'=> __METHOD__.':'.__LINE__,
+                                    'message'=>$msg,
+                                    'errno'=>9905,
+                                    'query'=>$this->cosql_sql,
+                                    'values'=>implode(',',$this->cosql_conValues)
+                              );
+    	        return false;
+    	    }
+    	    if ($numargs > 0) {
+    	    	if($numargs > 1){
+    	    		$this->cosql_del_multiFlag = true;
+    	    	}
+    	    	$arg_list = func_get_args();
+    	    	for ($i = 0; $i < $numargs; $i++) {
+    	    		if($i != 0 && $numargs > 1){
+    	    			$this->cosql_sql .= ",";
+    	    		}
+    	    		$this->cosql_sql .= " ".$arg_list[$i];
+    	    	}
+    	    	 
+    	    }
+    	}
+    	$this->cosql_sql .= "FROM $this->cosql_table";
+    	$this->cosql_fromFlag = false;
     	return $this;
     }
     
-    public function join($table,$criteria)
+    public function join($table,$criteria,$type="")
     {
-    	if($this->fromFlag){
+    	if($this->cosql_fromFlag){
     		$this->from();
     	}
-    	$this->sql .= " JOIN $table ON $criteria ";
+    	$this->cosql_sql .= " $type JOIN $table ON $criteria ";
     	return $this;
     }
-    
-    public function where($condition, $value)
+    public function joinLeft($table,$criteria)
     {
-    	if($this->fromFlag){
+        return $this->join($table, $criteria,$type="LEFT");
+    }
+    public function joinRight($table,$criteria)
+    {
+    	return $this->join($table, $criteria,$type="RIGHT");
+    }
+    public function where($condition, $value, $type=null)
+    {
+    	if($this->cosql_fromFlag){
     		$this->from();
     	}
-    	if($this->multiFlag){
-    	    $this->sql .= " WHERE $condition";
-    	}else{
-    	    $this->sql .= " WHERE $condition";
-    	    $this->conValues[] = $value;
+    	switch($type){
+    		case null:
+    	        $clause = 'WHERE';
+    	        break;
+    		case 'or':
+    		    $clause = 'OR';
+    		    break;
+    		case 'and':
+    		    $clause = 'AND';
+    		    break;
+    		default:
+    		    $clause = 'WHERE';
     	}
     	
+    	$this->cosql_sql .= " $clause $condition";
+    	$this->cosql_conValues[] = $value;
+  
     	return $this;
     }
     public function andWhere($condition, $value)
     {
-    	if($this->fromFlag){
-    		$this->from();
-    	}
-    	if($this->multiFlag){
-    		$this->sql .= " AND $condition";
-    	}else{
-    		$this->sql .= " AND $condition";
-    		$this->conValues[] = $value;
-    	}
-   
-    	return $this;
+    	return $this->where($condition, $value, 'and');
     }
     public function orWhere($condition, $value)
     {
-    	if($this->fromFlag){
-    		$this->from();
-    	}
-    if($this->multiFlag){
-    	    $this->sql .= " OR $condition";
-    	}else{
-    	    $this->sql .= " OR $condition";
-    	    $this->conValues[] = $value;
-    	}
-    	return $this;
+    	return $this->where($condition, $value, 'or');;
     }
     public function exec()
     {
-    	$this->stmt = $this->prepare($this->sql);
+        if($this->cosql_fromFlag){
+        	$this->from();
+        }
+        
+        if(null != $this->limit){
+            $this->cosql_sql = $this->cosql_sql." ".$this->limit;
+        }
+        
+    	$this->cosql_stmt = $this->prepare($this->cosql_sql);
     	$values = "";
-    	if(count($this->conValues)){
-    		$values = $this->conValues;
+    	if(count($this->cosql_conValues)){
+    		$values = $this->cosql_conValues;
     	}
-    	$this->stmt->execute($values);
-    	$this->stmt->setFetchMode(\PDO::FETCH_CLASS|\PDO::FETCH_PROPS_LATE, $this->class);
-    	return $this->stmt;
+    	$this->cosql_stmt->execute($values);
+    	$this->cosql_stmt->setFetchMode(\PDO::FETCH_CLASS|\PDO::FETCH_PROPS_LATE, $this->cosql_class);
+    	return $this->cosql_stmt;
     }
     public function fetch($fetch_mode=null)
     {     
-        $this->stmt = $this->select->exec();
-        $result = $this->stmt->fetchAll();
+       
+        $this->cosql_stmt = $this->cosql_select->exec();
+        $result = $this->cosql_stmt->fetchAll();
        
         if(count($result) == 0){
+            $msg = "Query returned no results!";
+            $this->errors[] = array('method'=> __METHOD__.':'.__LINE__,
+                                    'message'=>$msg,
+                                    'errno'=>9906,
+                                    'query'=>$this->cosql_sql,
+                                    'values'=>implode(',',$this->cosql_conValues)
+                              );
             return false;
         }
         
@@ -276,7 +387,7 @@ class cosql extends \PDO {
     }
     
     public function limit($from, $to){
-    	$this->sql .= sprintf(" LIMIT %d, %d", $from, $to);
+    	$this->limit = sprintf(" LIMIT %d, %d", $from, $to);
     	return $this;
     }    
     public function findOne( $arg, $operator = null, $fields = array('*'))
@@ -293,25 +404,28 @@ class cosql extends \PDO {
     	if($operator == null){
     		$operator = '=';
     	}
-    	$this->select = $this->select(implode(',',$fields));
+    	$this->cosql_select = $this->select(implode(',',$fields));
+    	if(!is_array($arg)){
+    	    $obj = new $this->cosql_class;
+    	    $arg = array($obj->getPrimary()=>$arg);
+    	}
+    	$i = 0;
     	foreach($arg as $col => $val){
-    		$this->select->where("$col $operator ?",$val);
+    	    if($i>0)$flag = 'and';
+    		$this->cosql_select->where("$col $operator ?",$val,$flag);
+    		$i++;
     	}
     	
     	return $this;
     }
-    
-    function getCollection(){
-     
-           //	$this->dbh = new \PDO('mysql:host=localhost;dbname=fq', 'root', '');
-        	
-
-        $q = $this->link->query('SELECT * from dvd');
-        $q->setFetchMode(\PDO::FETCH_CLASS|\PDO::FETCH_PROPS_LATE, 'cosql\basemodel'); 
-        $collection = new collection;
-        while($res = $q->fetch()){
-           $collection->add($res);
+    function __set($var, $val){
+        if(null != $this->cosql_model_obj){
+            $this->cosql_model_obj->{$var} = $val;
+        }else{
+            $this->cosql_model_obj = new $this->cosql_class;
+            $this->cosql_model_obj->{$var} = $val;
         }
-        return $collection;
+    	return $this->cosql_model_obj;
     }
+    
 }

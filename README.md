@@ -55,12 +55,12 @@ Array
 
 ``` php
   /* For modules just create a folder under modules directory and toss your controllers there
-   * all class files in the format class.{classname}.php will be accessible as controllers 
+   * all class files in the format {classname}.php will be accessible as controllers 
    * you don't need the word controller in the class name and your actions
    * doesn't need the word action neither
    */
    
-   //file: /modules/firstmod/class.cool.php
+   //file: /modules/firstmod/cool.php
    
   class cool extends main {
 
@@ -103,12 +103,12 @@ Array
   
   /*
   * For plugins just create a folder named after your plugin and place it in the plugins folder
-  * follwing the same conventions your plugin loader would be expected to be in class.{pluginName}.php
+  * follwing the same conventions your plugin loader would be expected to be in {pluginName}.php
   * The class should also extend main 
   * The run() method is the entry point and should hold the code to initialize and execute your plugin
   */
   
-  //file: /plugins/coolplugin/class.coolplugin.php
+  //file: /plugins/coolplugin/coolplugin.php
   
   class coolplugin extends main {
 
@@ -172,6 +172,54 @@ Array
   }
 
 ```
+- An ORM and a query builder to handle database interactions along with a model class relation aware generator
+
+``` php
+
+// for a table "blog_post" a file with the class blog_post will be generated for you
+
+   $post = models\blog_post::getInstance();
+   
+// create new
+
+   $post->title = "Great tips";
+   $post->link = "http://www.somelink.com";
+   $post->save();
+   
+// fetch existing
+
+   $result = $post->find(0)->fetch();  //get post with primary key = 0 (regardless of the name of your primary key)
+
+// OR
+   
+   $result = $post->find(array('user_id' =>14))->limit(0,5)->fetch(); // fetchs 5 results
+   
+// OR
+
+   $result = $post->select()->where('user_id = ?',14)->limit(0,5)->fetch(); // same as previous
+      
+// $result is a collection
+
+   //show results
+   
+   while ( $r = $result->iterate()){
+          
+          echo "Title: $result->title ";
+
+         }
+         
+   //change results (only changed columns will be included in the query)
+   
+    while ( $r = $result->iterate()){
+    
+    	$r->title = "$r->title (great)";
+    	$r->save();
+    }
+    
+    
+
+```
+
 - and more other cool features to come.
 
 This project is under heavy developement and still in alpha stage. Please come back soon.
