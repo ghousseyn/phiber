@@ -22,15 +22,24 @@ class model implements \ArrayAccess
     		$this->set($offset, null);
     	}
     }
+    /*
+     * Deliver a cosql instance instead and pass this class name so we can get back with the caller instance
+     * with results
+     */
     public static function getInstance(){
         $obj = new static();
         
-        return self::getCoSQL(get_class($obj));;
+        return self::getCoSQL(get_class($obj));
     }
 	public static function getCoSQL($class){
-		//$class = __NAMESPACE__."\\".$class;
-		$instance = new \cosql\basemodel($class);
-		return $instance->getCoSQL();
+	    
+	    $table  = strstr($class,'\\');
+	    if($table){
+	    	$table = trim(str_replace('\\','',$table));
+	    }else{
+	    	return false;
+	    }
+		 return new cosql($table,$class);
 	}
 	public function save($obj){
 	
