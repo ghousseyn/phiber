@@ -1,1 +1,0 @@
-UPDATE cms_component SET  name = ? WHERE id = ?
