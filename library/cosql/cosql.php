@@ -24,11 +24,12 @@ class cosql extends \PDO {
     public $cosql_sql;
     public $cosql_select;
     
-    function __construct($cosql_table,$cosql_class){
+    function __construct($cosql_table=null,$cosql_class=null){
         
       
         $this->cosql_class = $cosql_class;
-        $this->cosql_table = $cosql_table;;
+        $this->cosql_table = $cosql_table;
+        
         $conf = \config::getInstance();
         try {
         	 
@@ -36,7 +37,8 @@ class cosql extends \PDO {
         	 parent::__construct('mysql:host='.$conf->_dbhost.';dbname='.$conf->_dbname, $conf->_dbuser, $conf->_dbpass);
         	
         } catch (\PDOException $e) {
-        	print "Erreur !: " . $e->getMessage() . "<br/>";
+        	 
+            $this->errors[] = $this->errorInfo();
         	die();
         }
  
@@ -219,9 +221,7 @@ class cosql extends \PDO {
             
         //}
         
-        $f = fopen(__DIR__."\\log.txt","w+");
-        fputs($f, $this->cosql_sql);
-        fclose($f);
+        
      
     	return ;
     }
@@ -289,7 +289,7 @@ class cosql extends \PDO {
     	    	 
     	    }
     	}
-    	$this->cosql_sql .= "FROM $this->cosql_table";
+    	$this->cosql_sql .= " FROM $this->cosql_table";
     	$this->cosql_fromFlag = false;
     	return $this;
     }
@@ -359,6 +359,9 @@ class cosql extends \PDO {
     	}
     	$this->cosql_stmt->execute($values);
     	$this->cosql_stmt->setFetchMode(\PDO::FETCH_CLASS|\PDO::FETCH_PROPS_LATE, $this->cosql_class);
+    	$f = fopen(__DIR__."\\log.txt","a+");
+    	fputs($f, $this->cosql_sql.PHP_EOL);
+    	fclose($f);
     	return $this->cosql_stmt;
     }
     public function fetch($fetch_mode=null)
@@ -367,7 +370,9 @@ class cosql extends \PDO {
         $this->cosql_stmt = $this->cosql_select->exec();
         $result = $this->cosql_stmt->fetchAll();
        
-        if(count($result) == 0){
+        $count = count($result);
+        
+        if($count == 0){
             $msg = "Query returned no results!";
             $this->errors[] = array('method'=> __METHOD__.':'.__LINE__,
                                     'message'=>$msg,
@@ -377,9 +382,9 @@ class cosql extends \PDO {
                               );
             return false;
         }
-        
+                
         $collection = new collection();
-        for($i=0;$i <count($result);$i++){
+        for($i=0;$i < $count;$i++){
             $collection->add($result[$i]);
         }
         self::$result = clone $collection;
@@ -411,7 +416,11 @@ class cosql extends \PDO {
     	}
     	$i = 0;
     	foreach($arg as $col => $val){
-    	    if($i>0)$flag = 'and';
+    	    if($i>0){
+    	        $flag = 'and';
+    	    }else{
+    	        $flag = "";
+    	    }
     		$this->cosql_select->where("$col $operator ?",$val,$flag);
     		$i++;
     	}
@@ -427,5 +436,6 @@ class cosql extends \PDO {
         }
     	return $this->cosql_model_obj;
     }
+    
     
 }
