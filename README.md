@@ -204,7 +204,7 @@ Array
    
    while ( $r = $result->iterate()){
           
-          echo "Title: $result->title ";
+          echo "Title: $r->title ";
 
          }
          
