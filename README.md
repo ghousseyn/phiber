@@ -76,10 +76,14 @@ Array
   // the url http://localhost/firstmod/cool/action will fire the action method
   // and so on
   
+```
+
+``` php
+
   /*
   *  The template should be in a subdirectory under views called 'cool' with template files
   *  in it mapping the actions
-  *  so for our controller we need a file called 'index.php' containing what ever html you like
+  *  so for our controller we need an 'index.php' and an 'action.php'
   */
 
   /*
@@ -89,7 +93,9 @@ Array
   <div class="cool-msg-style">
     <?php echo $this->message ?>
   </div>
-  
+```
+
+``` php
   /*
   * file: /modules/firstmod/views/cool/action.php
   */
