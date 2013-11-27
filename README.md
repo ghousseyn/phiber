@@ -77,8 +77,8 @@ Array
   // and so on
   
   /*
-  *  The template should be in a subdirectory under views called 'cool' with template files in it mapping 
-  *  the actions
+  *  The template should be in a subdirectory under views called 'cool' with template files
+  *  in it mapping the actions
   *  so for our controller we need a file called 'index.php' containing what ever html you like
   */
 
@@ -105,7 +105,7 @@ Array
   * For plugins just create a folder named after your plugin and place it in the plugins folder
   * follwing the same conventions your plugin loader would be expected to be in {pluginName}.php
   * The class should also extend main 
-  * The run() method is the entry point and should hold the code to initialize and execute your plugin
+  * The run() method is the entry point and should contain code to initialize/execute your plugin
   */
   
   //file: /plugins/coolplugin/coolplugin.php
@@ -165,14 +165,14 @@ Array
   $this->view->msg1 = "result one";
   $this->view->someothervar = "some cool findings";
     
-  //Then switch to the 'html' context to send the contents of the corresponding template file as it is (no layout)
+  //Then switch to the 'html' context to send the contents of the template file as it is (no layout)
   
   if($this->isAjax()){
         $this->contextSwitch('html');
   }
 
 ```
-- An ORM and a query builder to handle database interactions along with a model class relation aware generator
+- An ORM and a query builder to handle database interactions with a relation-aware model class generator
 
 ``` php
 
@@ -187,8 +187,9 @@ Array
    $post->save();
    
 // fetch existing
+//get post with primary key = 0 (regardless of the name of your primary key)
 
-   $result = $post->find(0)->fetch();  //get post with primary key = 0 (regardless of the name of your primary key)
+   $result = $post->find(0)->fetch();  
 
 // OR
    
