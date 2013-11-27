@@ -73,8 +73,8 @@ class main
         header("Location: $url", $replace, $code);
     }
 	function sendJSON($arr){
-	    if( ! is_array($arr)){
-	        return false;
+	    if(is_string($arr)){
+	        $this->sendJSON(json_decode($arr));
 	    }
 	    header('Cache-Control: no-cache, must-revalidate');
 	    header('Expires: Mon, 16 Jul 1997 02:00:00 GMT');
@@ -85,7 +85,8 @@ class main
     {
         
         foreach ($this->bootstrap->plugins as $plugin) {
-            $this->load($plugin, null, $this->conf->library . "/plugins/" . $plugin . "/")->run();
+            $this->Stack($plugin);
+            $this->load($plugin, null, $this->conf->library . "/plugins/" . $plugin . "/")->run(__METHOD__);
         }
     }
 
@@ -295,6 +296,7 @@ class main
         if (array_search($action, get_class_methods($instance))) {
             return $instance->{$action}();
         } else {
+            
             return $instance->index();            
                                
         }
@@ -315,8 +317,9 @@ class main
     function _request ($var)                                
     {
         $vars = $this->get('_request');
-                                
-        return $vars[$var];
+        if(is_array($vars) && in_array($var,$vars)){                        
+        	return $vars[$var];
+        }
 
     }
 
@@ -324,7 +327,7 @@ class main
     {
        foreach ($parts as $k => $val) {
           if ($k == 0 || ($k % 2) == 0) {
-               $this->_requestVars[str_replace(" ", "_", $parts[$k])] = $parts[$k + 1];
+               $this->_requestVars[$parts[$k]] = $parts[$k + 1];
           }
 
        }                            
@@ -401,12 +404,13 @@ class main
 
     protected function errorStack ($msg)                                            
     {
-                                                
-        $_SESSION['stack'] = array();
+
                                                 
         $_SESSION['error'][] = $msg;
-                                                
-        $_SESSION['error'] = array_merge($_SESSION['error'], $_SESSION['stack']);                                                
+
+        if(is_array($_SESSION['stack'])){
+        	$_SESSION['error'] = array_merge($_SESSION['error'], $_SESSION['stack']); 
+        }                                               
                                                 
         $this->stackFlush();
                                             
@@ -603,8 +607,9 @@ class main
                 break;
                                                         
         }
-                                                        
-        return $this->vars[$var];
+       //if(in_array($var, $this->vars)){                                                 
+         	return $this->vars[$var];
+      // }
                                                     
     }
                                                 

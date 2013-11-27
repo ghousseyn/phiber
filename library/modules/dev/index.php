@@ -6,6 +6,7 @@ class index extends Codup\main
     function index ()
     {
 		$this->view->message = "Hello world";
+		var_dump($this->get('_request'));
     }
 
     function action ()
