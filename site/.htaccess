@@ -1,11 +1,6 @@
-AddOutputFilter DEFLATE js css
-AddOutputFilterByType DEFLATE text/html text/plain text/xml text/javascript text/css application/x-javascript
-BrowserMatch ^Mozilla/4 gzip-only-text/html
-BrowserMatch ^Mozilla/4\.0[678] no-gzip
-BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
-SetEnvIfNoCase Request_URI .(?:gif|jpe?g|png|rar|zip|pdf)$ no-gzip dont-vary
-
-# mime types
-AddType video/mp4 .mp4
-AddType video/webm .webm
-AddType image/jpeg .pjpeg
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} -s [OR]
+RewriteCond %{REQUEST_FILENAME} -l [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^.*$ - [NC,L]
+RewriteRule ^.*$ /index.php [NC,L]
