@@ -27,7 +27,7 @@ class cogen extends \PDO {
         $this->mem = memory_get_usage();
        
     }
-    function getCollection($query){
+    private function getCollection($query){
         
         $stmt = $this->prepare($query);
         $stmt->execute();
@@ -184,6 +184,14 @@ class cogen extends \PDO {
     
     		 
     	}
+    	$text .= '    public function save() '
+    	.PHP_EOL.
+    	'    {'
+    	.PHP_EOL.
+    	'        parent::save($this);'
+    	.PHP_EOL.
+    	'    }'
+    	.PHP_EOL;
     	$text .= '}'.PHP_EOL;
     	$filename = $this->path.$tname.".php";
     
