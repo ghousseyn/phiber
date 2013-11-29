@@ -11,12 +11,7 @@ class context extends Codup\main
       
          //$cosql = new cosql\basemodel();
          $test = models\cms_component::getInstance();
-         for($i = 0;$i<150;$i++){
-             $test->name = "hussein$i";
-             $test->cms_componenttype_id = 6;
-             $test->is_enabled = 'Y';
-             $test->save();
-         }
+         
         // $res = $test->find(array('name'=>'hussein'))->fetch($method);
          /*
          var_dump($test->errors);var_dump($res);exit;
