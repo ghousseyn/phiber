@@ -2,8 +2,9 @@
 /*
  * Thanks to Aaron Ficher
  * http://www.aaron-fisher.com/articles/web/php/object-collections-in-php/
+ * I added two methods the getObject($offset) and the magic __clone
  */
-namespace cosql;
+namespace oosql;
 
 class collection
 {

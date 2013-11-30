@@ -1,5 +1,5 @@
 <?php
-namespace cosql;
+namespace oosql;
 require 'collection.php';
 
 class cogen extends \PDO {
