@@ -1,7 +1,7 @@
 <?php 
 namespace models;
 
-use cosql\cosql;
+use oosql\oosql;
 
 class model implements \ArrayAccess 
 {
@@ -23,15 +23,15 @@ class model implements \ArrayAccess
     	}
     }
     /*
-     * Deliver a cosql instance instead and pass this class name so we can get back with the caller instance
+     * Deliver a oosql instance instead and pass this class name so we can get back with the caller instance
      * with results
      */
     public static function getInstance(){
         $obj = new static();
         
-        return self::getCoSQL(get_class($obj));
+        return self::getooSQL(get_class($obj));
     }
-	public static function getCoSQL($class){
+	public static function getooSQL($class){
 	    
 	    $table  = strstr($class,'\\');
 	    if($table){
@@ -39,12 +39,12 @@ class model implements \ArrayAccess
 	    }else{
 	    	return false;
 	    }
-		 return new cosql($table,$class);
+		 return new oosql($table,$class);
 	}
 	public function save($obj){
 	
-	  $cosql = self::getCoSQL(get_class($obj));
-	  $cosql->save($obj);
+	  $oosql = self::getooSQL(get_class($obj));
+	  $oosql->save($obj);
 	
 	}
 	function __set($var, $val){
