@@ -5,15 +5,15 @@ use \Codup\main;
 
 class oosql extends \PDO {
     
-    public $errors = array();
     public static $result;
     
     private $oosql_model_obj = null;
-    private $limit = null;
+    private $oosql_limit = null;
     
     protected $oosql_class;
     protected $oosql_table;
     
+    public $oosql_errors = array();
     public $oosql_stmt;
     public $oosql_conValues = array();
     public $oosql_numargs;
@@ -38,7 +38,7 @@ class oosql extends \PDO {
         	
         } catch (\PDOException $e) {
         	 
-            $this->errors[] = $this->errorInfo();
+            $this->oosql_errors[] = $this->errorInfo();
         	die();
         }
  
@@ -145,7 +145,7 @@ class oosql extends \PDO {
     public function set($data){
         if(! is_array($data)){
             $msg = "Data should be passed as an array!";
-            $this->errors[] = array('method'=> __METHOD__.':'.__LINE__,
+            $this->oosql_errors[] = array('method'=> __METHOD__.':'.__LINE__,
                                     'message'=>$msg,
                                     'errno'=>9906,
                                     'query'=>$this->oosql_sql,
@@ -169,7 +169,7 @@ class oosql extends \PDO {
 		if(null == $object){
 		    if(null == $this->oosql_model_obj){
 		    	$msg = "Nothing to save!";
-                $this->errors[] = array('method'=> __METHOD__.':'.__LINE__,
+                $this->oosql_errors[] = array('method'=> __METHOD__.':'.__LINE__,
                                     'message'=>$msg,
                                     'errno'=>9902,
                                     'query'=>$this->oosql_sql,
@@ -206,7 +206,7 @@ class oosql extends \PDO {
            
             if(null == $data){
                 $msg = "Nothing to save!";
-                $this->errors[] = array('method'=> __METHOD__.':'.__LINE__,
+                $this->oosql_errors[] = array('method'=> __METHOD__.':'.__LINE__,
                                     'message'=>$msg,
                                     'errno'=>9903,
                                     'query'=>$this->oosql_sql,
@@ -234,7 +234,7 @@ class oosql extends \PDO {
         
         if(($this->oosql_numargs != 0 && $numargs != $this->oosql_numargs) || $numargs == 0){
             $msg = "Columns and passed data do not match!";
-            $this->errors[] = array('method'=> __METHOD__.':'.__LINE__,
+            $this->oosql_errors[] = array('method'=> __METHOD__.':'.__LINE__,
                                     'message'=>$msg,
                                     'errno'=>9904,
                                     'query'=>$this->oosql_sql,
@@ -267,7 +267,7 @@ class oosql extends \PDO {
     	    $numargs = func_num_args();
     	    if($numargs < $this->oosql_del_numargs){
     	        $msg = "Columns and passed data do not match!";
-    	        $this->errors[] = array('method'=> __METHOD__.':'.__LINE__,
+    	        $this->oosql_errors[] = array('method'=> __METHOD__.':'.__LINE__,
                                     'message'=>$msg,
                                     'errno'=>9905,
                                     'query'=>$this->oosql_sql,
@@ -348,8 +348,8 @@ class oosql extends \PDO {
         	$this->from();
         }
         
-        if(null != $this->limit){
-            $this->oosql_sql = $this->oosql_sql." ".$this->limit;
+        if(null != $this->oosql_limit){
+            $this->oosql_sql = $this->oosql_sql." ".$this->oosql_limit;
         }
         
     	$this->oosql_stmt = $this->prepare($this->oosql_sql);
@@ -374,7 +374,7 @@ class oosql extends \PDO {
         
         if($count == 0){
             $msg = "Query returned no results!";
-            $this->errors[] = array('method'=> __METHOD__.':'.__LINE__,
+            $this->oosql_errors[] = array('method'=> __METHOD__.':'.__LINE__,
                                     'message'=>$msg,
                                     'errno'=>9906,
                                     'query'=>$this->oosql_sql,
@@ -392,7 +392,7 @@ class oosql extends \PDO {
     }
     
     public function limit($from, $to){
-    	$this->limit = sprintf(" LIMIT %d, %d", $from, $to);
+    	$this->oosql_limit = sprintf(" LIMIT %d, %d", $from, $to);
     	return $this;
     }    
     public function findOne( $arg, $operator = null, $fields = array('*'))

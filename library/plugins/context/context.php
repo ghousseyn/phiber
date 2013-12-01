@@ -12,9 +12,10 @@ class context extends Codup\main
          //$cosql = new cosql\basemodel();
          $test = models\cms_component::getInstance();
          
-        $res = $test->find(array('name'=>'guettaf6'))->fetch();
+        $res = $test->findOne(array('name'=>'guettaf6'))->fetch();
          
-         var_dump($test->errors);var_dump($res);exit;
+         //var_dump($test->errors);
+         var_dump($res);
          /*
          $res->getObject()->name = "guettaf5";
          $res->getObject()->save();
