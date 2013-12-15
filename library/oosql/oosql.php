@@ -31,17 +31,19 @@ class oosql extends \PDO {
         $this->oosql_table = $oosql_table;
         
         $conf = \config::getInstance();
+      
         try {
         	 
-        
-        	 parent::__construct('mysql:host='.$conf->_dbhost.';dbname='.$conf->_dbname, $conf->_dbuser, $conf->_dbpass);
+        	
+        	 parent::__construct('mysql:host='.$conf->_dbhost.';dbname='.$conf->_dbname, $conf->_dbuser, $conf->_dbpass, array(\PDO::ATTR_ERRMODE=>\PDO::ERRMODE_WARNING));
         	
         } catch (\PDOException $e) {
         	 
             $this->oosql_errors[] = $this->errorInfo();
+           
         	die();
         }
- 
+        
     }
     public function create(){
         
@@ -342,7 +344,23 @@ class oosql extends \PDO {
     {
     	return $this->where($condition, $value, 'or');;
     }
-    public function exec()
+    function is_num($var)
+    {
+    	$var = str_replace('.','',$var);
+    	
+    	for ($i=0;$i<strlen($var);$i++)
+    	{
+    	$ascii_code=ord($var[$i]);
+    	 
+    	if ($ascii_code >=49 && $asci_code <=57)
+    		continue;
+    		else
+    		return false;
+    	}
+    
+    	return true;
+    }
+    public function exe()
     {
         if($this->oosql_fromFlag){
         	$this->from();
@@ -352,39 +370,58 @@ class oosql extends \PDO {
             $this->oosql_sql = $this->oosql_sql." ".$this->oosql_limit;
         }
         
-    	$this->oosql_stmt = $this->prepare($this->oosql_sql);
-    	$values = "";
+    	
     	if(count($this->oosql_conValues)){
-    		$values = $this->oosql_conValues;
+    		$this->oosql_stmt = $this->prepare(trim($this->oosql_sql));
+    		$ord = 1;
+    		foreach($this->oosql_conValues as $val){
+    			
+    			if($this->is_num($val)){
+    				if(is_int($val)){
+    					$this->oosql_stmt->bindValue($ord, $val, \PDO::PARAM_INT);
+    					
+    				}else{
+    					$this->oosql_stmt->bindValue($ord,$val,\PDO::PARAM_STR);
+    				}
+    				
+    			}else{
+    				
+    				$this->oosql_stmt->bindValue($ord, $val, \PDO::PARAM_STR);
+    			}
+    			$ord++;
+    		}
+    		$this->oosql_stmt->execute();
+    		
+    	}else{
+    		$this->oosql_stmt = $this->query($this->oosql_sql);
+    		
     	}
-    	$this->oosql_stmt->execute($values);
+    	
     	$this->oosql_stmt->setFetchMode(\PDO::FETCH_CLASS|\PDO::FETCH_PROPS_LATE, $this->oosql_class);
-    	$f = fopen(__DIR__."\\log.txt","a+");
-    	fputs($f, $this->oosql_sql.PHP_EOL);
-    	fclose($f);
+    	
     	return $this->oosql_stmt;
     }
     public function fetch($fetch_mode=null)
     {     
        
-        $this->oosql_stmt = $this->oosql_select->exec();
-        $result = $this->oosql_stmt->fetchAll();
-       
-        $count = count($result);
+        $this->oosql_select->exe();
         
-        if($count == 0){
+        if (!$this->oosql_stmt) {
+        	
             $msg = "Query returned no results!";
             $this->oosql_errors[] = array('method'=> __METHOD__.':'.__LINE__,
                                     'message'=>$msg,
-                                    'errno'=>9906,
+                                    'errno'=>$this->errorInfo(),
                                     'query'=>$this->oosql_sql,
                                     'values'=>implode(',',$this->oosql_conValues)
                               );
             return false;
         }
-                
+        
+        $result = $this->oosql_stmt->fetchAll();
+        
         $collection = new collection();
-        for($i=0;$i < $count;$i++){
+        for($i=0;$i < count($result);$i++){
             $collection->add($result[$i]);
         }
         self::$result = clone $collection;
@@ -403,7 +440,11 @@ class oosql extends \PDO {
     {
     	return $this->find($arg,$operator,$fields)->limit($from,$to);
     }
-    
+    public function findAll()
+    {
+    	$this->oosql_select = $this->select('*');
+    	return $this;
+    }
     public function find( $arg, $operator = null, $fields = array('*'))
     {
     	if($operator == null){
