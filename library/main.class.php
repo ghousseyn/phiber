@@ -290,7 +290,7 @@ class main
         //$mod = $this->route["module"];
         $controller = $this->route["controller"];
         $action = $this->route["action"];
-                                        
+         
         $instance = $this->load($controller, null, $this->path);
                                         
         if (array_search($action, get_class_methods($instance))) {
