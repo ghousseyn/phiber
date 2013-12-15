@@ -12,7 +12,7 @@ class context extends Codup\main
          //$cosql = new cosql\basemodel();
          $test = models\cms_component::getInstance();
          
-        $res = $test->findOne(array('name'=>'guettaf6'))->fetch();
+        //$res = $test->findAll()->fetch();
          
          //var_dump($test->errors);
         // var_dump($res);
