@@ -7,7 +7,7 @@ class context extends Codup\main
     function run ($method)
     {
       
-        echo "<pre>";
+       // echo "<pre>";
       
          //$cosql = new cosql\basemodel();
          $test = models\cms_component::getInstance();
@@ -15,7 +15,7 @@ class context extends Codup\main
         $res = $test->findOne(array('name'=>'guettaf6'))->fetch();
          
          //var_dump($test->errors);
-         var_dump($res);
+        // var_dump($res);
          /*
          $res->getObject()->name = "guettaf5";
          $res->getObject()->save();
