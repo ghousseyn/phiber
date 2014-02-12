@@ -10,7 +10,7 @@ class context extends Codup\main
        // echo "<pre>";
       
          //$cosql = new cosql\basemodel();
-         $test = models\cms_component::getInstance();
+        // $test = models\cms_component::getInstance();
          
         //$res = $test->findAll()->fetch();
          
