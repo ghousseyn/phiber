@@ -14,7 +14,9 @@ class view extends Codup\main
 
     function showTime ()
     {
-        
+	if(!$this->conf->debug){
+        	$this->view->debuginfo = "";
+	}
         if ($this->get('layoutEnabled')) {
             $this->renderLayout();
         } else {

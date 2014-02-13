@@ -45,36 +45,46 @@ class debug extends Codup\main{
         array_unshift($_SESSION['stack'], $msg);
     }
 
-    function stackTrace ()
+    function output ()
     {
-        $str = "";
+	$errors = "";
+	$steps = "";
+	
+	$error_label = "Errors";
+	$steps_label = "Steps";
+
         if (isset($_SESSION['error']) && count($_SESSION['error'])) {
-            $str = "<br /> ================== Errors ================<br />";
-            
+            $error_label = "<b class='active'>$error_label</b>(".count($_SESSION['error']).")";
             foreach ($_SESSION['error'] as $k => $en) {
                 
-                $str .= "[$k] : $en <br />";
+                $errors .= "[$k] : $en <br />";
             }
         } elseif (isset($_SESSION['stack']) && count($_SESSION['stack'])) {
-            $str .= "<br /> ================== Steps =================<br />";
-            foreach ($_SESSION['stack'] as $key => $entry) {
+            
+	    $tmp1 = $_SESSION['stack'];
+	 
+	    foreach($tmp1 as $key => $tmpel){
+		
+		    $tmp [$tmpel] = $key;
+		
+	    }
+
+	    $tmp = array_keys($tmp);
+	    $steps_label = "<b class='active'>$steps_label</b>(".count($tmp).")";
+            foreach ($tmp as $key => $entry) {
                 
-                $str .= "[$key] : $entry <br />";
+                $steps .= "[$key] : $entry <br />";
             }
         }
         
         unset($_SESSION['stack']);
-        
-        return $str;
-    }
-
-    function output ()
-    {
-        $str = "<br />-------------------------Debug output-------------------------<br />";
-        $str .= "Stack: <br />" . $this->stackTrace() . "<br />";
-        $str .= "Execution Time: " . $this->execTime() . "<br />";
-        $str .= "Memory Usage: " . $this->memoryUsage() . "<br />";
-        
+	
+        $str = "<div class='bottom_bar'>";
+        $str .= "<div class='bbtn' >$error_label<span ttip=''>" . $errors . "</span></div>|";
+	$str .= "<div class='bbtn' >$steps_label<span ttip=''>" . $steps . "</span></div>|";
+        $str .= "<div>Execution Time: " . $this->execTime() . "</div>|";
+        $str .= "<div>Memory Usage: " . $this->memoryUsage() . "</div>";
+        $str .= "</div>";
         parent::errorStackFlush();
         $this->view->debuginfo = $str;
     }

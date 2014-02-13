@@ -72,15 +72,19 @@ class main
     {
         header("Location: $url", $replace, $code);
     }
-	function sendJSON($arr){
-	    if(is_string($arr)){
-	        $this->sendJSON(json_decode($arr));
-	    }
-	    header('Cache-Control: no-cache, must-revalidate');
-	    header('Expires: Mon, 16 Jul 1997 02:00:00 GMT');
-	    header('Content-type: application/json; charset=utf-8');
-	    echo json_encode($arr);
+    function sendJSON($arr)
+    {
+	if(is_string($arr)){
+	    $this->sendJSON(json_decode($arr));
 	}
+        if(!is_array($arr)){
+	    return false;
+	}
+	header('Cache-Control: no-cache, must-revalidate');
+	header('Expires: Mon, 16 Jul 1997 02:00:00 GMT');
+	header('Content-type: application/json; charset=utf-8');
+	echo json_encode($arr);
+    }
     function plugins ()
     {
         
@@ -242,6 +246,7 @@ class main
              }
              
          } else {
+$this->errorstack("URL not valid!");
              $route = array("module" => "default", 
                             "controller" => "index", 
                             "action" => "index");
@@ -398,7 +403,7 @@ class main
     protected function stackFlush ()                                            
     {
                                                 
-        unset($_SESSION['stack']);
+        //unset($_SESSION['stack']);
                                             
     }
 
@@ -408,11 +413,8 @@ class main
                                                 
         $_SESSION['error'][] = $msg;
 
-        if(is_array($_SESSION['stack'])){
-        	$_SESSION['error'] = array_merge($_SESSION['error'], $_SESSION['stack']); 
-        }                                               
-                                                
-        $this->stackFlush();
+                                          
+        //$this->stackFlush();
                                             
                                             
     }
@@ -559,6 +561,8 @@ class main
 
     function __get ($var)                                                    
     {
+	$this->Stack($var);
+
         switch ($var) {
                                                             
             case 'view':
