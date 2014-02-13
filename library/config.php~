@@ -41,7 +41,7 @@ class config extends Codup\main
 
     protected $_dbuser = "root";
 
-    protected $_dbname = "dbname";
+    protected $_dbname = "edinar";
 
     protected $layoutEnabled = true;
 
