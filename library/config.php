@@ -62,23 +62,6 @@ class config extends Codup\main
     
     }
 
-    function __call ($name, $param)
-    {
-        if (array_search($name, get_class_methods(__CLASS__))) {
-            parent::stack(__class__ . " --> $name(" . implode(',', $param) . ")");
-            return call_user_func_array(array(__class__, $name), $param);
-        }
-    
-    }
-
-    static function __callStatic ($name, $params)
-    {
-        if (array_search($name, get_class_methods(__CLASS__))) {
-            parent::stack(__class__ . " --> $name(" . implode(',', $param) . ")");
-            return call_user_func_array(__class__ . "::" . $name, $params);
-        }
-    
-    }
 
 }
 ?>
