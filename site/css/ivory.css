@@ -795,8 +795,8 @@ table tr.even td{background-color: #fafafa;}
    padding-top:4px;
     left:0;
     border: 1px solid #acacac;
-    background:#ddd;
-    color:#acacac;
+    background:#000;
+    color:#ddd;
     font-family:"arial";
 }
 
@@ -807,7 +807,7 @@ table tr.even td{background-color: #fafafa;}
 }
 .bottom_bar .active{
 	cursor:pointer;
-	color:brown;
+	color:orange;
 }
 .bottom_bar span.tooltip {
       position: absolute;

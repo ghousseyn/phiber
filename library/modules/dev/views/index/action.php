@@ -1,16 +1,21 @@
-Some awsomeness:
-<br />
+<div class="note-content"> 
+<h4>Text from the action template file</h4>
+<p>
 <?php
 echo $this->text;
 ?>
-<br />
+</p>
+<p>
 <?php
-echo $this->origin;
+echo "<b>Controller:</b>$this->origin";
 ?>
-<br />
+</p>
+<p>
 <?php
 echo $this->file;
 
 ?>
-<br />
+</p>
 Template: <?php echo __file__?>
+
+</div>
