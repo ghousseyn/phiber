@@ -6,7 +6,8 @@ class index extends Codup\main
     function index ()
     {
         
-        $this->view->text = "here's some text!";
+
+        $this->view->text = "Text from default controller: ".__file__;
     }
 
     function action ()
