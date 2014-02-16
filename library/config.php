@@ -35,13 +35,13 @@ class config extends Codup\main
     /*
      * DB configuration properties
      */
-    protected $_dbhost = "127.0.0.1";
+    protected $_dbhost = "10.0.0.7";
 
-    protected $_dbpass = "password";
+    protected $_dbpass = "hggiHmfv";
 
     protected $_dbuser = "root";
 
-    protected $_dbname = "dbname";
+    protected $_dbname = "codup";
 
     protected $layoutEnabled = true;
 
