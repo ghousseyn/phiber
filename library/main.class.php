@@ -20,11 +20,10 @@ class main
     protected function __construct ()
     {
         spl_autoload_register(array($this, 'autoload'));
-        
-        if ($this->conf->debug) {
+	if ($this->conf->debug) {
 
             $this->debug->start();
-        }
+        }        
         $this->register('layoutEnabled', $this->conf->layoutEnabled);
         if (! isset($_SESSION)) {
             session_start();
@@ -99,7 +98,7 @@ class main
         if ($this->conf->inactive) {
             if (isset($_SESSION['user']['activity']) &&
                      (time() - $_SESSION['user']['activity'] >
-                     $this->load('tools')->orDefault($this->conf->inactive, 
+                     $this->load('tools')->orDefault( (int) $this->conf->inactive, 
                             1800))) {
                         
                         //session_unset();
@@ -110,7 +109,7 @@ class main
             if (isset($_SESSION['user']['created']) &&
                      (time() - $_SESSION['user']['created'] >
                      $this->tools->orDefault(
-                            $this->conf->sessionReginerate, 1800))) {
+                            (int) $this->conf->sessionReginerate, 1800))) {
                         session_regenerate_id(true);
                 $_SESSION['user']['created'] = time();
             }
@@ -301,7 +300,7 @@ $this->errorstack("URL not valid!");
         if (array_search($action, get_class_methods($instance))) {
             return $instance->{$action}();
         } else {
-            
+            //$this->errorstack("No action: $action in $controller");
             return $instance->index();            
                                
         }
@@ -351,7 +350,7 @@ $this->errorstack("URL not valid!");
                                         
         }
                                         
-            if (! empty($parts[0]) && file_exists($this->path . "class." . $parts[0] . ".php")) {
+            if (! empty($parts[0]) && file_exists($this->path . $parts[0] . ".php")) {
                 
                 return true;
                                         
@@ -526,11 +525,11 @@ $this->errorstack("URL not valid!");
         
         $instance = $class::getInstance($parameters);
             
-        if(in_array($class,$serialisable)){
+        //if(in_array($class,$serialisable)){
 
             $this->register($hash, $instance);
         
-        }                                            
+       // }                                            
         
         return $instance;
                                                     

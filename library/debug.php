@@ -1,7 +1,5 @@
 <?php
 
-debug::getInstance();
-
 
 class debug extends Codup\main{
 
@@ -17,7 +15,7 @@ class debug extends Codup\main{
 
     protected function __construct ()
     {
-       
+       xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY);
         $this->mem = memory_get_usage();
         $this->timestart = microtime(true);
     }
@@ -77,16 +75,25 @@ class debug extends Codup\main{
             }
         }
         
-        unset($_SESSION['stack']);
+       // unset($_SESSION['stack']);
+	$XHPROF_ROOT = "/home/hussein/Documents/www/bdd/codup/library/xhprof_lib/";
+	include_once $XHPROF_ROOT . "/xhprof_lib/utils/xhprof_lib.php";
+	include_once $XHPROF_ROOT . "/xhprof_lib/utils/xhprof_runs.php";
+
+	$xhprof_runs = new XHProfRuns_Default("/tmp");
+	$xhprof_data = xhprof_disable();
+	$run_id = $xhprof_runs->save_run($xhprof_data, "xhprof_testing");
 	
         $str = "<div class='bottom_bar'>";
         $str .= "<div class='bbtn' >$error_label<span ttip=''>" . $errors . "</span></div>|";
 	$str .= "<div class='bbtn' >$steps_label<span ttip=''>" . $steps . "</span></div>|";
         $str .= "<div>Execution Time: " . $this->execTime() . "</div>|";
         $str .= "<div>Memory Usage: " . $this->memoryUsage() . "</div>";
+	$str .= "<a href='/xhprof_html/index.php?run={$run_id}&source=xhprof_testing\n'>profile this run</a>";
         $str .= "</div>";
-        parent::errorStackFlush();
+        //parent::errorStackFlush();
         $this->view->debuginfo = $str;
+
     }
 }
 
