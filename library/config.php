@@ -30,7 +30,7 @@ class config extends Codup\main
     /*
      * Enable/disable debug
      */
-    public $debug = true;
+    public $debug = false;
     
     /*
      * DB configuration properties
