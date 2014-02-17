@@ -6,7 +6,7 @@ class cogen extends \PDO {
     protected $queries = array('tables'=>'SHOW TABLES',
             				   'columns'=>'SHOW COLUMNS FROM',
                                'create'=>'show create table');
-    protected $path = './models/';
+    protected $path = '../models/';
     protected $except = array();
     protected $errors = array();
     protected $time;
