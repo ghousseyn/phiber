@@ -17,6 +17,10 @@ class employees extends model
     {
         return $this->emp_no;
     }
+    public function getRelations() 
+    {
+        return array();
+    }
     public function save() 
     {
         parent::save($this);

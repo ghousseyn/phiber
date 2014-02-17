@@ -9,6 +9,9 @@ class oosql extends \PDO {
     
     private $oosql_model_obj = null;
     private $oosql_limit = null;
+    private $oosql_related = null;
+    private $oosql_where = null;
+    private $oosql_join = null;
     
     protected $oosql_class;
     protected $oosql_table;
@@ -63,10 +66,10 @@ class oosql extends \PDO {
     			if($i != 0 && $numargs > 1){
     				$this->oosql_sql .= ",";
     			}
-    			$this->oosql_sql .= " ".$arg_list[$i];
+    			$this->oosql_sql .= " $this->oosql_table.".$arg_list[$i];
     		}
     	}else{
-    	    $this->oosql_sql .= " * ";
+    	    $this->oosql_sql .= " $this->oosql_table.* ";
     	}
     
     	$this->oosql_fromFlag = true;
@@ -298,10 +301,8 @@ class oosql extends \PDO {
     
     public function join($table,$criteria,$type="")
     {
-    	if($this->oosql_fromFlag){
-    		$this->from();
-    	}
-    	$this->oosql_sql .= " $type JOIN $table ON $criteria ";
+    	
+    	$this->oosql_join .= " $type JOIN $table ON $criteria ";
     	return $this;
     }
     public function joinLeft($table,$criteria)
@@ -314,9 +315,7 @@ class oosql extends \PDO {
     }
     public function where($condition, $value, $type=null)
     {
-    	if($this->oosql_fromFlag){
-    		$this->from();
-    	}
+    	
     	switch($type){
     		case null:
     	        $clause = 'WHERE';
@@ -331,7 +330,7 @@ class oosql extends \PDO {
     		    $clause = 'WHERE';
     	}
     	
-    	$this->oosql_sql .= " $clause $condition";
+    	$this->oosql_where .= " $clause $condition";
     	$this->oosql_conValues[] = $value;
   
     	return $this;
@@ -350,9 +349,9 @@ class oosql extends \PDO {
     	
     	for ($i=0;$i<strlen($var);$i++)
     	{
-    	$ascii_code=ord($var[$i]);
+    	$asci_code=ord($var[$i]);
     	 
-    	if ($ascii_code >=49 && $asci_code <=57)
+    	if ($asci_code >=49 && $asci_code <=57)
     		continue;
     		else
     		return false;
@@ -365,7 +364,12 @@ class oosql extends \PDO {
         if($this->oosql_fromFlag){
         	$this->from();
         }
-        
+        if(null != $this->oosql_join){
+        	$this->oosql_sql .= $this->oosql_join;
+        }
+        if(null != $this->oosql_where){
+        	$this->oosql_sql .= $this->oosql_where;
+        }
         if(null != $this->oosql_limit){
             $this->oosql_sql = $this->oosql_sql." ".$this->oosql_limit;
         }
@@ -396,7 +400,7 @@ class oosql extends \PDO {
     		$this->oosql_stmt = $this->query($this->oosql_sql);
     		
     	}
-    	
+    	//echo $this->oosql_sql;
     	$this->oosql_stmt->setFetchMode(\PDO::FETCH_CLASS|\PDO::FETCH_PROPS_LATE, $this->oosql_class);
     	
     	return $this->oosql_stmt;
@@ -427,7 +431,23 @@ class oosql extends \PDO {
         self::$result = clone $collection;
         return $collection;
     }
-    
+    public function with(array $related){
+    	
+    	$obj = new $this->oosql_class;
+    	$relations = $obj->getRelations();
+    	foreach ($relations as $fk => $target){
+    		$table = substr($target,0,strpos($target,'.'));
+    		if(in_array($table,$related)){
+    			$this->join($table, "$this->oosql_table.$fk = $target");
+    		}elseif(in_array($table,array_keys($related))){
+    			foreach($related[$table] as $field){
+    				$this->oosql_sql .= " ,$table.$field";
+    			}
+    			$this->join($table, "$this->oosql_table.$fk = $target");
+    		}
+    	}
+    	return $this;
+    }
     public function limit($from, $to){
     	$this->oosql_limit = sprintf(" LIMIT %d, %d", $from, $to);
     	return $this;
@@ -450,7 +470,11 @@ class oosql extends \PDO {
     	if($operator == null){
     		$operator = '=';
     	}
-    	$this->oosql_select = $this->select(implode(',',$fields));
+    	if($fields[0] == '*'){
+    		$object = new $this->oosql_class;
+    		$fields = array_keys(get_class_vars($this->oosql_class));
+    	}
+    	$this->oosql_select = $this->select(implode(", $this->oosql_table.",$fields));
     	if(!is_array($arg)){
     	    $obj = new $this->oosql_class;
     	    $arg = array($obj->getPrimary()=>$arg);
@@ -462,7 +486,7 @@ class oosql extends \PDO {
     	    }else{
     	        $flag = "";
     	    }
-    		$this->oosql_select->where("$col $operator ?",$val,$flag);
+    		$this->oosql_select->where("$this->oosql_table.$col $operator ?",$val,$flag);
     		$i++;
     	}
     	

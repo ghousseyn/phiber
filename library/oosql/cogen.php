@@ -12,6 +12,9 @@ class cogen extends \PDO {
     protected $time;
     protected $mem;
     
+    public $prefix = null;
+    public $suffix = null;
+    
     function __construct($host,$dbname,$user,$password){
         
         try {
@@ -23,7 +26,7 @@ class cogen extends \PDO {
         	$this->errors[] = $this->errorInfo();
         	die();
         }
-        $this->time = microtime();
+        $this->time = microtime(true);
         $this->mem = memory_get_usage();
        
     }
@@ -132,7 +135,19 @@ class cogen extends \PDO {
     	
     foreach($fields as $tname => $cols){
         $h++;
+        
+        if(null != $this->prefix){
+        
+        	$tname = $this->prefix.$tname;
+        
+        }
+        if(null != $this->suffix){
+        
+        	$tname = $tname.$this->suffix;
+        
+        }
         print "Generating class $tname ...";
+        
     	$text .= '<?php'.PHP_EOL.'namespace models;'.PHP_EOL.'use Codup;';
     	$text .= PHP_EOL."class $tname extends model  ".PHP_EOL."{".PHP_EOL;
     	$count = 0;
@@ -170,15 +185,16 @@ class cogen extends \PDO {
     		$text .= '    public function getPrimaryValue() '.PHP_EOL.'    {'.PHP_EOL.'        return false;'.PHP_EOL.'    }'.PHP_EOL;
     	}
     
-    	if(count($foreign)){
+    	
     		$text .= '    public function getRelations() '
     		.PHP_EOL.
     		'    {'
     		.PHP_EOL.
     		'        return array(';
-    		 
-    		foreach ($foreign as $member => $content){
-    			$text .= "'".$member."'=>'".$content[1].".".str_replace('`)','',$content[0])."',";
+    		if(count($foreign)){ 
+    			foreach ($foreign as $member => $content){
+    				$text .= "'".$member."'=>'".$content[1].".".str_replace('`)','',$content[0])."',";
+    			}
     		}
     		$text .= ');'
     		.PHP_EOL.
@@ -186,7 +202,7 @@ class cogen extends \PDO {
     		.PHP_EOL;
     
     		 
-    	}
+    	
     	$text .= '    public function save() '
     	.PHP_EOL.
     	'    {'
@@ -196,6 +212,7 @@ class cogen extends \PDO {
     	'    }'
     	.PHP_EOL;
     	$text .= '}'.PHP_EOL;
+    	
     	$filename = $this->path.$tname.".php";
     
     	$f = fopen($filename, "w+");
@@ -205,6 +222,6 @@ class cogen extends \PDO {
     	print " Done".PHP_EOL;
     	
     }
-    print "Generated ".$h++." classes in ".(( microtime() - $this->time))." ms | Memory: ".((memory_get_usage() - $this->mem)/1024)."kb";
+    print "Generated ".$h++." classes in ".number_format((microtime(true) - $this->time),4)." ms | Memory: ".number_format((memory_get_usage() - $this->mem)/1024,4)."kb";
     }
 }

@@ -13,6 +13,10 @@ class departments extends model
     {
         return $this->dept_no;
     }
+    public function getRelations() 
+    {
+        return array();
+    }
     public function save() 
     {
         parent::save($this);
