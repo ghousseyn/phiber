@@ -6,7 +6,7 @@ class cogen extends \PDO {
     protected $queries = array('tables'=>'SHOW TABLES',
             				   'columns'=>'SHOW COLUMNS FROM',
                                'create'=>'show create table');
-    protected $path = './models/';
+    protected $path = '../models/';
     protected $except = array();
     protected $errors = array();
     protected $time;
@@ -26,6 +26,9 @@ class cogen extends \PDO {
         $this->time = microtime();
         $this->mem = memory_get_usage();
        
+    }
+    function getErrors(){
+    	return $this->errors;
     }
     private function getCollection($query){
         
