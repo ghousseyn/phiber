@@ -11,7 +11,9 @@ class context extends Codup\main
          $dept_manager = models\dept_manager::getInstance();
 
          //SELECT * FROM employees WHERE last_name like "Mal%"
+         //$test = models\employees::getInstance();
          //$res = $test->find(array('last_name' => "Mal%"),'like')->fetch();
+         // or
 	     //$res = $test->select()->where('last_name like ?',"Mal%")->fetch();
 	  
          /*
@@ -30,9 +32,9 @@ class context extends Codup\main
           * WHERE dept_manager.emp_no = 110039
           * 
           * $res = $dept_manager->find(110039)
-					->with(array('departments'=>array("dept_name")))
-					->with(array('employees' => array("last_name")))
-					->fetch();
+								->with(array('departments'=>array("dept_name")))
+								->with(array('employees' => array("last_name")))
+								->fetch();
           * 
           * 
           * ============================================================================
@@ -48,10 +50,10 @@ class context extends Codup\main
           *       ON 		dept_manager.emp_no = employees.emp_no 
           * LIMIT 	0,20
           */
-		$res = $dept_manager->select()//or $test->findAll()
-					->with(array('departments'=>array("dept_name"),'employees' => array("last_name")))
-					->limit(0,20)
-					->fetch();
+		$res = $dept_manager->select()//or $dept_manager->findAll()
+							->with(array('departments'=>array("dept_name"),'employees' => array("last_name")))
+							->limit(0,20)
+							->fetch();
          
          //var_dump($test->errors);
 
