@@ -10,16 +10,23 @@ class context extends Codup\main
        // echo "<pre>";
       
          //$cosql = new cosql\basemodel();
+
          $test = models\departments::getInstance();
-         
-        $res = $test->findAll()->fetch();
+
+        
+	  $res = $test->findAll()->fetch();
+
          
          //var_dump($test->errors);
-         var_dump($res);
+
+        // var_dump($res);
+       // var_dump($res);
+
+       // var_dump($res);
          /*
          $res->getObject()->name = "guettaf5";
          $res->getObject()->save();
-        
+        */
          
        //  echo self::$t;
          if(!$res){
@@ -28,14 +35,14 @@ class context extends Codup\main
          }
          while ( $r = $res->iterate()){
          //$test2 = (array) $res; 
-         $r->name = "guettaf6";
+         echo $r->dept_no." ".$r->dept_name."<br/>";
          //$r->cms_componenttype_id = 7;
          //$r->is_enabled = 'Y';    
-         $r->save();
+         //$r->save();
 
          }
-         var_dump($res);
-        */
+         //var_dump($res);
+        
         // ;
         /*
          

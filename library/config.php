@@ -35,7 +35,7 @@ class config extends Codup\main
     /*
      * DB configuration properties
      */
-    protected $_dbhost = "10.0.0.7";
+    protected $_dbhost = "localhost";
 
     protected $_dbpass = "hggiHmfv";
 
