@@ -10,12 +10,12 @@ class context extends Codup\main
        // echo "<pre>";
       
          //$cosql = new cosql\basemodel();
-        // $test = models\cms_component::getInstance();
+         $test = models\departments::getInstance();
          
-        //$res = $test->findAll()->fetch();
+        $res = $test->findAll()->fetch();
          
          //var_dump($test->errors);
-        // var_dump($res);
+         var_dump($res);
          /*
          $res->getObject()->name = "guettaf5";
          $res->getObject()->save();
