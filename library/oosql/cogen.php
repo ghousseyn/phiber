@@ -3,15 +3,17 @@ namespace oosql;
 require 'collection.php';
 
 class cogen extends \PDO {
+	
     protected $queries = array('tables'=>'SHOW TABLES',
             				   'columns'=>'SHOW COLUMNS FROM',
                                'create'=>'show create table');
-    protected $path = '../models/';
+    
     protected $except = array();
     protected $errors = array();
     protected $time;
     protected $mem;
     
+    public $path = '../models/';
     public $prefix = null;
     public $suffix = null;
     
@@ -135,21 +137,22 @@ class cogen extends \PDO {
     	
     foreach($fields as $tname => $cols){
         $h++;
+        $cname = $tname;
         
         if(null != $this->prefix){
         
-        	$tname = $this->prefix.$tname;
+        	$cname = $this->prefix.$cname;
         
         }
         if(null != $this->suffix){
         
-        	$tname = $tname.$this->suffix;
+        	$cname = $cname.$this->suffix;
         
         }
-        print "Generating class $tname ...";
+        print "Generating class $cname ...";
         
     	$text .= '<?php'.PHP_EOL.'namespace models;'.PHP_EOL.'use Codup;';
-    	$text .= PHP_EOL."class $tname extends model  ".PHP_EOL."{".PHP_EOL;
+    	$text .= PHP_EOL."class $cname extends model  ".PHP_EOL."{".PHP_EOL;
     	$count = 0;
     	$foreign = array();
     	foreach($cols as $col){
@@ -213,7 +216,7 @@ class cogen extends \PDO {
     	.PHP_EOL;
     	$text .= '}'.PHP_EOL;
     	
-    	$filename = $this->path.$tname.".php";
+    	$filename = $this->path.$cname.".php";
     
     	$f = fopen($filename, "w+");
     	$r = fwrite($f, $text);
