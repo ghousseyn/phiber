@@ -32,7 +32,7 @@ class context extends Codup\main
           * WHERE dept_manager.emp_no = 110039
           * 
           * $res = $dept_manager->find(110039)
-								->with(array('departments'=>array("dept_name")))
+								->with(array('departments' => array("dept_name")))
 								->with(array('employees' => array("last_name")))
 								->fetch();
           * 
@@ -50,21 +50,45 @@ class context extends Codup\main
           *       ON 		dept_manager.emp_no = employees.emp_no 
           * LIMIT 	0,20
           */
-		$res = $dept_manager->select()//or $dept_manager->findAll()
-							->with(array('departments'=>array("dept_name"),'employees' => array("last_name")))
-							->limit(0,20)
-							->fetch();
-         
+		$deps = models\departments::getInstance();/* 
+         try {
+		 $deps->dept_no = "d013";
+		 $deps->dept_name = "new dep 4";
+		 $deps->save();
+		 
+         }catch (Exception $e){
+         	
+         	echo $e->errorInfo[2];
+         	
+         }
+         $deps->delete(array("dept_no = ?", "d012"));
+         */
+		  $res = $dept_manager->find(10022)//or $dept_manager->findAll()
+							  ->with(array('departments'=>array("dept_name"),'employees'))
+							  ->fetch();
+         $this->tools->wtf($deps);
          //var_dump($test->errors);
 
         // var_dump($res);
        // var_dump($res);
 
        // var_dump($res);
+         
+      //echo count($res);
+         
+       // foreach( $res as $record){
+        	//foreach($record as $key => $rec){
+        	//	echo $record->last_name."</br>";
+        	//}
+      //  }
          /*
-         $res->getObject()->name = "guettaf5";
-         $res->getObject()->save();
-        */
+         $dept = $res->Object()->departments();
+         $dept->dept_name = "Finance again";
+         //won't work (trying to change a primary key here) try using update() instead BAD idea though!
+         //$dept->dept_no = "d010";
+         $dept->save();
+         var_dump($dept);
+     
          
        //  echo self::$t;
          if(!$res){
@@ -74,12 +98,19 @@ class context extends Codup\main
          while ( $r = $res->iterate()){
          //$test2 = (array) $res; 
          //echo $r->last_name." ".$r->first_name."<br/>";
-         echo $r->dept_name." ".$r->last_name."</br>";
+         
+        // $employees = $r->employees();
+        // if($employees->gender == "M"){
+         //	$employees->gender = "F";
+        // }
+        // $employees->save();
+         echo $r->dept_name." ".$r->last_name." ".$r->first_name." ".$r->gender."</br>";
          //$r->cms_componenttype_id = 7;
          //$r->is_enabled = 'Y';    
+         //$r->dept_name = "Made up dept";
          //$r->save();
 
-         }
+         }*/
          //var_dump($res);
         
         // ;

@@ -2,19 +2,21 @@
 /*
  * Thanks to Aaron Ficher
  * http://www.aaron-fisher.com/articles/web/php/object-collections-in-php/
- * I added two methods the getObject($offset) and the magic __clone
+ * 
  */
 namespace oosql;
 
-class collection
+class collection extends \ArrayObject
 {
 	protected $objects; // array
 	protected $deletedObjects; // array
 	protected $resetFlag;
 	protected $numObjects;
 	protected $iterateNum;
+	
 	public function __construct()
 	{
+		parent::setFlags(parent::ARRAY_AS_PROPS);
 		$this->resetIterator();
 		$this->numObjects = 0;
 		$this->objects = array();
@@ -27,16 +29,16 @@ class collection
 	}
 	public function next()
 	{
-		$num = ($this->currentObjIsLast()) ? 0 : $this->iterateNum + 1;
+		$num = ($this->isLast()) ? 0 : $this->iterateNum + 1;
 		$this->iterateNum = $num;
 	}
 	public function isOdd()
 	{
-		return $this->iterateNum%2==1;
+		return ($this->iterateNum%2 == 1);
 	}
 	public function isEven()
 	{
-		return $this->iterateNum%2==0;
+		return ($this->iterateNum%2 == 0);
 	}
 	/*
 	 get an obj based on one of it's properties.
@@ -45,7 +47,7 @@ class collection
 	-- assumes that the obj has a getter method
 	with the same spelling as the property, i.e. getUsername()
 	*/
-	public function getByProperty($propertyName, $property)
+	public function objectWhere($propertyName, $property)
 	{
 		//$methodName = "get".ucwords($propertyName);
 		foreach ($this->objects as $key => $obj) {
@@ -58,9 +60,9 @@ class collection
 	/*
 	 alias for getByProperty()
 	*/
-	public function findByProperty($propertyName, $property)
+	public function find($propertyName, $property)
 	{
-		return $this->getByProperty($propertyName, $property);
+		return $this->objectWhere($propertyName, $property);
 	}
 	/*
 	 get an objects number based on one of it's properties.
@@ -69,13 +71,16 @@ class collection
 	-- assumes that the obj has a getter method
 	with the same spelling as the property, i.e. getUsername()
 	*/
-	public function getObjNumByProperty($propertyName, $property)
+	public function keyWhere($propertyName, $property)
 	{
-		$methodName = "get".ucwords($propertyName);
+		//$methodName = "get".ucwords($propertyName);
 		foreach ($this->objects as $key => $obj) {
-			if ($obj->{$methodName}() == $property) {
-				return $key;
+			if ($obj->{$propertyName} == $property) {
+				$keys[] = $key;
 			}
+		}
+		if(count($keys)){
+			return $keys;
 		}
 		return false;
 	}
@@ -88,12 +93,12 @@ class collection
 	-- assumes that the obj has a getter method
 	with the same spelling as the property, i.e. getUsername()
 	*/
-	public function getNumObjectsWithProperty($propertyName, $value)
+	public function countWhere($propertyName, $value)
 	{
-		$methodName = "get".ucwords($propertyName);
+		//$methodName = "get".ucwords($propertyName);
 		$count = 0;
 		foreach ($this->objects as $key => $obj) {
-			if ($obj->{$methodName}() == $value) {
+			if ($obj->{$propertyName} == $value) {
 				$count++;
 			}
 		}
@@ -106,7 +111,7 @@ class collection
 	-- assumes that the obj has a getter method
 	with the same spelling as the property, i.e. getUsername()
 	*/
-	public function removeByProperty($propertyName, $property)
+	public function removeWhere($propertyName, $property)
 	{
 		//$methodName = "get".ucwords($propertyName);
 		foreach ($this->objects as $key => $obj) {
@@ -122,11 +127,11 @@ class collection
 		}
 		return false;
 	}
-	public function currentObjIsFirst()
+	public function isFirst()
 	{
 		return ($this->iterateNum == 0);
 	}
-	public function currentObjIsLast()
+	public function isLast()
 	{
 		return (($this->numObjects-1) == $this->iterateNum);
 	}
@@ -164,7 +169,7 @@ class collection
 		}
 		$this->numObjects--;
 	}
-	public function removeAll()
+	public function reset()
 	{
 		$this->deletedObjects = array_merge($this->deletedObjects, $this->objects);
 		$this->objects = array();
@@ -221,11 +226,15 @@ class collection
 	}
 	public function getCurrent()
 	{
+		return $this->current();
+	}
+	public function current()
+	{
 		return $this->objects[$this->iterateNum];
 	}
-	public function getObject($offset=0)
+	public function Object($offset=0)
 	{
-	    return $this->objects[$offset];
+	    return $this->getObjNum($offset);
 	}
 	public function __clone() 
 	{
@@ -233,7 +242,32 @@ class collection
 		    $a = clone $a;
 		}
 	}
+	public function __invoke($key){
+		return $this->objects[$key];
+	}
 	
+	public function offsetGet($offset) {
+		return $this->objects[$offset];
+	}
+	
+	public function offsetSet($offset, $value) {
+		$this->objects[$offset]= $value;
+	}
+	public function offsetExists($offset){
+		return key_exists($offset, get_class_vars(get_class(new static())));
+	}
+	public function offsetUnset($offset){
+		if($this->offsetExists($offset)){
+			$this->set($offset, null);
+		}
+	}
+	public function getIterator() {
+		return new \ArrayIterator($this->objects);
+	}
+	
+	public function count(){
+		return $this->numObjects;
+	}
 	public function setCurrent($obj)
 	{
 		$this->objects[$this->iterateNum] = $obj;
@@ -279,25 +313,25 @@ class collection
 	}
 	#################### GETTERS
 	public function getDeletedObjects()
-		{
+	{
 		return $this->deletedObjects;
-}
-public function getIterateNum()
-{
-return $this->iterateNum;
-}
-public function getNumObjects()
-{
-return $this->numObjects;
-}
+	}
+	public function getIterateNum()
+	{
+		return $this->iterateNum;
+	}
+	public function getNumObjects()
+	{
+		return $this->numObjects;
+	}
 		#################### SETTERS
-		public function setDeletedObjects($key, $val)
-		{
+	public function setDeletedObjects($key, $val)
+	{
 		$this->deletedObjects[$key] = $val;
-}
-public function resetDeletedObjects()
-{
-$this->deletedObjects = array();
-}
+	}
+	public function resetDeletedObjects()
+	{
+		$this->deletedObjects = array();
+	}
 }
 ?>
