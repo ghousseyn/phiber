@@ -245,7 +245,7 @@ class main
              }
              
          } else {
-$this->errorstack("URL not valid!");
+
              $route = array("module" => "default", 
                             "controller" => "index", 
                             "action" => "index");
