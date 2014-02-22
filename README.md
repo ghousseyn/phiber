@@ -229,14 +229,21 @@ Array
     
     $result = $post->select()
     			   ->where('user_id = ?',14)
-    			   ->with(array('user'))
+    			   ->with(array('user' => array("col1","col2"))) // not specifying any columns will select user.*
     			   ->limit(0,5)->fetch();
+    			   
+    // $result is a collection instance (you can search within it, sort it and do a lot of things)
+    
+    $result->sortByProperty('rating'); // defaults to regular sort (other sorting options are available)
+     
     /*
     *	or load it when needed (lazy loading) 
     *	by calling a virtual method named after the related table like this
     */			   
     
-    $user = $result[0]->user(); // $result is a collection instance (you can search within it, sort it and do a lot of things)
+    $user = $result[0]->user(); 
+    
+    
     
     /*
     *	The good thing about this is that data from "user" table is not loaded yet
@@ -254,9 +261,9 @@ Array
     * 	bu when needed just call the load() method
     */
 
-	$user = $user->load(); // user data is loaded now and can be loaded or manipulated then saved
+	$user = $user->load(); // user data is loaded now and can be displayed or manipulated then saved
 	
-	echo $user->alias;
+	 echo $user->alias;
 	 
 ```
 
