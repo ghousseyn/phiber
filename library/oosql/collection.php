@@ -8,16 +8,17 @@ namespace oosql;
 
 class collection extends \ArrayObject
 {
+	public  $obj_name = null;
 	protected $objects; // array
 	protected $deletedObjects; // array
 	protected $resetFlag;
 	protected $numObjects;
-	protected $iterateNum;
+
 	
 	public function __construct()
 	{
 		parent::setFlags(parent::ARRAY_AS_PROPS);
-		$this->resetIterator();
+		
 		$this->numObjects = 0;
 		$this->objects = array();
 		$this->deletedObjects = array();
@@ -27,55 +28,55 @@ class collection extends \ArrayObject
 		$this->objects[] = $obj;
 		$this->numObjects++;
 	}
-	public function next()
-	{
-		$num = ($this->isLast()) ? 0 : $this->iterateNum + 1;
-		$this->iterateNum = $num;
-	}
-	public function isOdd()
-	{
-		return ($this->iterateNum%2 == 1);
-	}
-	public function isEven()
-	{
-		return ($this->iterateNum%2 == 0);
-	}
+	
 	/*
 	 get an obj based on one of it's properties.
 	i.e. a User obj with the property 'username' and a value of 'someUser'
-	can be retrieved by Collection::getByProperty('username', 'someUser')
-	-- assumes that the obj has a getter method
-	with the same spelling as the property, i.e. getUsername()
+	can be retrieved by Collection::objectWhere('username', 'someUser')
 	*/
-	public function objectWhere($propertyName, $property)
+	public function objectWhere($property, $value)
 	{
-		//$methodName = "get".ucwords($propertyName);
 		foreach ($this->objects as $key => $obj) {
-			if ($obj->{$propertyName} == $property) {
+			if ($obj->{$property} === $value) {
 				return $this->objects[$key];
 			}
 		}
 		return false;
 	}
-	/*
-	 alias for getByProperty()
-	*/
-	public function find($propertyName, $property)
+	public function objectsWhere($property, $value)
 	{
-		return $this->objectWhere($propertyName, $property);
+		$objects = array();
+		foreach ($this->objects as $key => $obj) {
+			if ($obj->{$property} === $value) {
+				$objects[] = $this->objects[$key];
+			}
+		}
+		return $objects;
+	}
+	/*
+	 alias for objectWhere()
+	*/
+	public function findOne($property, $value)
+	{
+		return $this->objectWhere($property, $value);
+	}
+	/*
+	 alias for objectsWhere()
+	*/
+	public function findAll($property, $value)
+	{
+		return $this->objectsWhere($property, $value);
 	}
 	/*
 	 get an objects number based on one of it's properties.
-	i.e. a User obj with the property 'username' and a value of 'someUser'
-	can be retrieved by Collection::getByProperty('username', 'someUser')
-	-- assumes that the obj has a getter method
-	with the same spelling as the property, i.e. getUsername()
+	i.e. a User obj key with the property 'username' and a value of 'someUser'
+	can be retrieved by Collection::keyWhere('username', 'someUser')
+	
 	*/
-	public function keyWhere($propertyName, $property)
+	public function keyWhere($property, $value)
 	{
-		//$methodName = "get".ucwords($propertyName);
 		foreach ($this->objects as $key => $obj) {
-			if ($obj->{$propertyName} == $property) {
+			if ($obj->{$property} === $value) {
 				$keys[] = $key;
 			}
 		}
@@ -89,91 +90,68 @@ class collection extends \ArrayObject
 	with a value matches the given value
 	i.e. if there are objs with a property of 'verified' set to 1
 	the number of these objects can be retrieved by:
-	Collection::getNumObjectsWithProperty('verified', 1)
-	-- assumes that the obj has a getter method
-	with the same spelling as the property, i.e. getUsername()
+	Collection::countWhere('verified', 1)
 	*/
-	public function countWhere($propertyName, $value)
+	public function countWhere($property, $value)
 	{
-		//$methodName = "get".ucwords($propertyName);
+
 		$count = 0;
 		foreach ($this->objects as $key => $obj) {
-			if ($obj->{$propertyName} == $value) {
+			if ($obj->{$property} === $value) {
 				$count++;
 			}
 		}
-		return $count;;
+		return $count;
 	}
 	/*
 	 remove an obj based on one of it's properties.
 	i.e. a User obj with the property 'username' and a value of 'someUser'
-	can be removed by Collection::removeByProperty('username', 'someUser')
-	-- assumes that the obj has a getter method
-	with the same spelling as the property, i.e. getUsername()
+	can be removed by Collection::removeWhere('username', 'someUser')
 	*/
-	public function removeWhere($propertyName, $property)
+	public function removeWhere($property, $value)
 	{
-		//$methodName = "get".ucwords($propertyName);
 		foreach ($this->objects as $key => $obj) {
-			if ($obj->{$propertyName} == $property) {
+			if ($obj->{$property} === $value) {
 				$this->deletedObjects[] = $this->objects[$key];
 				unset($this->objects[$key]);
-				// reindex array & subtract 1 from numObjects
-				$this->objects = array_values($this->objects);
 				$this->numObjects--;
-				$this->iterateNum = ($this->iterateNum >= 0) ? $this->iterateNum - 1 : 0;
-				return true;
 			}
 		}
-		return false;
+		$this->objects = array_values($this->objects);
 	}
-	public function isFirst()
+	public function restoreWhere($property, $value)
 	{
-		return ($this->iterateNum == 0);
+		foreach ($this->deletedObjects as $key => $obj) {
+			if ($obj->{$property} === $value) {
+				$this->objects[] = $this->deletedObjects[$key];
+				unset($this->deletedObjects[$key]);
+			}
+		}
+		$this->objects = array_values($this->objects);
+		$this->deletedObjects = array_values($this->deletedObjects);
 	}
-	public function isLast()
-	{
-		return (($this->numObjects-1) == $this->iterateNum);
-	}
-	public function getObjNum($num)
-	{
-		return (isset($this->objects[$num])) ? $this->objects[$num] : false;
-	}
+	
 	public function getLast()
 	{
 		return $this->objects[$this->numObjects-1];
 	}
-	public function removeCurrent()
-	{
-		$this->deletedObjects[] = $this->objects[$this->iterateNum];
-		unset($this->objects[$this->iterateNum]);
-		// reindex array & subtract 1 from iterator
-		$this->objects = array_values($this->objects);
-		if ($this->iterateNum == 0) { // if deleting 1st object
-			$this->resetFlag = true;
-		} elseif ($this->iterateNum > 0) {
-			$this->iterateNum--;
-		} else {
-			$this->iterateNum = 0;
-		}
-		$this->numObjects--;
-	}
-	public function removeLast()
+
+	public function pop()
 	{
 		$this->deletedObjects[] = $this->objects[$this->numObjects-1];
 		unset($this->objects[$this->numObjects-1]);
 		$this->objects = array_values($this->objects);
-		// if iterate num is set to last object
-		if ($this->iterateNum == $this->numObjects-1) {
-			$this->resetIterator();
-		}
 		$this->numObjects--;
 	}
-	public function reset()
+	public function deleteAll()
 	{
 		$this->deletedObjects = array_merge($this->deletedObjects, $this->objects);
 		$this->objects = array();
 		$this->numObjects = 0;
+	}
+	public function destroy(){
+		$this->deleteAll();
+		unset($this->deletedObjects);
 	}
 	/*
 	 sort the objects by the value of each objects property
@@ -185,12 +163,12 @@ class collection extends \ArrayObject
 	s string, ascending
 	sr string, descending
 	*/
-	public function sortByProperty($propName, $type='r')
+	public function sortByProperty($property, $type='r')
 	{
 		$tempArray = array();
 		$newObjects = array();
-		while ($obj = $this->iterate()) {
-			$tempArray[] = call_user_func(array($obj, 'get'.ucwords($propName)));
+		foreach ($this->objects as $obj) {
+			$tempArray[] = $obj->{$property};
 		}
 		switch($type)
 		{
@@ -222,20 +200,24 @@ class collection extends \ArrayObject
 	}
 	public function isEmpty()
 	{
-		return ($this->numObjects == 0);
-	}
-	public function getCurrent()
-	{
-		return $this->current();
-	}
-	public function current()
-	{
-		return $this->objects[$this->iterateNum];
+		return ($this->numObjects === 0);
 	}
 	public function Object($offset=0)
 	{
-	    return $this->getObjNum($offset);
+	    return $this->objects[$offset];
 	}
+	public function getDeleted()
+	{
+		return $this->deletedObjects;
+	}
+	
+	public function resetDeleted()
+	{
+		$this->deletedObjects = array();
+	}
+	/*
+	 * Clone every object we have
+	 */
 	public function __clone() 
 	{
 		foreach ($this->objects as &$a) {
@@ -268,70 +250,23 @@ class collection extends \ArrayObject
 	public function count(){
 		return $this->numObjects;
 	}
-	public function setCurrent($obj)
-	{
-		$this->objects[$this->iterateNum] = $obj;
-	}
-	public function getObjectByIterateNum($iterateNum)
-	{
-		return (
-				isset($this->objects[$iterateNum])
-				? $this->objects[$iterateNum]
-				: false
-		);
-	}
-	public function iterate()
-	{
-		if ($this->iterateNum < 0) {
-			$this->iterateNum = 0;
-		}
-		if ($this->resetFlag) {
-			$this->resetFlag = false;
-		} else {
-			$this->iterateNum++;
-		}
-		if ( $this->iterateNum == $this->numObjects
-				|| !isset($this->objects[$this->iterateNum])
-		) {
-			$this->resetIterator();
-			return false;
-		}
-		return $this->getCurrent();
-	}
-	public function resetIterator()
-	{
-		$this->iterateNum = 0;
-		$this->resetFlag = true;
-	}
+	
 	public function __toString()
 	{
 		$str = '';
+		$objects = array();
+		
 		foreach ($this->objects as $obj) {
-			$str .= '--------------------------<br />'.$obj.'<br />';
+			$objects[get_class($obj)] = ((!isset($objects[get_class($obj)]))? 0:$objects[get_class($obj)]) + 1; 
+    	}
+		
+		foreach ($objects as $key => $count){
+			$str .= '--------------------------<br />'.$count.' instance'.(($count ===1)?"":"s").' of class '.$key.'<br />';
 		}
+		
 		return $str;
 	}
-	#################### GETTERS
-	public function getDeletedObjects()
-	{
-		return $this->deletedObjects;
-	}
-	public function getIterateNum()
-	{
-		return $this->iterateNum;
-	}
-	public function getNumObjects()
-	{
-		return $this->numObjects;
-	}
-		#################### SETTERS
-	public function setDeletedObjects($key, $val)
-	{
-		$this->deletedObjects[$key] = $val;
-	}
-	public function resetDeletedObjects()
-	{
-		$this->deletedObjects = array();
-	}
+
+	
 }
 ?>

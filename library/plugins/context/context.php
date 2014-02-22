@@ -6,9 +6,32 @@ class context extends Codup\main
    
     function run ($method)
     {
-      
 
-         $dept_manager = models\dept_manager::getInstance();
+    	//$managers = models\dept_emp::getInstance();
+    	//$results = $managers->select()->where("emp_no =?", "58163")->fetch(50);
+    	/*foreach($results as $result){
+    		$result->from_date = "1983-03-26";
+    		$result->save();
+    	}
+    	*/
+    	//echo $results->count();
+    	//$this->tools->wtf($results->findAll('from_date','1996-05-27'));
+    	/*$depts = models\titles::getInstance();;
+    	
+    	try {
+    		
+    		$titles = $depts->select()->fetch(2);
+    		$title = $titles(0);
+    		$title->to_date = "1986-06-28";
+    		$title->save();
+    	
+    	}catch (Exception $e){
+    		
+    		$this->tools->wtf($e);
+    	
+    	}
+    	$this->tools->wtf($titles);
+        $dept_manager = models\dept_manager::getInstance();
 
          //SELECT * FROM employees WHERE last_name like "Mal%"
          //$test = models\employees::getInstance();
@@ -50,23 +73,35 @@ class context extends Codup\main
           *       ON 		dept_manager.emp_no = employees.emp_no 
           * LIMIT 	0,20
           */
-		$deps = models\departments::getInstance();/* 
-         try {
-		 $deps->dept_no = "d013";
-		 $deps->dept_name = "new dep 4";
-		 $deps->save();
-		 
-         }catch (Exception $e){
-         	
-         	echo $e->errorInfo[2];
-         	
-         }
-         $deps->delete(array("dept_no = ?", "d012"));
-         */
-		  $res = $dept_manager->find(10022)//or $dept_manager->findAll()
+    	/*
+		$deps = models\dept_emp::getInstance();
+         
+         //$deps->delete(array("dept_no = ?", "d012"));
+         
+		  $res = $dept_manager->findAll()//or $dept_manager->findAll()
 							  ->with(array('departments'=>array("dept_name"),'employees'))
-							  ->fetch();
-         $this->tools->wtf($deps);
+							  ->fetch(20);
+		  
+		  $this->tools->wtf($res);
+		  $res2 = $deps->findAll()->fetch(30);
+		  
+		  $res2->removeWhere('dept_no','d004');
+		  $res2->removeWhere('dept_no','d005');
+		  $res2->restoreWhere('dept_no','d005');
+		  $res2->sortByProperty('from_date');
+		
+		  $keys = $res2->objectWhere('dept_no','d005');
+		  $this->tools->wtf($res2);
+		  $dept2 = $res2(0)->departments()->load();
+		  //$this->tools->wtf($dept2);
+		  $dept2->dept_name = "Quality Management testing";
+		 $dept2->save();
+		  $res2(10)->departments()->load();
+		  $this->tools->wtf($dept2);
+		  echo $res;
+		  echo $res2;
+		 
+         //($deps);
          //var_dump($test->errors);
 
         // var_dump($res);
@@ -81,14 +116,24 @@ class context extends Codup\main
         	//	echo $record->last_name."</br>";
         	//}
       //  }
-         /*
-         $dept = $res->Object()->departments();
-         $dept->dept_name = "Finance again";
+        
+        $dept = $res(1)->employees();
+    
+        $this->tools->wtf($dept);
+        $dept->first_name = "hocine";
+        $dept->last_name = "guettaf";
+        $dept->gender = 'M';
+        $res(1)->dept_no = 'd004';
+        
+        $dept->save();
+        $res(1)->save();
+        //$this->tools->wtf($dept);
+        //$dept->dept_no = "d018";
          //won't work (trying to change a primary key here) try using update() instead BAD idea though!
          //$dept->dept_no = "d010";
-         $dept->save();
-         var_dump($dept);
-     
+         
+		  //$this->tools->wtf($res2);
+     /*
          
        //  echo self::$t;
          if(!$res){

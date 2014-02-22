@@ -263,7 +263,7 @@ class main
         $uri = str_replace("&", "/", $uri);
         $uri = str_replace("=", "/", $uri);
                                         
-        if (preg_match("~^(?:[/\w\s-]+)+/?$~", $uri)) {
+        if (preg_match("~^(?:[/\\w\\s-]+)+/?$~", $uri)) {
             return true;
         }
             return false;
@@ -537,14 +537,10 @@ class main
 
     function isLoaded ($hash)                                                    
     {
-        if (isset($_SESSION)) {
-            
-            if (key_exists($hash, $_SESSION)) {
+        if (isset($_SESSION[$hash])) {
                 
                  return true;
-                                                            
-            }
-                                                        
+                                       
         }
                                                         
         return false;

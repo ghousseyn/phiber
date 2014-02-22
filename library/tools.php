@@ -38,7 +38,7 @@ class tools extends Codup\main
         return $default;
   	}
   	/*
-  	 * Thanks to aaron Fisher
+  	 * Thanks to Aaron Fisher
   	 * 
   	 * http://www.aaron-fisher.com/articles/web/php/wtf/
   	 * 

@@ -37,7 +37,7 @@ class config extends Codup\main
      */
     protected $_dbhost = "localhost";
 
-    protected $_dbpass = "hggiHmfv";
+    protected $_dbpass = "password";
 
     protected $_dbuser = "root";
 
@@ -56,7 +56,7 @@ class config extends Codup\main
     function __get ($var)
     {
         if (key_exists($var, get_class_vars(__CLASS__))) {
-            // parent::stack(__class__." --> $var");
+
             return $this->{$var};
         }
     

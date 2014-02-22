@@ -10,13 +10,23 @@ class employees extends model
     public $gender;
     public $hire_date;
     public function getPrimary() 
-    {
-        return "emp_no";
-    }
-    public function getPrimaryValue() 
-    {
-        return $this->emp_no;
-    }
+	{
+	    return array("emp_no");
+	}
+    public function getPrimaryValue($key=null)
+	{
+		if(null === $key){
+			return array("emp_no" => $this->emp_no);
+		}
+		$pri = $this->getPrimary();
+		if(in_array($key,$pri)){
+			return $this->{$pri[$key]};
+		}
+	}
+    public function getCompositeValue() 
+	{
+		return false;
+	}
     public function getRelations() 
     {
         return array();
@@ -24,5 +34,9 @@ class employees extends model
     public function save() 
     {
         parent::save($this);
+    }
+    public function load() 
+    {
+        return parent::load($this);
     }
 }
