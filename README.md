@@ -195,7 +195,7 @@ Array
 // fetch existing
 //get post with primary key = 0 (regardless of the name of your primary key)
 
-   $result = $post->find(0)->fetch();  
+   $result = $post->find(0)->fetch();  // Careful when using composite primary keys coz this will much only the first member
 
 // OR
    
@@ -209,22 +209,55 @@ Array
 
    //show results
    
-   while ( $r = $result->iterate()){
+   		foreach ($result as $r){
           
-          echo "Title: $r->title ";
+          	echo "Title: $r->title ";
 
-         }
+        }
          
    //change results (only changed columns will be included in the query)
    
-    while ( $r = $result->iterate()){
+    	foreach ($result as $r){
     
-    	$r->title = "$r->title (great)";
-    	$r->save();
-    }
+    		$r->title = "$r->title (great)";
+    		$r->save();
+    	}
+    /*
+    *	If table "blog_post" has a constraint fk to other tables like "user" for example
+    *	you can either join on select using with() (eager loading)
+    */
     
+    $result = $post->select()
+    			   ->where('user_id = ?',14)
+    			   ->with(array('user'))
+    			   ->limit(0,5)->fetch();
+    /*
+    *	or load it when needed (lazy loading) 
+    *	by calling a virtual method named after the related table like this
+    */			   
     
+    $user = $result[0]->user(); // $result is a collection instance (you can search within it, sort it and do a lot of things)
+    
+    /*
+    *	The good thing about this is that data from "user" table is not loaded yet
+    *	but you can rather update the related record without fetching it (neat)	 
+    *	something like this:
+    */
+    
+    $user->banned = "1";
+    $user->active = 0;
+    $user->save();
+    
+    /*
+    *	This will generate an update query to the user where the user_id from the previous query matches
+    *	No EXTRA selects
+    * 	bu when needed just call the load() method
+    */
 
+	$user = $user->load(); // user data is loaded now and can be loaded or manipulated then saved
+	
+	echo $user->alias;
+	 
 ```
 
 - and more other cool features to come.
