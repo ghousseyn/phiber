@@ -6,13 +6,23 @@ class departments extends model
     public $dept_no;
     public $dept_name;
     public function getPrimary() 
-    {
-        return "dept_no";
-    }
-    public function getPrimaryValue() 
-    {
-        return $this->dept_no;
-    }
+	{
+	    return array("dept_no");
+	}
+    public function getPrimaryValue($key=null)
+	{
+		if(null === $key){
+			return array("dept_no" => $this->dept_no);
+		}
+		$pri = $this->getPrimary();
+		if(in_array($key,$pri)){
+			return $this->{$pri[$key]};
+		}
+	}
+    public function getCompositeValue() 
+	{
+		return false;
+	}
     public function getRelations() 
     {
         return array();
@@ -20,5 +30,9 @@ class departments extends model
     public function save() 
     {
         parent::save($this);
+    }
+    public function load() 
+    {
+        return parent::load($this);
     }
 }

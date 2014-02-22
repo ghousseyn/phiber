@@ -5,6 +5,8 @@ use \Codup\main;
 
 class oosql extends \PDO {
     
+
+	
     protected static $oosql_result = null;
     protected $oosql_class;
     protected $oosql_table;
@@ -162,6 +164,7 @@ class oosql extends \PDO {
         return $this;
     }
     public function set($data){
+    	
         if(! is_array($data)){
             $msg = "Data should be passed as an array!";
             $this->oosql_errors[] = array('method'=> __METHOD__.':'.__LINE__,
@@ -185,8 +188,9 @@ class oosql extends \PDO {
         return $this;
     }
     public function save($object=null){
-		if(null == $object){
-		    if(null == $this->oosql_model_obj){
+    	$data = null;
+		if(null === $object){
+		    if(null === $this->oosql_model_obj){
 		    	$msg = "Nothing to save!";
                 $this->oosql_errors[] = array('method'=> __METHOD__.':'.__LINE__,
                                     'message'=>$msg,
@@ -197,36 +201,29 @@ class oosql extends \PDO {
 		    	return false;
 		    }
 		   // This is a brand new record let's insert;
+		  
 		   $this->insert(implode(',',array_keys((array)$this->oosql_model_obj)))->values(implode(',',array_values((array)$this->oosql_model_obj)))->exe();
-		}elseif(get_class(self::$oosql_result) == get_class($object)){
-            
-			//update the table after a select
+		}elseif(key_exists(get_class($object),self::$oosql_result)){
+			//Updating after a select
 			
-            $primary = $object->getPrimaryValue();
-            
-            while($t = self::$oosql_result->iterate()){
-                if($t->getPrimaryValue() == $primary){
-	                $old = $t;
+			$primary = $object->getPrimaryValue();
+	  
+            foreach( self::$oosql_result[get_class($object)] as $result_object){
+            	
+                if($result_object->getPrimaryValue()  === $primary){
+                	
+	                $old = $result_object;
                 }
             }
-            if(count((array)$old) >= count((array)$object)){
-               
+           
+            	
                 foreach(array_diff((array)$object,(array)$old) as $key => $value){
                 
                     $data[$key] = $value;
                 }
-            }else{
-            	
-              $primary = $object->getPrimary();
-                foreach($object as $k => $v){
-                    if($primary == $k){
-                        continue;
-                    }
-                    $data[$k] = $v;
-                }
-            }
+               
            
-            if(null == $data){
+            if(null === $data){
                 $msg = "Nothing to save!";
                 $this->oosql_errors[] = array('method'=> __METHOD__.':'.__LINE__,
                                     'message'=>$msg,
@@ -236,24 +233,44 @@ class oosql extends \PDO {
                               );
                 return false;
             }
-            $this->update()->set($data)->where($object->getPrimary().' = ?',$primary)->exe();
+         
+            $this->update()->set($data)->createWhere($object->getPrimaryValue())->exe();
             
         }else{
         	//update a related table (no select on it)
         	$primary = $object->getPrimary();
         	
         	foreach($object as $k => $v){
-        		if($v === null || $primary == $k){
+        		if($v === null || in_array($k,$primary)){
         			continue;
         		}	
         		$data[$k] = $v;
         	}
-        	$this->update()->set($data)->where($object->getPrimary().' = ?',$object->getPrimaryValue())->exe();
+        	
+        	$this->update()->set($data)->createWhere($object->getPrimaryValue())->exe();
+        	
         }
       
     	return true ;
     }
-   
+   public function createWhere(array $conditions){
+   		$num = 0;
+   		
+   		foreach($conditions as $col => $value){
+   			if(empty($value)){
+   				continue;
+   			}
+   			if($num === 0){
+   				$this->where($col.' =?', $value);
+   				$num++;
+   				continue;
+   			}
+   			$this->andWhere($col.' =?', $value);
+   			
+   		}
+   		
+   		return $this;
+   }
     public function values(){
         
         $arg_list = func_get_args();
@@ -376,9 +393,7 @@ class oosql extends \PDO {
     	return false;
     }
     public function exe()
-    {
-    	
-    	
+    { 	
         if($this->oosql_fromFlag){
         	$this->from();
         }
@@ -392,8 +407,8 @@ class oosql extends \PDO {
             $this->oosql_sql = $this->oosql_sql." ".$this->oosql_limit;
         }
         
-    	
-    	if(count($this->oosql_conValues)){
+    
+    	if(count($this->oosql_conValues) !== 0){
     		$this->oosql_stmt = $this->prepare(trim($this->oosql_sql));
     		$ord = 1;
     		foreach($this->oosql_conValues as $val){
@@ -408,9 +423,11 @@ class oosql extends \PDO {
     			}	
     			$ord++;
     		}
+    		
     		$this->oosql_stmt->execute();
     		
     	}else{
+    		
     		$this->oosql_stmt = $this->query($this->oosql_sql);
     		
     	}
@@ -421,14 +438,33 @@ class oosql extends \PDO {
     	fwrite($f, $str);
     	fclose($f);
     	*/
-    	echo $this->oosql_sql."</br></br>";
+    	//echo $this->oosql_sql."</br></br>";
     	$this->oosql_stmt->setFetchMode(\PDO::FETCH_CLASS|\PDO::FETCH_PROPS_LATE, $this->oosql_class);
     	
     	return $this->oosql_stmt;
     }
-    public function fetch($fetch_mode=null)
+    public function fetch()
     {     
-       
+    	$numargs = func_num_args();
+    	if($numargs){
+    		$argumants = func_get_args();
+    	}
+    	 
+        switch($numargs){
+        	case 0:
+        		break;
+        	case 1:
+        		$this->limit(0,$argumants[0]); 
+        		break;
+        	case 2:
+        		$this->limit($argumants[0],$argumants[1]);
+        		break;
+        	default:
+        		throw new \InvalidArgumentException("Fetch expects zero, one or two arguments as a query result limit");
+        }
+        
+        
+        
         $this->oosql_select->exe();
         
         if (!$this->oosql_stmt) {
@@ -446,16 +482,18 @@ class oosql extends \PDO {
         $result = $this->oosql_stmt->fetchAll();
         
         $collection = new collection();
-        for($i=0;$i < count($result);$i++){
-            $collection->add($result[$i]);
+        
+        foreach($result as $res){
+            $collection->add($res);
+            
         }
-        self::$oosql_result = clone $collection;
+        $collection->obj_name = $this->oosql_class;
+        self::$oosql_result[$this->oosql_class] = clone $collection;
         return $collection;
     }
     public function with(array $related){
     	
-    	$obj = new $this->oosql_class;
-    	$relations = $obj->getRelations();
+    	$relations = $this->getModelObject()->getRelations();
     	foreach ($relations as $fk => $target){
     		$table = substr($target,0,strpos($target,'.'));
     		if(in_array($table,$related)){
@@ -471,7 +509,7 @@ class oosql extends \PDO {
     	return $this;
     }
     public function limit($from, $to){
-    	$this->oosql_limit = sprintf(" LIMIT %d, %d", $from, $to);
+    	$this->oosql_limit = " LIMIT ".$from.",".$to;
     	return $this;
     }    
     public function findOne( $arg, $operator = null, $fields = array('*'))
@@ -489,7 +527,7 @@ class oosql extends \PDO {
     }
     public function find( $arg, $operator = null, $fields = array('*'))
     {
-    	if($operator == null){
+    	if($operator === null){
     		$operator = '=';
     	}
     	if($fields[0] == '*'){
@@ -499,7 +537,8 @@ class oosql extends \PDO {
     	$this->oosql_select = $this->select(implode(", $this->oosql_table.",$fields));
     	if(!is_array($arg)){
     	    $obj = new $this->oosql_class;
-    	    $arg = array($obj->getPrimary()=>$arg);
+    	    $pri = $obj->getPrimary();
+    	    $arg = array($pri[0]=>$arg);
     	}
     	$i = 0;
     	foreach($arg as $col => $val){

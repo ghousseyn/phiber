@@ -13,9 +13,8 @@ class cogen extends \PDO {
     protected $time;
     protected $mem;
     
-    public $path = '../models/';
-    public $prefix = null;
-    public $suffix = null;
+    public $path = 'g:/models/';
+
     
     function __construct($host,$dbname,$user,$password){
         
@@ -70,14 +69,14 @@ class cogen extends \PDO {
     	    }
     	    return false;
     	}
-        while($table = $tables->iterate()){
-    		$tbls[] = (array) $table;
+        foreach($tables as $tble){
+    		$tbls[] = (array) $tble;
     	}
-    	foreach($tbls as $table){
+    	foreach($tbls as &$tbl){
     	 
     	    
     	    
-    		$table = array_pop($table);
+    		$table = array_pop($tbl);
     		
     		print "Analyzing $table physical columns ...".PHP_EOL;
     		
@@ -92,7 +91,7 @@ class cogen extends \PDO {
     	    	}
     			return false;
     		}
-    		while($columns = $collection->iterate()) {
+    		foreach($collection as $columns) {
     			$fields[$table][]= (array) $columns;
     		}
     		
@@ -109,7 +108,7 @@ class cogen extends \PDO {
     		}
     		
     		$ks = array();
-    		while($ex = $ddl->iterate()) {
+    		foreach($ddl as $ex){
     			$ks[]= (array) $ex;
     		}
     	 
@@ -118,7 +117,7 @@ class cogen extends \PDO {
     		$keys = explode(',',$create);
     
     	
-    		while(substr(trim($keys[count($keys)-1]),0,10) == 'CONSTRAINT' ){
+    		while(substr(trim($keys[count($keys)-1]),0,10) === 'CONSTRAINT' ){
     		 
     		 
     			$key = array_pop($keys);
@@ -139,24 +138,15 @@ class cogen extends \PDO {
         $h++;
         $cname = $tname;
         
-        if(null != $this->prefix){
-        
-        	$cname = $this->prefix.$cname;
-        
-        }
-        if(null != $this->suffix){
-        
-        	$cname = $cname.$this->suffix;
-        
-        }
         print "Generating class $cname ...";
         
     	$text .= '<?php'.PHP_EOL.'namespace models;'.PHP_EOL.'use Codup;';
     	$text .= PHP_EOL."class $cname extends model  ".PHP_EOL."{".PHP_EOL;
     	$count = 0;
     	$foreign = array();
+    	$primary = array();
     	foreach($cols as $col){
-    		// var_dump($fields);
+    		//var_dump($fields);
     
     		if(isset($col['constraints'])){
     			//print_r($fields[$tname]);
@@ -171,21 +161,37 @@ class cogen extends \PDO {
     		}
     
     		if($col['Key'] == 'PRI'){
-    			$primary = $col['Field'];
+    			$primary[] = $col['Field'];
     		}
+    		
     		if($col['Field'] == ''){
     			continue;
     		}
     		$text .= '    public $'.$col['Field'].';'.PHP_EOL;
     		$count++;
     	}
-    	if($primary != ""){
-    		$text .= '    public function getPrimary() '.PHP_EOL.'    {'.PHP_EOL.'        return "'.$primary.'";'.PHP_EOL.'    }'.PHP_EOL;
-    		$text .= '    public function getPrimaryValue() '.PHP_EOL.'    {'.PHP_EOL.'        return $this->'.$primary.';'.PHP_EOL.'    }'.PHP_EOL;
-    		unset($primary);
+    	$primaryCount = count($primary);
+    	
+    	if( $primaryCount !== 0){
+    	
+    		$text .= '    public function getPrimary() '.PHP_EOL.'	{'.PHP_EOL.'	    return array("'.implode('","', $primary).'");'.PHP_EOL.'	}'.PHP_EOL;
+    		
+    		if($primaryCount > 1){
+    			$text .= '    public function getPrimaryValue($key=null)'.PHP_EOL.'	{'.PHP_EOL.'		if(null === $key){'.PHP_EOL.'			return $this->getCompositeValue();'.PHP_EOL.'		}'.PHP_EOL.'		$pri = $this->getPrimary();'.PHP_EOL.'		if(in_array($key,$pri)){'.PHP_EOL.'			return $this->{$pri[$key]};'.PHP_EOL.'		}'.PHP_EOL.'	}'.PHP_EOL;
+    			$text .= '    public function getCompositeValue() '.PHP_EOL.'	{'.PHP_EOL.'		return array('.PHP_EOL;
+    			foreach($primary as $pkey){
+    				$text .= '				"'.$pkey.'" => $this->'.$pkey.','.PHP_EOL;
+    			}
+    			$text .= '				);'.PHP_EOL.'	}'.PHP_EOL;
+    		}else{
+    			$text .= '    public function getPrimaryValue($key=null)'.PHP_EOL.'	{'.PHP_EOL.'		if(null === $key){'.PHP_EOL.'			return array("'.implode("",$primary).'" => $this->'.implode("",$primary).');'.PHP_EOL.'		}'.PHP_EOL.'		$pri = $this->getPrimary();'.PHP_EOL.'		if(in_array($key,$pri)){'.PHP_EOL.'			return $this->{$pri[$key]};'.PHP_EOL.'		}'.PHP_EOL.'	}'.PHP_EOL;
+    			$text .= '    public function getCompositeValue() '.PHP_EOL.'	{'.PHP_EOL.'		return false;'.PHP_EOL.'	}'.PHP_EOL;
+    		}
+    		//unset($primary);
     	}else{
     		$text .= '    public function getPrimary() '.PHP_EOL.'    {'.PHP_EOL.'        return false;'.PHP_EOL.'    }'.PHP_EOL;
     		$text .= '    public function getPrimaryValue() '.PHP_EOL.'    {'.PHP_EOL.'        return false;'.PHP_EOL.'    }'.PHP_EOL;
+    		$text .= '    public function getCompositeValue() '.PHP_EOL.'	{'.PHP_EOL.'		return false;'.PHP_EOL.'	}'.PHP_EOL;
     	}
     
     	
@@ -211,6 +217,15 @@ class cogen extends \PDO {
     	'    {'
     	.PHP_EOL.
     	'        parent::save($this);'
+    	.PHP_EOL.
+    	'    }'
+    	.PHP_EOL;
+    
+    	$text .= '    public function load() '
+    	.PHP_EOL.
+    	'    {'
+    	.PHP_EOL.
+    	'        return parent::load($this);'
     	.PHP_EOL.
     	'    }'
     	.PHP_EOL;

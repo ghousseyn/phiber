@@ -3,9 +3,12 @@ namespace models;
 
 use oosql\oosql;
 
-class model implements \ArrayAccess 
+abstract class model implements \ArrayAccess 
 {
+
+    protected static $oosql_model_extra = false;
     
+    abstract public function getRelations();
     
     public function offsetGet($offset) {
     	return $this->{$offset};
@@ -30,7 +33,7 @@ class model implements \ArrayAccess
         
         return self::getooSQL(get_class(new static()));
     }
-	public static function getooSQL($class){
+	protected static function getooSQL($class){
 	    
 	    $table  = strstr($class,'\\');
 	    if($table){
@@ -41,14 +44,39 @@ class model implements \ArrayAccess
 		 return new oosql($table,$class);
 	}
 	public function save($obj){
-	
-	  $oosql = self::getooSQL(get_class($obj));
-	  $oosql->save($obj);
+		
+		if(self::$oosql_model_extra){
+			
+			$originalProps = get_class_vars(get_class(new static()));
+			$mixedProps = array_keys(get_object_vars($obj));
+		
+			foreach($mixedProps as $property){
+				if (!key_exists($property, $originalProps)){
+					unset($obj->{$property});
+				}
+			}
+			//self::$oosql_model_extra = false;
+		}
+	  
+	   	$oosql = self::getooSQL(get_class($obj));
+	  	$oosql->save($obj);
 	
 	}
-	function __set($var, $val){
+	function load($obj){
 		
-			$this->{$var}=$val;	
+		$primary = $obj->getPrimary();
+		if(isset($obj->{$primary[0]})){
+			return self::getooSQL(get_class($obj))->findOne($obj->getPrimaryValue())->fetch()->object();
+		}
+	}
+	function __set($var, $val){
+		if (!key_exists($var, get_class_vars(get_class(new static())))) {
+			self::$oosql_model_extra = true;
+		}
+		$this->{$var}=$val;
+	}
+	public function __unset( $property ) {
+		unset($this->properties[$property]);
 	}
 	function __call($table,$arg){
 		$relations = $this->getRelations();
@@ -59,6 +87,7 @@ class model implements \ArrayAccess
 				$table = "models\\$table";
 				$instance = $table::getInstance()->getModelObject();
 				$instance->{$objPath[1]} = $obj->{$objPath[1]};
+				//var_dump($instance);
 				return $instance;
 			}
 			

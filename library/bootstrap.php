@@ -22,7 +22,7 @@ class bootstrap extends Codup\main
     function getModules ()
     {
         
-        foreach (new DirectoryIterator(__dir__ . '/modules') as $mods) {
+        /*foreach (new DirectoryIterator(__dir__ . '/modules') as $mods) {
             if ($mods->isDot()) {
                 continue;
             }
@@ -37,7 +37,9 @@ class bootstrap extends Codup\main
                 $this->modules[$dir] = $dir;
             }
         
-        }
+        }*/
+    	
+    	$this->modules = array("dev"=>"dev");
     
     }
 
@@ -51,8 +53,8 @@ class bootstrap extends Codup\main
 
     function getPlugins ()
     {
-        $this->plugins = array();
-        $path = __dir__ . '/plugins';
+        $this->plugins = array("context");
+        /*$path = __dir__ . '/plugins';
         foreach (new DirectoryIterator($path) as $plugin) {
             if ($plugin->isDot()) {
                 continue;
@@ -64,7 +66,7 @@ class bootstrap extends Codup\main
                 $this->plugins[] = $plugin->getFilename();
             }
         
-        }
+        }*/
     
     }
 
