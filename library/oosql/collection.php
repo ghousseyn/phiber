@@ -28,6 +28,17 @@ class collection extends \ArrayObject
 		$this->objects[] = $obj;
 		$this->numObjects++;
 	}
+
+	protected function partial(array $array, $count){
+		if($count === 0){
+			return false;
+		}
+		$collection = new collection;
+		$collection->objects = $array;
+		$collection->numObjects = $count;
+		$collection->obj_name = $this->obj_name;
+		return $collection;
+	}
 	
 	/*
 	 get an obj based on one of it's properties.
@@ -46,12 +57,14 @@ class collection extends \ArrayObject
 	public function objectsWhere($property, $value)
 	{
 		$objects = array();
+		$num = 0;
 		foreach ($this->objects as $key => $obj) {
 			if ($obj->{$property} === $value) {
-				$objects[] = $this->objects[$key];
+				$objects[$num] = $obj;
+				$num++;
 			}
 		}
-		return $objects;
+		return $this->partial($objects,$num);
 	}
 	/*
 	 alias for objectWhere()
@@ -123,7 +136,7 @@ class collection extends \ArrayObject
 	{
 		foreach ($this->deletedObjects as $key => $obj) {
 			if ($obj->{$property} === $value) {
-				$this->objects[] = $this->deletedObjects[$key];
+				$this->objects[] = $obj;
 				unset($this->deletedObjects[$key]);
 			}
 		}
@@ -138,10 +151,12 @@ class collection extends \ArrayObject
 
 	public function pop()
 	{
-		$this->deletedObjects[] = $this->objects[$this->numObjects-1];
+		$element = $this->objects[$this->numObjects-1];
+		$this->deletedObjects[] = $element;
 		unset($this->objects[$this->numObjects-1]);
 		$this->objects = array_values($this->objects);
 		$this->numObjects--;
+		return $element;
 	}
 	public function deleteAll()
 	{
@@ -202,6 +217,14 @@ class collection extends \ArrayObject
 	{
 		return ($this->numObjects === 0);
 	}
+	public function exists($object){
+		foreach ($this->objects as $obj) {
+			if ($object === $obj) {
+				return true;
+			}
+		}
+		return false;
+	}
 	public function Object($offset=0)
 	{
 	    return $this->objects[$offset];
@@ -258,7 +281,7 @@ class collection extends \ArrayObject
 		
 		foreach ($this->objects as $obj) {
 			$objects[get_class($obj)] = ((!isset($objects[get_class($obj)]))? 0:$objects[get_class($obj)]) + 1; 
-    	}
+    		}
 		
 		foreach ($objects as $key => $count){
 			$str .= '--------------------------<br />'.$count.' instance'.(($count ===1)?"":"s").' of class '.$key.'<br />';

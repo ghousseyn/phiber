@@ -7,8 +7,12 @@
  * @package 	codup
  */
 
-class tools extends Codup\main
+class tools
 {
+
+    public static function getInstance(){
+	return new self();
+    }
 
     function convertTime ($size)
     {

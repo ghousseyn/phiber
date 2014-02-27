@@ -6,7 +6,7 @@
  * @author 	Hussein Guettaf <ghussein@coda-dz.com>
  * @package 	codup
  */
-class bootstrap extends Codup\main
+class bootstrap
 {
 
     protected $modules = array();
@@ -16,7 +16,10 @@ class bootstrap extends Codup\main
     function __construct ()
     {
         $this->getModules();
-        $this->getPlugins();
+    }
+
+    public static function getInstance(){
+	return new self();
     }
 
     function getModules ()
@@ -67,6 +70,7 @@ class bootstrap extends Codup\main
             }
         
         }*/
+	return $this->plugins;
     
     }
 
