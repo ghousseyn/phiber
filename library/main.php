@@ -59,11 +59,11 @@ class main
             if ($this->get('context') == 'html') {
                 
                 $this->register('layoutEnabled', false);
-                $this->view->showTime();
             }
-        } else {
-            $this->view->showTime();
         }
+        
+	$this->view->showTime();
+        
     
     }
 
@@ -71,25 +71,12 @@ class main
     {
         header("Location: $url", $replace, $code);
     }
-    function sendJSON($arr)
-    {
-	if(is_string($arr)){
-	    $this->sendJSON(json_decode($arr));
-	}
-        if(!is_array($arr)){
-	    return false;
-	}
-	header('Cache-Control: no-cache, must-revalidate');
-	header('Expires: Mon, 16 Jul 1997 02:00:00 GMT');
-	header('Content-type: application/json; charset=utf-8');
-	echo json_encode($arr);
-    }
+    
     function plugins ()
     {
-        
-        foreach ($this->bootstrap->plugins as $plugin) {
-            $this->Stack($plugin);
-            $this->load($plugin, null, $this->conf->library . "/plugins/" . $plugin . "/")->run(__METHOD__);
+	
+        foreach ( $this->bootstrap->getPlugins() as $plugin) {
+            $this->load($plugin, null, $this->conf->library . "/plugins/" . $plugin . "/")->run();
         }
     }
 
@@ -130,31 +117,18 @@ class main
         } else {
             $path = $this->conf->library . "/modules/" . array_shift($path) . "/views/" . implode("/",$path) . ".php";
         }
-                        
-       // $tpl = file_get_contents($path);
-        $layout = null;
-                        
-        if ($this->get('layoutEnabled')) {
-            $layout = $this->conf->library . "/layouts/layout.php";
-                                    
-            if (file_exists($layout)) {
-                 $layout = file_get_contents($layout);
-            }
-        }
-                                
+                  
         $this->view->viewPath = $path;
                                 
-    }
-
-    function _view ()
-    {
-        return $this->load('view');
     }
 
     function renderLayout ($layout = null)
     {
         if (null != $layout) {
-             include_once $layout;
+	     if(file_exists($layout)){
+		include_once $layout;
+	     }	
+             
         } else {
              include_once $this->conf->library . "/layouts/layout.php";
         }
@@ -191,7 +165,7 @@ class main
                     $action = array_shift($parts);
                     
                 } else {
-                    $action = "index";
+                    $action = $this->conf->defaultMethod;
                     
                     array_shift($parts);
                     
@@ -297,14 +271,16 @@ class main
          
         $instance = $this->load($controller, null, $this->path);
                                         
-        if (array_search($action, get_class_methods($instance))) {
-            return $instance->{$action}();
+        if (in_array($action, get_class_methods($instance))) {
+
+            $instance->{$action}();
         } else {
             //$this->errorstack("No action: $action in $controller");
-            return $instance->index();            
+
+            $instance->{$this->conf->defaultMethod}();            
                                
         }
-                            
+                           
                             
     }
 
@@ -318,12 +294,15 @@ class main
                             
     }
 
-    function _request ($var)                                
+    function _request ($var,$default = null)                                
     {
         $vars = $this->get('_request');
         if(is_array($vars) && in_array($var,$vars)){                        
         	return $vars[$var];
         }
+	if(null !== $default){
+		return $default;
+	}
 
     }
 
@@ -362,23 +341,12 @@ class main
 
     private function hasAction ($parts,  $controller, $module)                                    
     {
-                                        
-        if ($module == "default") {
-            
-            $this->path = $this->conf->library . "/";
-                                                
-        } else {
-            
-            $this->path = $this->conf->library . "/modules/" . $module . "/";
-                                                
-        }
-                                                
-        if (! empty($parts[0]) && method_exists($this->load($controller, null, $this->path), $parts[0])) {
+                                               
+        if (! empty($parts[0]) && method_exists($this->load($controller, null, $this->path,false), $parts[0])) {
                                                     
             return true;
                                                 
         }
-                                                
                                                 
         return false;
                                             
@@ -447,39 +415,35 @@ class main
               
                 }
                 return;                 
-        	}
+           }
         	//echo "loadin $path$class.php <br />";
-        	$parts = explode('\\',$class);
+           $parts = explode('\\',$class);
         	
-        	$i = 0;
-        	if($parts[0] == '\\'){
-        	    $i = 1;
-        	}
+           $i = 0;
+           if($parts[0] == '\\'){
+               $i = 1;
+           }
         
-        	$count = count($parts);
-        	for($i; $i < $count;$i++){
-        	    if($parts[$i] == 'Codup'){
-        	        continue;
-        	    }
-        	    if($i == $count-1){
-        	        $path .= $parts[$i].".php";
-        	        break;
-        	    }
-        	    $path = $path. $parts[$i]."/";
+           $count = count($parts);
+           for($i; $i < $count;$i++){
+               if($parts[$i] == 'Codup'){
+                   continue;
+               }
+               if($i == $count-1){
+        	   $path .= $parts[$i].".php";
+        	    break;
+               }
+               $path = $path. $parts[$i]."/";
         	 
-        	}    
+           }    
         
-        	if(file_exists($path)){
-        		include_once $path;
-        	
-        	}
-     
-       
-  
-    
+           if(file_exists($path)){
+           	include_once $path;	
+           }
+   
     }
                     
-    function load ($class, $params = null, $path = null)                                            
+    function load ($class, $params = null, $path = null,$inst = true)                                            
     {
       
         $newpath = $path;
@@ -492,7 +456,7 @@ class main
                                                 
         $incpath = $newpath . $class . ".php";
                                                         
-        $hash = substr(md5($incpath), 0, 8);
+        $hash =  hash('adler32', $incpath);
                                                         
         if ($this->isLoaded($hash)) {
                                                                         
@@ -513,7 +477,7 @@ class main
                                                         
         $parameters = "";
 
-        if (null != $params && is_array($params) && ! is_object($params)) {
+        if (null !== $params && is_array($params) ) {
              
             $parameters = implode(",", $params);
                                                         
@@ -522,14 +486,18 @@ class main
             $parameters = $params;
                                                         
         }
-        
+
+        if(false === $inst){
+	    return $class;
+	}
+
         $instance = $class::getInstance($parameters);
             
-        //if(in_array($class,$serialisable)){
+      if(in_array($class,$serialisable)){
 
             $this->register($hash, $instance);
         
-       // }                                            
+      }                                            
         
         return $instance;
                                                     

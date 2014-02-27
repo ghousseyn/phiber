@@ -1,22 +1,29 @@
 <?php
 
-class index extends Codup\main
+class index extends Codup\controller
 {
+public static $test = 2;
 
-    function index ()
+    function main ()
     {
-		$this->view->message = "Hello world";
+	echo self::$test;
+	self::$test++;
+	$this->view->message = "welcome nbn";
 		
     }
 
     function action ()
     {
-        $this->stack("dev:action");
-        //$this->db->select(array('translation', array('*'), ''));
-        
-        $this->view->text = "text from the dev module controller";
-        $this->view->origin = __class__;
+  
+	$this->view->origin = __class__;
         $this->view->file = __file__;
+	$this->view->text = "welcome to action";
+//$this->tools->wtf($_SESSION);
+	if($this->isAjax()){
+        	$this->sendJSON(array(0=>"this thing",1=>"another"));
+		$this->contextSwitch('html');
+	}
+        
     }
 }
 ?>

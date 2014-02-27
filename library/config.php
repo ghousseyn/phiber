@@ -8,7 +8,7 @@
  */
 
 
-class config extends Codup\main
+class config 
 {
     
     /*
@@ -28,6 +28,11 @@ class config extends Codup\main
      */
     protected $inactive = true;
     /*
+     * The action method that should be called from your controller in case a none-existant action is called (or none specified)
+     */
+    protected $defaultMethod = 'main';
+     
+    /*
      * Enable/disable debug
      */
     public $debug = false;
@@ -37,7 +42,7 @@ class config extends Codup\main
      */
     protected $_dbhost = "localhost";
 
-    protected $_dbpass = "password";
+    protected $_dbpass = "hggiHmfv";
 
     protected $_dbuser = "root";
 
@@ -47,9 +52,13 @@ class config extends Codup\main
 
     protected function __construct ()
     {
-        $this->library = __dir__;
+	if(null === $this->library){
+        	$this->library = __dir__;
+	}
     }
-
+    public static function getInstance(){
+	return new self();
+    }
      /*
      * No need for a getter for each of the properties or the methods
      */

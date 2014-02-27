@@ -1,7 +1,7 @@
 <?php
 
 
-class debug extends Codup\main{
+class debug
 
     public $stack;
 
@@ -19,7 +19,9 @@ class debug extends Codup\main{
         $this->mem = memory_get_usage();
         $this->timestart = microtime(true);
     }
-
+    public static function getInstance(){
+	return new self();
+    }
     function start ()
     {
        
