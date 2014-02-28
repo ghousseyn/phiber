@@ -2,7 +2,7 @@
 
 
 class debug
-
+{
     public $stack;
 
     private $timestart;
@@ -10,7 +10,7 @@ class debug
     protected $queries = array();
 
     protected $mem = null;
-    
+
     protected static $dbg = null;
 
     protected function __construct ()
@@ -19,12 +19,9 @@ class debug
         $this->mem = memory_get_usage();
         $this->timestart = microtime(true);
     }
-    public static function getInstance(){
-	return new self();
-    }
     function start ()
     {
-       
+
     }
     public static function getInstance(){
         return new self;
@@ -49,34 +46,34 @@ class debug
     {
 	$errors = "";
 	$steps = "";
-	
+
 	$error_label = "Errors";
 	$steps_label = "Steps";
 
         if (isset($_SESSION['error']) && count($_SESSION['error'])) {
             $error_label = "<b class='active'>$error_label</b>(".count($_SESSION['error']).")";
             foreach ($_SESSION['error'] as $k => $en) {
-                
+
                 $errors .= "[$k] : $en <br />";
             }
         } elseif (isset($_SESSION['stack']) && count($_SESSION['stack'])) {
-            
+
 	    $tmp1 = $_SESSION['stack'];
-	 
+
 	    foreach($tmp1 as $key => $tmpel){
-		
+
 		    $tmp [$tmpel] = $key;
-		
+
 	    }
 
 	    $tmp = array_keys($tmp);
 	    $steps_label = "<b class='active'>$steps_label</b>(".count($tmp).")";
             foreach ($tmp as $key => $entry) {
-                
+
                 $steps .= "[$key] : $entry <br />";
             }
         }
-        
+
        // unset($_SESSION['stack']);
 	//$XHPROF_ROOT = "/home/hussein/Documents/www/bdd/codup/library/xhprof_lib/";
 	//include_once $XHPROF_ROOT . "/xhprof_lib/utils/xhprof_lib.php";
@@ -85,7 +82,7 @@ class debug
 	//$xhprof_runs = new XHProfRuns_Default("/tmp");
 	//$xhprof_data = xhprof_disable();
 	//$run_id = $xhprof_runs->save_run($xhprof_data, "xhprof_testing");
-	
+
         $str = "<div class='bottom_bar'>";
         $str .= "<div class='bbtn' >$error_label<span ttip=''>" . $errors . "</span></div>|";
 	$str .= "<div class='bbtn' >$steps_label<span ttip=''>" . $steps . "</span></div>|";

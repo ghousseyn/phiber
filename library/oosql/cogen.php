@@ -118,7 +118,7 @@ class cogen extends \PDO {
     
     	
     		while(substr(trim($keys[count($keys)-1]),0,10) === 'CONSTRAINT' ){
-    		 
+    		 //@Todo Composite key constraints are not handled correctly
     		 
     			$key = array_pop($keys);
     			$parts = explode(' ',trim($key));

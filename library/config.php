@@ -8,9 +8,9 @@
  */
 
 
-class config 
+class config
 {
-    
+
     /*
      * Path to the library relative to this file (set in the construct)
      */
@@ -31,22 +31,20 @@ class config
      * The action method that should be called from your controller in case a none-existant action is called (or none specified)
      */
     protected $defaultMethod = 'main';
-     
+
     /*
      * Enable/disable debug
      */
     public $debug = false;
-    
+
     /*
      * DB configuration properties
      */
-    protected $_dbhost = "localhost";
+    protected $_dsn =  'mysql:host=127.0.0.1;dbname=codup';
 
     protected $_dbpass = "hggiHmfv";
 
     protected $_dbuser = "root";
-
-    protected $_dbname = "codup";
 
     protected $layoutEnabled = true;
 
@@ -68,7 +66,7 @@ class config
 
             return $this->{$var};
         }
-    
+
     }
 
 
