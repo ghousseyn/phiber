@@ -75,16 +75,14 @@ class main
   {
     
     foreach($this->bootstrap->getPlugins() as $plugin){
-      $this->load($plugin, null, $this->conf->library . "/plugins/" . $plugin . "/")
-        ->run();
+      $this->load($plugin, null, $this->conf->library . "/plugins/" . $plugin . "/")->run();
     }
   }
 
   function checkSession()
   {
     if($this->conf->inactive){
-      if(isset($_SESSION['user']['activity']) && (time() - $_SESSION['user']['activity'] > $this->load('tools')
-        ->orDefault((int) $this->conf->inactive, 1800))){
+      if(isset($_SESSION['user']['activity']) && (time() - $_SESSION['user']['activity'] > $this->load('tools')->orDefault((int) $this->conf->inactive, 1800))){
         
         // session_unset();
         session_destroy();
