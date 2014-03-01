@@ -3,7 +3,7 @@ namespace Codup;
 class controller extends main
 {
 
-  function sendJSON($arr)
+  protected function sendJSON($arr)
   {
     if(! is_array($arr)){
       return false;
@@ -15,7 +15,7 @@ class controller extends main
     exit();
   }
 
-  function disableLayout()
+  protected function disableLayout()
   {
     $this->register('layoutEnabled', false);
   }

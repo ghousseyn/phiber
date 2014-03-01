@@ -7,17 +7,17 @@ class context extends Codup\main
     function run ()
     {
 
-    	$managers = models\dept_emp::getInstance();
-    	$results = $managers->select()->fetch(200);
+    	//$managers = models\dept_emp::getInstance();
+    	//$results = $managers->select()->fetch(200);
     	/*foreach($results as $result){
     		$result->from_date = "1983-03-26";
     		$result->save();
     	}
     	*/
-    	echo $results->count();
-	$col = $results->findAll('dept_no','d009');
-	$col->sortbyproperty('from_date');
-    	$this->tools->wtf($col);
+    	//echo $results->count();
+	//$col = $results->findAll('dept_no','d009');
+	//$col->sortbyproperty('from_date');
+    	//$this->tools->wtf($col);
 	//$this->tools->wtf($results->findAll('dept_no','d007'));
     	/*$depts = models\titles::getInstance();;
 

@@ -3,7 +3,7 @@
 class index extends Codup\controller
 {
 
-  function main()
+  function index()
   {
 
     $this->view->message = "welcome nbn";
