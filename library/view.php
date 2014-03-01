@@ -8,22 +8,21 @@
  */
 class view extends Codup\main
 {
+  
+  protected $vars = array();
 
-    protected $vars = array();
-
-
-    function showTime ()
-    {
-	if(!$this->conf->debug){
-        	$this->view->debuginfo = "";
-	}
-        if ($this->get('layoutEnabled')) {
-            $this->renderLayout();
-        } else {
-            include $this->viewPath;
-        }
-    
+  function showTime()
+  {
+    if(! $this->conf->debug){
+      $this->view->debuginfo = "";
     }
+    if($this->get('layoutEnabled')){
+      $this->renderLayout();
+    }else{
+      include $this->viewPath;
+    }
+  
+  }
 
 }
 
