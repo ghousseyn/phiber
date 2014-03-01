@@ -130,9 +130,9 @@ class cogen extends \PDO
     }
 
     // $test = array_pop($fields);
-
+    $h = 1;
     foreach($fields as $tname => $cols){
-      $h++;
+
       $cname = $tname;
 
       print "Generating class $cname ...";
@@ -207,7 +207,7 @@ class cogen extends \PDO
       $filename = $this->path . $cname . ".php";
 
       $f = fopen($filename, "w+");
-      $r = fwrite($f, $text);
+      fwrite($f, $text);
       fclose($f);
       unset($text);
       print " Done" . PHP_EOL;

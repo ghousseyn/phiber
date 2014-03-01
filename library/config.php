@@ -30,7 +30,7 @@ class config
    * The action method that should be called from your controller in case a
    * none-existant action is called (or none specified)
    */
-  protected $defaultMethod = 'main';
+  protected $defaultMethod = 'index';
 
   /*
    * Enable/disable debug
@@ -62,7 +62,7 @@ class config
   /*
    * No need for a getter for each of the properties or the methods
    */
-  function __get($var)
+  public function __get($var)
   {
 
     if(property_exists(__CLASS__, $var)){

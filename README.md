@@ -1,3 +1,5 @@
+[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/ghousseyn/codup/badges/quality-score.png?s=91433b0216a9b35ac12c8dc606b76d7a84aa55fc)](https://scrutinizer-ci.com/g/ghousseyn/codup/)
+
 codup
 =====
 
