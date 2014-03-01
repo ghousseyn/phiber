@@ -100,7 +100,7 @@ class oosql extends \PDO
   function __construct($oosql_table = null, $oosql_class = null)
   {
     if($oosql_class === null || $oosql_table === null){
-      throw new \PDOException('Class or Table name not provided!');
+      throw new \PDOException('Class or Table name not provided!',9901,null);
     }
     $this->oosql_class = $oosql_class;
     $this->oosql_table = $oosql_table;
@@ -273,7 +273,7 @@ class oosql extends \PDO
     if(null === $object){
       if(null === $this->oosql_model_obj){
         $msg = 'Nothing to save! ' . $this->oosql_sql;
-        throw new \PDOException($msg);
+        throw new \PDOException($msg,9902,null);
       }
       // This is a brand new record let's insert;
 
@@ -298,7 +298,7 @@ class oosql extends \PDO
 
       if(null === $data){
         $msg = 'Nothing to save! ' . $this->oosql_sql;
-        throw new \PDOException($msg);
+        throw new \PDOException($msg,9903,null);
       }
 
       $this->update()->set($data)->createWhere($object->getPrimaryValue())->exe();
@@ -359,7 +359,7 @@ class oosql extends \PDO
 
     if(($this->oosql_numargs !== 0 && $numargs !== $this->oosql_numargs) || $numargs === 0){
       $msg = 'Columns and passed data do not match! ' . $this->oosql_sql;
-      throw new \PDOException($msg);
+      throw new \PDOException($msg,9904,null);
     }
 
     $this->oosql_sql .= ' VALUES (';
@@ -392,7 +392,7 @@ class oosql extends \PDO
 
       if($numargs < $this->oosql_del_numargs){
         $msg = 'Columns and passed data do not match! ' . $this->oosql_sql;
-        throw new \PDOException($msg);
+        throw new \PDOException($msg,9905,null);
       }
 
 
@@ -457,13 +457,14 @@ class oosql extends \PDO
 
   public function andWhere($condition, $value)
   {
-    return $this->where($condition, $value, 'and');
+    $this->where($condition, $value, 'and');
+    return $this;
   }
 
   public function orWhere($condition, $value)
   {
-    return $this->where($condition, $value, 'or');
-    ;
+    $this->where($condition, $value, 'or');
+    return $this;
   }
 
   protected function valid_int($val)
@@ -567,7 +568,7 @@ class oosql extends \PDO
           $this->limit($argumants[0], $argumants[1]);
           break;
         default:
-          throw new \InvalidArgumentException('Fetch expects zero, one or two arguments as a query result limit');
+          throw new \InvalidArgumentException('Fetch expects zero, one or two arguments as a query result limit',9906,null);
       }
     }
 
@@ -576,7 +577,7 @@ class oosql extends \PDO
     if(! $this->oosql_stmt){
 
       $msg = 'Query returned no results! ' . $this->oosql_sql;
-      throw new \PDOException($msg);
+      throw new \PDOException($msg,9907,null);
     }
 
     $result = $this->oosql_stmt->fetchAll();

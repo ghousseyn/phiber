@@ -35,12 +35,12 @@ class main
    * Implement the getInstance() method
    */
 
-  static function getInstance()
+  public static function getInstance()
   {
     return new static();
   }
 
-  function run()
+  public function run()
   {
 
     $this->checkSession();
@@ -66,12 +66,12 @@ class main
 
   }
 
-  function _redirect($url, $replace = true, $code = 307)
+  protected function _redirect($url, $replace = true, $code = 307)
   {
     header("Location: $url", $replace, $code);
   }
 
-  function plugins()
+  protected function plugins()
   {
 
     foreach($this->bootstrap->getPlugins() as $plugin){
@@ -79,7 +79,7 @@ class main
     }
   }
 
-  function checkSession()
+ protected function checkSession()
   {
     if($this->conf->inactive){
       if(isset($_SESSION['user']['activity']) && (time() - $_SESSION['user']['activity'] > $this->load('tools')->orDefault((int) $this->conf->inactive, 1800))){
@@ -97,7 +97,7 @@ class main
 
   }
 
-  function getView()
+  protected function getView()
   {
 
     $path[] = $this->route['module'];
@@ -115,7 +115,7 @@ class main
 
   }
 
-  function renderLayout($layout = null)
+  protected function renderLayout($layout = null)
   {
     if(null != $layout){
       if(file_exists($layout)){
@@ -127,7 +127,7 @@ class main
     }
   }
 
-  function router()
+  protected function router()
   {
     $uri = urldecode($_SERVER['REQUEST_URI']);
 
@@ -142,17 +142,15 @@ class main
         $module = array_shift($parts);
 
         $controller = $this->hasController($parts, $module);
-        $action = $this->hasAction($parts, $controller, $module);
+        $action = $this->hasAction($parts, $controller);
 
       }else{
-        if(empty($parts[0])){
-          goto shortcut;
-        }
+
         $module = "default";
 
         array_shift($parts);
         $controller = $this->hasController($parts, $module);
-        $action = $this->hasAction($parts, $controller, $module);
+        $action = $this->hasAction($parts, $controller);
 
       }
 
@@ -176,7 +174,7 @@ class main
       }
 
     }else{
-      shortcut:
+
       $route = array('module' => 'default', 'controller' => 'index', 'action' => 'index');
 
     }
@@ -184,7 +182,7 @@ class main
 
   }
 
-  function isValidURI(&$uri)
+  protected function isValidURI(&$uri)
   {
     $uri = str_replace('/?', '/', $uri);
     $uri = str_replace('?', '/?', $uri);
@@ -198,27 +196,27 @@ class main
     return false;
   }
 
-  function isPost()
+  protected function isPost()
   {
     return $this->get('post');
   }
 
-  function isGet()
+  protected function isGet()
   {
     return $this->get('get');
   }
 
-  function isAjax()
+  protected function isAjax()
   {
     return $this->get('ajax');
   }
 
-  function getRoute()
+  protected function getRoute()
   {
     return $this->route;
   }
 
-  function dispatch()
+  protected function dispatch()
   {
     // $mod = $this->route["module"];
     $controller = $this->route['controller'];
@@ -238,7 +236,7 @@ class main
 
   }
 
-  function contextSwitch($context)
+  protected function contextSwitch($context)
   {
     if($context == 'html'){
 
@@ -248,7 +246,7 @@ class main
 
   }
 
-  function _request($var, $default = null)
+  protected function _request($var, $default = null)
   {
     $vars = $this->get('_request');
     if(is_array($vars) && in_array($var, $vars)){
@@ -260,7 +258,7 @@ class main
 
   }
 
-  function setVars($parts)
+  protected function setVars($parts)
   {
     foreach($parts as $k => $val){
       if($k == 0 || ($k % 2) == 0){
@@ -293,7 +291,7 @@ class main
 
   }
 
-  private function hasAction(&$parts, $controller, $module)
+  private function hasAction(&$parts, $controller)
   {
 
     if(! empty($parts[0]) && method_exists($this->load($controller, null, $this->path, false), $parts[0])){
@@ -306,7 +304,7 @@ class main
 
   }
 
-  function register($name, $value)
+  protected function register($name, $value)
   {
 
     $_SESSION[$name] = $value;
@@ -343,7 +341,7 @@ class main
 
   }
 
-  function get($index)
+  protected function get($index)
   {
     if(array_key_exists($index, $_SESSION)){
 
@@ -353,7 +351,7 @@ class main
 
   }
 
-  function autoload($class)
+  protected function autoload($class)
   {
 
     $path = __dir__ . '/';
@@ -394,7 +392,7 @@ class main
 
   }
 
-  function load($class, $params = null, $path = null, $inst = true)
+  protected function load($class, $params = null, $path = null, $inst = true)
   {
 
     $newpath = $path;
@@ -429,8 +427,6 @@ class main
       return $class;
     }
 
-    $parameters = "";
-
     if(null !== $params && is_array($params)){
 
       $parameters = implode(",", $params);
@@ -453,7 +449,7 @@ class main
 
   }
 
-  function isLoaded($hash)
+  protected function isLoaded($hash)
   {
     if(isset($_SESSION[$hash])){
 
@@ -465,14 +461,14 @@ class main
 
   }
 
-  function __set($var, $val)
+  public function __set($var, $val)
   {
 
     $this->vars[$var] = $val;
 
   }
 
-  function __get($var)
+  public function __get($var)
   {
 
     switch($var){
@@ -481,40 +477,30 @@ class main
 
         return $this->load('view');
 
-        break;
-
       case 'route':
 
         return $this->get('route');
-
-        break;
 
       case 'content':
 
         return $this->viewPath;
 
-        break;
-
       case 'conf':
 
         return $this->load('config');
 
-        break;
       case 'bootstrap':
 
         return $this->load('bootstrap');
 
-        break;
       case 'tools':
 
         return $this->load('tools');
 
-        break;
       case 'debug':
 
         return $this->load('debug');
 
-        break;
 
     }
     if(key_exists($var, $this->vars)){
