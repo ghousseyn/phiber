@@ -204,7 +204,8 @@ Array
 
 // From your model (in models folder)
 // create file: /models/blog_post.php
-
+```
+```php
 amespace models;
 use Codup;
 use entity;
