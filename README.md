@@ -204,22 +204,24 @@ Array
 
 // From your model (in models folder)
 // create file: /models/blog_post.php
-
-amespace models;
+```
+```php
+namespace models;
 use Codup;
 use entity;
 
 class blog_post extends Codup\model
 {
-   /**
-   * example model method
-   * /
+   
+  // example model method
+   
    public funciton getPost($id){
       $post = entity\blog_post::getInstance();
       return $post->find($id)->fetch();
    }
    .... Any domain specific logic can be put here too
 }
+
 //within your model you can do more:  
 
 // create new
