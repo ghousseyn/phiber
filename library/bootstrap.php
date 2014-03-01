@@ -8,12 +8,12 @@
  */
 class bootstrap
 {
-  
+
   protected $modules = array();
-  
+
   protected $plugins = null;
 
-  function __construct()
+  public function __construct()
   {
     $this->getModules();
   }
@@ -23,9 +23,9 @@ class bootstrap
     return new self();
   }
 
-  function getModules()
+  public function getModules()
   {
-    
+
     /*
      * foreach (new DirectoryIterator(__dir__ . '/modules') as $mods) { if
      * ($mods->isDot()) { continue; } if (is_dir(__dir__ . "/modules/" .
@@ -34,12 +34,12 @@ class bootstrap
      * $this->modules[$mods->getFilename()]['settings_path'] = $settings; }
      * $this->modules[$dir] = $dir; } }
      */
-    
+
     $this->modules = array("dev" => "dev");
-  
+
   }
 
-  function isModule($mod)
+  public function isModule($mod)
   {
     if(array_key_exists($mod, $this->modules)){
       return true;
@@ -47,7 +47,7 @@ class bootstrap
     return false;
   }
 
-  function getPlugins()
+  public function getPlugins()
   {
     $this->plugins = array("context");
     /*
@@ -57,10 +57,10 @@ class bootstrap
      * $plugin->getFilename(); } }
      */
     return $this->plugins;
-  
+
   }
 
-  function getmods()
+  public function getmods()
   {
     return $this->modules;
   }

@@ -16,7 +16,7 @@ class collection extends \ArrayObject
   public function __construct()
   {
     parent::setFlags(parent::ARRAY_AS_PROPS);
-    
+
     $this->numObjects = 0;
     $this->objects = array();
     $this->deletedObjects = array();
@@ -39,7 +39,7 @@ class collection extends \ArrayObject
     $collection->obj_name = $this->obj_name;
     return $collection;
   }
-  
+
   /*
    * get an obj based on one of it's properties. i.e. a User obj with the
    * property 'username' and a value of 'someUser' can be retrieved by
@@ -106,7 +106,7 @@ class collection extends \ArrayObject
    */
   public function countWhere($property, $value)
   {
-    
+
     $count = 0;
     foreach($this->objects as $key => $obj){
       if($obj->{$property} === $value){
@@ -267,13 +267,13 @@ class collection extends \ArrayObject
 
   public function offsetExists($offset)
   {
-    return key_exists($offset, get_class_vars(get_class(new static())));
+    return key_exists($offset, $this->objects);
   }
 
   public function offsetUnset($offset)
   {
     if($this->offsetExists($offset)){
-      $this->set($offset, null);
+      unset($this->objects[$offset]);
     }
   }
 
@@ -291,15 +291,15 @@ class collection extends \ArrayObject
   {
     $str = '';
     $objects = array();
-    
+
     foreach($this->objects as $obj){
       $objects[get_class($obj)] = ((! isset($objects[get_class($obj)])) ? 0 : $objects[get_class($obj)]) + 1;
     }
-    
+
     foreach($objects as $key => $count){
       $str .= '--------------------------<br />' . $count . ' instance' . (($count === 1) ? "" : "s") . ' of class ' . $key . '<br />';
     }
-    
+
     return $str;
   }
 

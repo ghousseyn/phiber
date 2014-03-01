@@ -3,34 +3,13 @@ namespace entity;
 
 use oosql\oosql;
 
-abstract class entity implements \ArrayAccess
+abstract class entity
 {
 
   protected static $oosql_model_extra = false;
 
   abstract public function getRelations();
 
-  public function offsetGet($offset)
-  {
-    return $this->{$offset};
-  }
-
-  public function offsetSet($offset, $value)
-  {
-    $this->{$offset} = $value;
-  }
-
-  public function offsetExists($offset)
-  {
-    return key_exists($offset, get_class_vars(get_class(new static())));
-  }
-
-  public function offsetUnset($offset)
-  {
-    if($this->offsetExists($offset)){
-      $this->set($offset, null);
-    }
-  }
   /*
    * Deliver an oosql instance instead and pass this class name so we can get
    * back with the caller instance with results
