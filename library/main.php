@@ -141,28 +141,9 @@ class main
 
         $module = array_shift($parts);
 
-        if($this->hasController($parts, $module)){
+        $controller = $this->hasController($parts, $module);
+        $action = $this->hasAction($parts, $controller, $module);
 
-          $controller = array_shift($parts);
-
-        }else{
-
-          $controller = "index";
-
-          array_shift($parts);
-
-        }
-
-        if($this->hasAction($parts, $controller, $module)){
-
-          $action = array_shift($parts);
-
-        }else{
-          $action = $this->conf->defaultMethod;
-
-          array_shift($parts);
-
-        }
       }else{
         if(empty($parts[0])){
           goto shortcut;
@@ -170,24 +151,8 @@ class main
         $module = "default";
 
         array_shift($parts);
-
-        if($this->hasController($parts, $module)){
-
-          $controller = array_shift($parts);
-
-        }else{
-          $controller = "index";
-          // array_shift($parts);
-        }
-
-        if($this->hasAction($parts, $controller, $module)){
-
-          $action = array_shift($parts);
-
-        }else{
-          $action = "index";
-          array_shift($parts);
-        }
+        $controller = $this->hasController($parts, $module);
+        $action = $this->hasAction($parts, $controller, $module);
 
       }
 
@@ -205,14 +170,14 @@ class main
 
       $this->register('_request', $this->_requestVars);
 
-      $route = array("module" => $module, "controller" => $controller, "action" => $action, "vars" => $this->get('_request'));
+      $route = array('module' => $module, 'controller' => $controller, 'action' => $action, 'vars' => $this->get('_request'));
       if(! empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'){
         $this->register('ajax', true);
       }
 
     }else{
       shortcut:
-      $route = array("module" => "default", "controller" => "index", "action" => "index");
+      $route = array('module' => 'default', 'controller' => 'index', 'action' => 'index');
 
     }
     $this->register('route', $route);
@@ -221,13 +186,13 @@ class main
 
   function isValidURI(&$uri)
   {
-    $uri = str_replace("/?", "/", $uri);
-    $uri = str_replace("?", "/?", $uri);
-    $uri = str_replace("/?", "/", $uri);
-    $uri = str_replace("&", "/", $uri);
-    $uri = str_replace("=", "/", $uri);
+    $uri = str_replace('/?', '/', $uri);
+    $uri = str_replace('?', '/?', $uri);
+    $uri = str_replace('/?', '/', $uri);
+    $uri = str_replace('&', '/', $uri);
+    $uri = str_replace('=', '/', $uri);
 
-    if(preg_match("~^(?:[/\\w\\s-]+)+/?$~", $uri)){
+    if(preg_match('~^(?:[/\\w\\s-]+)+/?$~', $uri)){
       return true;
     }
     return false;
@@ -256,8 +221,8 @@ class main
   function dispatch()
   {
     // $mod = $this->route["module"];
-    $controller = $this->route["controller"];
-    $action = $this->route["action"];
+    $controller = $this->route['controller'];
+    $action = $this->route['action'];
 
     $instance = $this->load($controller, null, $this->path);
 
@@ -306,38 +271,38 @@ class main
 
   }
 
-  private function hasController($parts, $module)
+  private function hasController(&$parts, $module)
   {
-    if($module == "default"){
+    if($module == 'default'){
 
-      $this->path = $this->conf->library . "/";
+      $this->path = $this->conf->library . '/';
 
     }else{
 
-      $this->path = $this->conf->library . "/modules/" . $module . "/";
+      $this->path = $this->conf->library . '/modules/' . $module . '/';
 
     }
 
-    if(! empty($parts[0]) && file_exists($this->path . $parts[0] . ".php")){
+    if(! empty($parts[0]) && file_exists($this->path . $parts[0] . '.php')){
 
-      return true;
+      return array_shift($parts);
 
     }
-
-    return false;
+    array_shift($parts);
+    return 'index';
 
   }
 
-  private function hasAction($parts, $controller, $module)
+  private function hasAction(&$parts, $controller, $module)
   {
 
     if(! empty($parts[0]) && method_exists($this->load($controller, null, $this->path, false), $parts[0])){
 
-      return true;
+      return array_shift($parts);
 
     }
-
-    return false;
+    array_shift($parts);
+    return 'index';
 
   }
 
@@ -391,13 +356,13 @@ class main
   function autoload($class)
   {
 
-    $path = __dir__ . "/";
+    $path = __dir__ . '/';
 
     if(! strstr($class, '\\')){
 
-      if(file_exists($path . $class . ".php")){
+      if(file_exists($path . $class . '.php')){
 
-        include_once $path . $class . ".php";
+        include_once $path . $class . '.php';
 
       }
       return;
@@ -416,10 +381,10 @@ class main
         continue;
       }
       if($i == $count - 1){
-        $path .= $parts[$i] . ".php";
+        $path .= $parts[$i] . '.php';
         break;
       }
-      $path = $path . $parts[$i] . "/";
+      $path = $path . $parts[$i] . '/';
 
     }
 
@@ -436,11 +401,11 @@ class main
 
     if(null === $newpath){
 
-      $newpath = __DIR__ . "/";
+      $newpath = __DIR__ . '/';
 
     }
 
-    $incpath = $newpath . $class . ".php";
+    $incpath = $newpath . $class . '.php';
 
     $hash = hash('adler32', $incpath);
 
@@ -527,12 +492,6 @@ class main
       case 'content':
 
         return $this->viewPath;
-
-        break;
-
-      case 'db':
-
-        return $this->load('db');
 
         break;
 
