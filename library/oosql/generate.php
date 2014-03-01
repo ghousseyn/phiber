@@ -1,8 +1,8 @@
 <?php
 include 'cogen.php';
 
-$gen = new oosql\cogen('localhost', 'codup', 'root', 'hggiHmfv');
+$gen = new oosql\cogen('localhost', 'codup', 'root', 'password');
 
 $gen->generate();
-// var_dump($gen->getErrors());
+
 ?>
