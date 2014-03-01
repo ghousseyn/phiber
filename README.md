@@ -187,7 +187,7 @@ Array
 ```
 - An ORM and a query builder to handle database interactions with a relation-aware model class generator (currently supporting only MySQL)
 
-``` php
+```php
 
 /**
 * for a table "blog_post" an entity file with the class blog_post will be
@@ -205,7 +205,7 @@ Array
 // From your model (in models folder)
 // create file: /models/blog_post.php
 
-namespace models;
+amespace models;
 use Codup;
 use entity;
 
