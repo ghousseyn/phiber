@@ -137,8 +137,8 @@ class cogen extends \PDO
 
       print "Generating class $cname ...";
 
-      $text .= '<?php' . PHP_EOL . 'namespace models;' . PHP_EOL . 'use Codup;';
-      $text .= PHP_EOL . "class $cname extends model  " . PHP_EOL . "{" . PHP_EOL;
+      $text .= '<?php' . PHP_EOL . 'namespace entity;' . PHP_EOL . 'use Codup;';
+      $text .= PHP_EOL . "class $cname extends entity  " . PHP_EOL . "{" . PHP_EOL;
       $count = 0;
       $foreign = array();
       $primary = array();
@@ -186,12 +186,12 @@ class cogen extends \PDO
         }
         // unset($primary);
       }else{
-        $text .= '    public function getPrimary()' . PHP_EOL . '  {' . PHP_EOL . '    return false;' . PHP_EOL . '  }' . PHP_EOL;
-        $text .= '    public function getPrimaryValue()' . PHP_EOL . '  {' . PHP_EOL . '    return false;' . PHP_EOL . '  }' . PHP_EOL;
-        $text .= '    public function getCompositeValue()' . PHP_EOL . '  {' . PHP_EOL . '    return false;' . PHP_EOL . '  }' . PHP_EOL;
+        $text .= '  public function getPrimary()' . PHP_EOL . '  {' . PHP_EOL . '    return false;' . PHP_EOL . '  }' . PHP_EOL;
+        $text .= '  public function getPrimaryValue()' . PHP_EOL . '  {' . PHP_EOL . '    return false;' . PHP_EOL . '  }' . PHP_EOL;
+        $text .= '  public function getCompositeValue()' . PHP_EOL . '  {' . PHP_EOL . '    return false;' . PHP_EOL . '  }' . PHP_EOL;
       }
 
-      $text .= '    public function getRelations()' . PHP_EOL . '  {' . PHP_EOL . '    return array(';
+      $text .= '  public function getRelations()' . PHP_EOL . '  {' . PHP_EOL . '    return array(';
       if(count($foreign)){
         foreach($foreign as $member => $content){
           $text .= "'" . $member . "'=>'" . $content[1] . "." . str_replace('`)', '', $content[0]) . "',";
