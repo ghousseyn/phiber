@@ -187,7 +187,7 @@ Array
 ```
 - An ORM and a query builder to handle database interactions with a relation-aware model class generator (currently supporting only MySQL)
 
-``` php
+```php
 
 /**
 * for a table "blog_post" an entity file with the class blog_post will be
@@ -204,22 +204,24 @@ Array
 
 // From your model (in models folder)
 // create file: /models/blog_post.php
-
-namespace models;
+```
+```php
+amespace models;
 use Codup;
 use entity;
 
 class blog_post extends Codup\model
 {
-   /**
-   * example model method
-   * /
+   
+  // example model method
+   
    public funciton getPost($id){
       $post = entity\blog_post::getInstance();
       return $post->find($id)->fetch();
    }
    .... Any domain specific logic can be put here too
 }
+
 //within your model you can do more:  
 
 // create new
