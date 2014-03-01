@@ -54,15 +54,17 @@ Array
 - Easily extensible with modules/plugins (automatically loaded and extremely easy to create) 
 
 ``` php
-  /* For modules just create a folder under modules directory and toss your controllers there
-   * all class files in the format {classname}.php will be accessible as controllers 
-   * you don't need the word controller in the class name and your actions
-   * doesn't need the word action neither
-   */
+  /* 
+  * For modules just create a folder under modules directory and toss your
+  * controllers there all class files in the format {classname}.php will be
+  * accessible as controllers 
+  * you don't need the word controller in the class name and your actions
+  * doesn't need the word action neither
+  */
    
    //file: /modules/firstmod/cool.php
    
-  class cool extends main {
+  class cool extends Codup\controller {
 
     function index(){
       $this->view->message = "message";
@@ -81,8 +83,8 @@ Array
 ``` php
 
   /*
-  *  The template should be in a subdirectory under views called 'cool' with template files
-  *  in it mapping the actions
+  *  The template should be in a subdirectory under views called 'cool' with
+  *  template files in it mapping the actions
   *  so for our controller we need an 'index.php' and an 'action.php'
   */
 
@@ -108,15 +110,18 @@ Array
   // Plugins
   
   /*
-  * For plugins just create a folder named after your plugin and place it in the plugins folder
-  * follwing the same conventions your plugin loader would be expected to be in {pluginName}.php
-  * The class should also extend main 
-  * The run() method is the entry point and should contain code to initialize/execute your plugin
+  * For plugins just create a folder named after your plugin and place it in the 
+  * plugins folder
+  * follwing the same conventions your plugin loader would be expected to be in
+  * the format: {pluginName}.php
+  * The class should also extend Codup\plugin 
+  * The run() method is the entry point and should contain code to 
+  * initialize/execute your plugin
   */
   
   //file: /plugins/coolplugin/coolplugin.php
   
-  class coolplugin extends main {
+  class coolplugin extends Codup\plugin {
 
     function run(){
       
@@ -129,7 +134,9 @@ Array
 - ZF like templating
 
 ``` php
-  //from your controller
+  /**
+  * from your controller
+  * /
 
   $this->view->variable = "some text";
   
@@ -163,7 +170,7 @@ Array
     
   //alternatively you could just leave your action as it is
     
-  if(true){
+  if($trueCondition){
           
         /* do some processing */
   }
@@ -178,14 +185,43 @@ Array
   }
 
 ```
-- An ORM and a query builder to handle database interactions with a relation-aware model class generator
+- An ORM and a query builder to handle database interactions with a relation-aware model class generator (currently supporting only MySQL)
 
 ``` php
 
-// for a table "blog_post" a file with the class blog_post will be generated for you
+/**
+* for a table "blog_post" an entity file with the class blog_post will be
+* generated for you using the generate tool.
+* Edit the generate.php file and put in your db credentials
+* you can specify the path where the files should be saved using the $gen->path
+* property.
+* Then execute generate.php in cli and move the created files to the entity dir
+* if you specified a different path.
+* The tool will inspect your database and identify Primary keys (composite too)
+* foreign keys (relations) and the other columns
+* Each table will have its own entity class file
+* /
 
-   $post = models\blog_post::getInstance();
-   
+// From your model (in models folder)
+// create file: /models/blog_post.php
+
+namespace models;
+use Codup;
+use entity;
+
+class blog_post extends Codup\model
+{
+   /**
+   * example model method
+   * /
+   public funciton getPost($id){
+      $post = entity\blog_post::getInstance();
+      return $post->find($id)->fetch();
+   }
+   .... Any domain specific logic can be put here too
+}
+//within your model you can do more:  
+
 // create new
 
    $post->title = "Great tips";
@@ -193,9 +229,9 @@ Array
    $post->save();
    
 // fetch existing
-//get post with primary key = 0 (regardless of the name of your primary key)
+// get post with primary key = 0 (regardless of the name of your primary key)
 
-   $result = $post->find(0)->fetch();  
+   $result = $post->find(0)->fetch();  // Careful when using composite primary keys coz this will much only the first member
 
 // OR
    
@@ -209,22 +245,100 @@ Array
 
    //show results
    
-   while ( $r = $result->iterate()){
+       	foreach ($result as $r){
           
-          echo "Title: $r->title ";
+          	echo "Title: $r->title ";
 
-         }
+        }
          
    //change results (only changed columns will be included in the query)
    
-    while ( $r = $result->iterate()){
+    	foreach ($result as $r){
     
-    	$r->title = "$r->title (great)";
-    	$r->save();
-    }
+    		$r->title = "$r->title (great)";
+    		$r->save();
+    	}
+    /*
+    *	If table "blog_post" has a constraint fk to other tables like "user" for example
+    *	you can either join on select using with() (eager loading)
+    */
+    
+    $result = $post->select()
+    			   ->where('user_id = ?',14)
+    			   ->with(array('user' => array("col1","col2"))) // not specifying any columns will select user.*
+    			   ->limit(0,5)->fetch();
+    			   
+    // $result is a collection instance (you can search within it, sort it and do a lot of things)
+    
+    $result->sortByProperty('rating'); // defaults to regular sort (other sorting options are available)
+     
+    /*
+    *	or load it when needed (lazy loading) 
+    *	by calling a virtual method named after the related table like this
+    */			   
+    
+    $user = $result[0]->user(); 
     
     
+    
+    /*
+    *	The good thing about this is that data from "user" table is not loaded yet
+    *	but you can rather update the related record without fetching it (neat)	 
+    *	something like this:
+    */
+    
+    $user->banned = "1";
+    $user->active = 0;
+    $user->save();
+    
+    /*
+    * This will generate an update query to the user where the user_id from the
+    * previous query matches
+    * No EXTRA selects
+    * but when needed just call the load() method
+    */
 
+	$user = $user->load(); 
+    
+	// user data is loaded now and can be displayed or manipulated then saved
+    
+	 echo $user->alias;
+     
+     /**
+     *   Joins
+     */
+      /*
+          * Tables have defined relations (innodb)
+          *
+          * SELECT     dept_manager.dept_no,
+          * 		dept_manager.emp_no,
+          * 		dept_manager.from_date,
+          * 		dept_manager.to_date ,
+          * 		departments.dept_name ,
+          * 		employees.last_name
+          * FROM 	dept_manager
+          *     JOIN 	departments
+          *       ON 		dept_manager.dept_no = departments.dept_no
+          *     JOIN 	employees
+          *       ON 		dept_manager.emp_no = employees.emp_no
+          * WHERE dept_manager.emp_no = 110039
+          */
+          
+            
+        $res = $dept_manager->find(110039)
+							->with(array('departments' => array("dept_name")))
+							->with(array('employees' => array("last_name")))
+							->fetch();
+	 
+     /**
+     * From your controllers you can either use your models
+     */
+     $post = models\blog_post::getInstance()->getPost($id);
+     
+     /**
+     * Or use the entities directly
+     */
+     $post = entity\blog_post::getInstance()->find($id)->fetch();
 ```
 
 - and more other cool features to come.
