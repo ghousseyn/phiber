@@ -206,7 +206,7 @@ Array
 // create file: /models/blog_post.php
 ```
 ```php
-amespace models;
+namespace models;
 use Codup;
 use entity;
 
