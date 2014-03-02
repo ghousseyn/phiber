@@ -1,6 +1,6 @@
 <?php
 
-class context extends Codup\main
+class context extends Codup\plugin
 {
 
 

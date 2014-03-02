@@ -30,7 +30,7 @@ class config
    * The action method that should be called from your controller in case a
    * none-existant action is called (or none specified)
    */
-  protected $defaultMethod = 'index';
+  protected $defaultMethod = 'main';
 
   /*
    * Enable/disable debug

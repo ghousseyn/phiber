@@ -35,10 +35,7 @@ class oosql extends \PDO
    * @access private
    */
   private $oosql_limit = null;
-  /**
-   * $oosql_where
-   * @var unknown_type
-   */
+
   private $oosql_where = null;
 
   private $oosql_join = null;
