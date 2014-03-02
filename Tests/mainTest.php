@@ -26,13 +26,37 @@ class mainTest extends \PHPUnit_Framework_TestCase
     public function providerURI()
     {
       return array(
+        //URI validation and transformations
         array('/module/controller/action/?val=var', '/module/controller/action/val/var'),
         array('/module/controller/action?val=var', '/module/controller/action/val/var'),
         array('/module/controller/action/val=var&var2=val2', '/module/controller/action/val/var/var2/val2'),
         array('/module/controller/action/val/var/var2/val2', '/module/controller/action/val/var/var2/val2'),
+        //special characters allowed: space - _ , $ . ' ! ( )*
+        array("/module/controller/action/var/value -_,$.'!()*", "/module/controller/action/var/value -_,$.'!()*"),
       );
     }
 
+    public function providerNotURI()
+    {
+      return array(
+          //special characters not allowed: ; [ ] " < > # % { } | \ ^ ~ [ ] `
+          array('/module/controller/action/?val=var\0'),
+          array('/module/controller/action?val=var"'),
+          array('/module/controller/action/val=var&var2=val2<'),
+          array('/module/controller/action/val/var/var2/val2>'),
+          array("/module/controller/action/var/value;"),
+          array('/module/controller/action/?val=var['),
+          array('/module/controller/action?val=var]'),
+          array('/module/controller/action/val=var&var2=val2#'),
+          array('/module/controller/action/val/var/var2/val2%'),
+          array("/module/controller/action/var/value{"),
+          array("/module/controller/action/var/value}"),
+          array("/module/controller/action/var/value|"),
+          array("/module/controller/action/var/value\\"),
+          array("/module/controller/action/var/value^"),
+          array("/module/controller/action/var/value`"),
+      );
+    }
      /**
     * @dataProvider providerURI
     */
@@ -43,5 +67,14 @@ class mainTest extends \PHPUnit_Framework_TestCase
       $main =  Codup\main::getInstance();
       $this->invokeMethod($main,'isValidURI',array(&$uri));
       $this->assertEquals($uri,$out);
+    }
+    /**
+     * @dataProvider providerNotURI
+     */
+    public function testIsNotValidURI($uri)
+    {
+      $main =  Codup\main::getInstance();
+      $return = $this->invokeMethod($main,'isValidURI',array(&$uri));
+      $this->assertFalse($return);
     }
 }
