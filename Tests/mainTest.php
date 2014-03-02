@@ -40,7 +40,8 @@ class mainTest extends \PHPUnit_Framework_TestCase
 
     public function testIsValidURI($uri,$out)
     {
-      Codup\main::getInstance()->isValidURI($uri);
+      $main =  Codup\main::getInstance();
+      $this->invokeMethod($main,'isValidURI',array(&$uri));
       $this->assertEquals($uri,$out);
     }
 }
