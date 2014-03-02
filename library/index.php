@@ -1,9 +1,9 @@
 <?php
 
-class index extends Codup\main
+class index extends Codup\controller
 {
 
-  function index()
+  function main()
   {
 
     $this->view->text = "Text from default controller: " . __file__;
@@ -11,7 +11,7 @@ class index extends Codup\main
 
   function action()
   {
-    $this->stack("default:" . __method__);
+
 
   }
 }

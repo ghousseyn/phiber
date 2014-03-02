@@ -3,7 +3,7 @@
 class index extends Codup\controller
 {
 
-  function index()
+  function main()
   {
 
     $this->view->message = "welcome nbn";
@@ -12,7 +12,7 @@ class index extends Codup\controller
 
   function action()
   {
-
+$this->tools->wtf($this->route);
     $this->view->origin = __class__;
     $this->view->file = __file__;
     $this->view->text = "welcome to action";

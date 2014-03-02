@@ -24,11 +24,11 @@ abstract class entity
   {
 
     $table = strstr($class, '\\');
-    if($table){
-      $table = trim(str_replace('\\', '', $table));
-    }else{
+    if($table === false){
       return false;
     }
+
+    $table = trim(str_replace('\\', '', $table));
     return new oosql($table, $class);
   }
 

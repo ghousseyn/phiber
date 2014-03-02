@@ -175,7 +175,7 @@ class main
 
     }else{
 
-      $route = array('module' => 'default', 'controller' => 'index', 'action' => 'index');
+      $route = array('module' => 'default', 'controller' => 'index', 'action' => $this->conf->defaultMethod);
 
     }
     $this->register('route', $route);
@@ -190,7 +190,7 @@ class main
     $uri = str_replace('&', '/', $uri);
     $uri = str_replace('=', '/', $uri);
 
-    if(preg_match('~^(?:[/\\w\\s-]+)+/?$~', $uri)){
+    if(preg_match('~^(?:[/\\w\\s-\,\$\.\*\!\'\(\)\~]+)+/?$~', $uri)){
       return true;
     }
     return false;
@@ -228,7 +228,6 @@ class main
 
       $instance->{$action}();
     }else{
-      // $this->errorstack("No action: $action in $controller");
 
       $instance->{$this->conf->defaultMethod}();
 
@@ -286,7 +285,7 @@ class main
       return array_shift($parts);
 
     }
-    array_shift($parts);
+
     return 'index';
 
   }
@@ -299,8 +298,9 @@ class main
       return array_shift($parts);
 
     }
+
     array_shift($parts);
-    return 'index';
+    return $this->conf->defaultMethod;
 
   }
 
@@ -308,36 +308,6 @@ class main
   {
 
     $_SESSION[$name] = $value;
-
-  }
-
-  protected function stack($msg)
-  {
-
-    $_SESSION['stack'][] = $msg;
-
-  }
-
-  protected function stackFlush()
-  {
-
-    // unset($_SESSION['stack']);
-
-  }
-
-  protected function errorStack($msg)
-  {
-
-    $_SESSION['error'][] = $msg;
-
-    // $this->stackFlush();
-
-  }
-
-  protected function errorStackFlush()
-  {
-
-    unset($_SESSION['error']);
 
   }
 
