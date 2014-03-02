@@ -40,55 +40,25 @@ class oosql extends \PDO
    * @var unknown_type
    */
   private $oosql_where = null;
-  /**
-   *
-   * @var unknown_type
-   */
+
   private $oosql_join = null;
-  /**
-   *
-   * @var unknown_type
-   */
+
   private $oosql_stmt;
-  /**
-   *
-   * @var unknown_type
-   */
+
   private $oosql_conValues = array();
-  /**
-   *
-   * @var unknown_type
-   */
+
   private $oosql_numargs;
-  /**
-   *
-   * @var unknown_type
-   */
+
   private $oosql_fromFlag = false;
-  /**
-   *
-   * @var unknown_type
-   */
+
   private $oosql_multiFlag = false;
-  /**
-   *
-   * @var unknown_type
-   */
+
   private $oosql_del_multiFlag = false;
-  /**
-   *
-   * @var unknown_type
-   */
+
   private $oosql_del_numargs;
-  /**
-   *
-   * @var unknown_type
-   */
+
   private $oosql_sql;
-  /**
-   *
-   * @var unknown_type
-   */
+
   private $oosql_select;
 
   /**

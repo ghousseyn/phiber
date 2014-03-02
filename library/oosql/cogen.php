@@ -63,7 +63,7 @@ class cogen extends \PDO
     print "Attempting tables discovery..." . PHP_EOL;
 
     $tables = $this->getCollection($this->queries['tables']);
-    if(! tables){
+    if(!$tables){
       foreach($this->errors as $error){
         print implode('|', $error) . PHP_EOL;
       }
@@ -82,7 +82,7 @@ class cogen extends \PDO
 
       $collection = $this->getCollection($query);
 
-      if(! collection){
+      if(!$collection){
 
         foreach($this->errors as $error){
           print implode('|', $error) . PHP_EOL;
@@ -97,7 +97,7 @@ class cogen extends \PDO
 
       $ddl = $this->getCollection($this->queries['create'] . ' `' . $table . '`');
 
-      if(! ddl){
+      if(!$ddl){
 
         foreach($this->errors as $error){
           print implode('|', $error) . PHP_EOL;
