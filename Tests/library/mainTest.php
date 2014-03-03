@@ -13,7 +13,7 @@ class mainTest extends CodupTests
     private $main = null;
 
     public function setUp(){
-      $this->main = Codup\main::getInstance();
+      $this->main = \Codup\main::getInstance();
     }
 
 
