@@ -19,7 +19,7 @@ class view extends Codup\main
     if($this->get('layoutEnabled')){
       $this->renderLayout();
     }else{
-      if(file_exists($this->viePath)){
+      if(file_exists($this->viewPath)){
         include $this->viewPath;
       }
     }

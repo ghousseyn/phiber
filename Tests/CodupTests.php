@@ -1,5 +1,4 @@
 <?php
-namespace Tests;
 
 
 class CodupTests extends \PHPUnit_Framework_TestCase
