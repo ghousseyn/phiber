@@ -244,7 +244,7 @@ class main
   protected function _request($var, $default = null)
   {
     $vars = $this->get('_request');
-    if(is_array($vars) && in_array($var, $vars)){
+    if(is_array($vars) && isset($vars[$var])){
       return $vars[$var];
     }
     if(null !== $default){
@@ -367,7 +367,7 @@ class main
 
     $hash = hash('adler32', $incpath);
 
-    if($this->isLoaded($hash)){
+    if($this->isLoaded($hash) && false !== $inst){
 
       return $this->get($hash);
 
@@ -429,13 +429,13 @@ class main
   }
 
   /**
-   * @property-read object $view An instance of the view class
-   * @property-read array $route Current route
-   * @property-read string $content The path to the selected template (partial view)
-   * @property-read object $conf An instance of the config class
-   * @property-read object $bootstrap An instance of the the bootstrap class
-   * @property-read object $tools An instance of the tools class
-   * @property-read object $debug An instance of the debug class
+   * @property object $view An instance of the view class
+   * @property array $route Current route
+   * @property string $content The path to the selected template (partial view)
+   * @property object $conf An instance of the config class
+   * @property object $bootstrap An instance of the the bootstrap class
+   * @property object $tools An instance of the tools class
+   * @property object $debug An instance of the debug class
    * @param string $var Property name
    */
   public function __get($var)
