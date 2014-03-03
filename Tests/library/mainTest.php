@@ -1,9 +1,4 @@
 <?php
-/**
- *
- * @covers main
- *
- */
 
 require_once 'Tests/CodupTests.php';
 require_once 'library/main.php';
