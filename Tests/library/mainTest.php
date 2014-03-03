@@ -5,7 +5,7 @@
  *
  */
 namespace Tests;
-require_once 'Tests/coduptests.php';
+require_once 'Tests/CodupTests.php';
 require_once 'library/main.php';
 use Codup;
 class mainTest extends CodupTests
