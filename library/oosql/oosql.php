@@ -243,11 +243,11 @@ class oosql extends \PDO
         throw new \PDOException($msg,9902,null);
       }
       // This is a brand new record let's insert;
-
       $this->insert(implode(',', array_keys((array) $this->oosql_model_obj)))->values(implode(',', array_values((array) $this->oosql_model_obj)))->exe();
-    }elseif(key_exists(get_class($object), self::$oosql_result)){
+      return true;
+    }
+    if(isset(self::$oosql_result[get_class($object)])){
       // Updating after a select
-
       $primary = $object->getPrimaryValue();
 
       foreach(self::$oosql_result[get_class($object)] as $result_object){
@@ -257,35 +257,33 @@ class oosql extends \PDO
           $old = $result_object;
         }
       }
-
       foreach(array_diff((array) $object, (array) $old) as $key => $value){
 
         $data[$key] = $value;
       }
-
       if(null === $data){
         $msg = 'Nothing to save! ' . $this->oosql_sql;
         throw new \PDOException($msg,9903,null);
       }
-
       $this->update()->set($data)->createWhere($object->getPrimaryValue())->exe();
+      return true;
 
-    }else{
+    }
       // update a related table (no select on it)
       $primary = $object->getPrimary();
 
-      foreach($object as $k => $v){
+      foreach((array)$object as $k => $v){
         if($v === null || in_array($k, $primary)){
           continue;
         }
         $data[$k] = $v;
       }
-
-      $this->update()->set($data)->createWhere($object->getPrimaryValue())->exe();
-
-    }
-
-    return true;
+      if(count($data) !== 0){
+        $this->update()->set($data)->createWhere($object->getPrimaryValue())->exe();
+        return true;
+      }
+      $msg = 'Nothing to save! ' . $this->oosql_sql;
+      throw new \PDOException($msg,9904,null);
   }
 
   /**
@@ -326,7 +324,7 @@ class oosql extends \PDO
 
     if(($this->oosql_numargs !== 0 && $numargs !== $this->oosql_numargs) || $numargs === 0){
       $msg = 'Columns and passed data do not match! ' . $this->oosql_sql;
-      throw new \PDOException($msg,9904,null);
+      throw new \PDOException($msg,9905,null);
     }
 
     $this->oosql_sql .= ' VALUES (';
@@ -359,7 +357,7 @@ class oosql extends \PDO
 
       if($numargs < $this->oosql_del_numargs){
         $msg = 'Columns and passed data do not match! ' . $this->oosql_sql;
-        throw new \PDOException($msg,9905,null);
+        throw new \PDOException($msg,9906,null);
       }
 
 
@@ -535,7 +533,7 @@ class oosql extends \PDO
           $this->limit($argumants[0], $argumants[1]);
           break;
         default:
-          throw new \InvalidArgumentException('Fetch expects zero, one or two arguments as a query result limit',9906,null);
+          throw new \InvalidArgumentException('Fetch expects zero, one or two arguments as a query result limit',9907,null);
       }
     }
 
@@ -544,7 +542,7 @@ class oosql extends \PDO
     if(! $this->oosql_stmt){
 
       $msg = 'Query returned no results! ' . $this->oosql_sql;
-      throw new \PDOException($msg,9907,null);
+      throw new \PDOException($msg,9908,null);
     }
 
     $result = $this->oosql_stmt->fetchAll();
@@ -609,11 +607,8 @@ class oosql extends \PDO
     return $this;
   }
 
-  public function find($arg, $operator = null, $fields = array('*'))
+  public function find($arg, $operator = '=', $fields = array('*'))
   {
-    if($operator === null){
-      $operator = '=';
-    }
     if($fields[0] == '*'){
       $this->oosql_select = $this->select("*");
     }else{
@@ -636,11 +631,10 @@ class oosql extends \PDO
       $arg = array($pri[0] => $arg);
     }
     $i = 0;
+    $flag = '';
     foreach($arg as $col => $val){
       if($i > 0){
         $flag = 'and';
-      }else{
-        $flag = '';
       }
       $this->oosql_select->where("$this->oosql_table.$col $operator ?", $val, $flag);
       $i++;
