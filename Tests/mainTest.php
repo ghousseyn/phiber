@@ -17,7 +17,6 @@ class mainTest extends \PHPUnit_Framework_TestCase
 
 
 
-
     public function testGetView(){
 
       $route = array('module' => 'default', 'controller' => 'index', 'action' => 'main');
@@ -57,11 +56,90 @@ class mainTest extends \PHPUnit_Framework_TestCase
       $this->assertFalse($return);
     }
 
-    public function testSetVars(){
+    public function testLoad()
+    {
+      $class = 'config';
+      $return = $this->invokeMethod($this->main,'load',array($class));
+      $this->assertInstanceOf($class, $return);
+    }
+
+    public function testLoadReturnClassNameAfterInclusion()
+    {
+      $class = 'config';
+      $return = $this->invokeMethod($this->main,'load',array($class,null,null,false));
+      $this->assertTrue(class_exists($return));
+    }
+
+    public function testLoadFalse(){
+      $class = 'Codup\\controller';
+      $return = $this->invokeMethod($this->main,'load',array($class));
+      $this->assertFalse($return);
+    }
+
+    public function testGet()
+    {
+      $value = 'test';
+      $index = 'index';
+      $this->invokeMethod($this->main,'register',array($index,$value));
+      $return = $this->invokeMethod($this->main,'get',array($index));
+      $this->assertEquals($return, $value);
+    }
+
+    public function testHasActionDefault()
+    {
+      $controller = 'index';
+      $parts = array('nonExistant');
+      $return = $this->invokeMethod($this->main,'hasAction',array(&$parts,$controller));
+      $this->assertEquals(count($parts),0);
+      $this->assertEquals($return, $this->main->conf->defaultMethod);
+    }
+
+    public function testHasAction()
+    {
+      $controller = 'index';
+      $parts = array('main');
+      $return = $this->invokeMethod($this->main,'hasAction',array(&$parts,$controller));
+      $this->assertEquals(count($parts),0);
+      $this->assertEquals($return, 'main');
+    }
+
+    public function testHasController()
+    {
+      $module = 'default';
+      $parts = array('index','main');
+      $return = $this->invokeMethod($this->main,'hasController',array(&$parts,$module));
+      $this->assertEquals(count($parts),1);
+      $this->assertEquals($return, 'index');
+    }
+
+    public function testHasControllerDefault()
+    {
+      $module = 'default';
+      $parts = array('nonExistant','main');
+      $return = $this->invokeMethod($this->main,'hasController',array(&$parts,$module));
+      $this->assertEquals(count($parts),2);
+      $this->assertEquals($return, 'index');
+    }
+
+    public function testSetVars()
+    {
       $expected = array('var1'=>'val1','var2'=>'val2');
       $parts = array('var1', 'val1', 'var2', 'val2');
       $this->invokeMethod($this->main,'setVars',array($parts));
       $this->assertEquals($this->getProperty($this->main,'_requestVars'), $expected);
+    }
+
+    public function test_request()
+    {
+      $this->invokeMethod($this->main,'register',array('_request',array('var1'=>'val1','var2'=>'val2')));
+      $return = $this->invokeMethod($this->main,'_request',array('var1'));
+      $this->assertEquals($return, 'val1');
+    }
+    public function test_requestDefault()
+    {
+      $this->invokeMethod($this->main,'register',array('_request',array('var1'=>'val1','var2'=>'val2')));
+      $return = $this->invokeMethod($this->main,'_request',array('var3','val3'));
+      $this->assertEquals($return, 'val3');
     }
 
     public function testContextSwitchJson()
