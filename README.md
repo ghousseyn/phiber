@@ -1,4 +1,4 @@
-[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/ghousseyn/codup/badges/quality-score.png?s=91433b0216a9b35ac12c8dc606b76d7a84aa55fc)](https://scrutinizer-ci.com/g/ghousseyn/codup/) [![Build Status](https://travis-ci.org/ghousseyn/codup.png?branch=alpha)](https://travis-ci.org/ghousseyn/codup)
+[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/ghousseyn/codup/badges/quality-score.png?s=91433b0216a9b35ac12c8dc606b76d7a84aa55fc)](https://scrutinizer-ci.com/g/ghousseyn/codup/) [![Build Status](https://travis-ci.org/ghousseyn/codup.png?branch=alpha)](https://travis-ci.org/ghousseyn/codup)[![Code Coverage](https://scrutinizer-ci.com/g/ghousseyn/codup/badges/coverage.png?s=8ee27f3af143306c25b47b409dd19f9567fffcb7)](https://scrutinizer-ci.com/g/ghousseyn/codup/)
 
 codup
 =====
