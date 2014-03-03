@@ -2,7 +2,7 @@
 
 class index extends Codup\controller
 {
-
+  public $testing;
   function main()
   {
 
