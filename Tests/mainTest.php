@@ -17,9 +17,7 @@ class mainTest extends \PHPUnit_Framework_TestCase
 
 
 
-    /**
-     * @covers main::getView
-     */
+
     public function testGetView(){
 
       $route = array('module' => 'default', 'controller' => 'index', 'action' => 'main');
@@ -28,9 +26,6 @@ class mainTest extends \PHPUnit_Framework_TestCase
       $this->assertFileExists($this->main->view->viewPath);
     }
 
-    /**
-     * @covers main::getView
-     */
     public function testViewFileNotAvailable(){
 
       $route = array('module' => 'defaulte', 'controller' => 'indexe', 'action' => 'mainee');
@@ -40,7 +35,7 @@ class mainTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-    * @covers main::router
+    *
     * @dataProvider providerURI
     */
 
@@ -52,7 +47,7 @@ class mainTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers main::router
+     *
      * @dataProvider providerNotURI
      */
 
