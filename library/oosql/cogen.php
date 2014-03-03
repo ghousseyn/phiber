@@ -16,16 +16,7 @@ class cogen extends \PDO
 
   function __construct($host, $dbname, $user, $password)
   {
-
-    try{
-
-      parent::__construct('mysql:host=' . $host . ';dbname=' . $dbname, $user, $password);
-
-    }catch(\PDOException $e){
-
-      $this->errors[] = $this->errorInfo();
-      die();
-    }
+    parent::__construct('mysql:host=' . $host . ';dbname=' . $dbname, $user, $password);
     $this->time = microtime(true);
     $this->mem = memory_get_usage();
 
@@ -50,7 +41,8 @@ class cogen extends \PDO
     }
 
     $collection = new collection();
-    for($i = 0; $i < count($result); $i++){
+    $counter = count($result);
+    for($i = 0; $i < $counter; $i++){
       $collection->add($result[$i]);
     }
 
@@ -113,8 +105,8 @@ class cogen extends \PDO
       $create = $ks[0]['Create Table'];
 
       $keys = explode(',', $create);
-
-      while(substr(trim($keys[count($keys) - 1]), 0, 10) === 'CONSTRAINT'){
+      $kcount = count($keys);
+      while(substr(trim($keys[$kcount - 1]), 0, 10) === 'CONSTRAINT'){
         // @Todo Composite key constraints are not handled correctly
 
         $key = array_pop($keys);
@@ -147,7 +139,8 @@ class cogen extends \PDO
 
         if(isset($col['constraints'])){
           // print_r($fields[$tname]);
-          for($i = 0; $i < count($fields[$tname]); $i++){
+          $cnt = count($fields[$tname]);
+          for($i = 0; $i < $cnt; $i++){
             foreach($fields[$tname][$i] as $key => $val){
               // print_r($col['constraints'][$val]);
               if(isset($col['constraints'][$val])){
