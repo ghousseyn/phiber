@@ -12,6 +12,7 @@ class main
 {
 
   private $path = null;
+  private $uri = null;
 
   protected $_requestVars = array();
 
@@ -104,12 +105,7 @@ class main
     $path[] = $this->route['controller'];
     $path[] = $this->route['action'];
 
-    if($path[0] == 'default'){
-      array_shift($path);
-      $path = $this->conf->library . "/views/" . implode("/", $path) . ".php";
-    }else{
       $path = $this->conf->library . "/modules/" . array_shift($path) . "/views/" . implode("/", $path) . ".php";
-    }
 
     $this->view->viewPath = $path;
 
@@ -117,7 +113,7 @@ class main
 
   protected function renderLayout($layout = null)
   {
-    if(null != $layout){
+    if(null !== $layout){
       if(file_exists($layout)){
         include_once $layout;
       }
@@ -129,11 +125,11 @@ class main
 
   protected function router()
   {
-    $uri = urldecode($_SERVER['REQUEST_URI']);
+    $this->uri = urldecode($_SERVER['REQUEST_URI']);
 
-    if($this->isValidURI($uri)){
+    if($this->isValidURI($this->uri)){
 
-      $parts = explode("/", $uri);
+      $parts = explode("/", trim($this->uri));
 
       array_shift($parts);
 
@@ -160,7 +156,7 @@ class main
 
       }
 
-      if($_POST){
+      if($_SERVER['REQUEST_METHOD'] === 'POST'){
         $this->register('post', true);
         $this->register('get', false);
         $this->_requestVars = $_POST;
@@ -211,11 +207,6 @@ class main
     return $this->get('ajax');
   }
 
-  protected function getRoute()
-  {
-    return $this->route;
-  }
-
   protected function dispatch()
   {
     // $mod = $this->route["module"];
@@ -237,9 +228,14 @@ class main
 
   protected function contextSwitch($context)
   {
-    if($context == 'html'){
+    if($context === 'html'){
 
       $this->register('context', 'html');
+
+    }
+    if($context === 'json'){
+
+      $this->register('context', 'json');
 
     }
 
@@ -270,15 +266,9 @@ class main
 
   private function hasController(&$parts, $module)
   {
-    if($module == 'default'){
-
-      $this->path = $this->conf->library . '/';
-
-    }else{
 
       $this->path = $this->conf->library . '/modules/' . $module . '/';
 
-    }
 
     if(! empty($parts[0]) && file_exists($this->path . $parts[0] . '.php')){
 
@@ -313,7 +303,7 @@ class main
 
   protected function get($index)
   {
-    if(array_key_exists($index, $_SESSION)){
+    if(isset($_SESSION[$index])){
 
       return $_SESSION[$index];
 
@@ -438,6 +428,16 @@ class main
 
   }
 
+  /**
+   * @property-read object $view An instance of the view class
+   * @property-read array $route Current route
+   * @property-read string $content The path to the selected template (partial view)
+   * @property-read object $conf An instance of the config class
+   * @property-read object $bootstrap An instance of the the bootstrap class
+   * @property-read object $tools An instance of the tools class
+   * @property-read object $debug An instance of the debug class
+   * @param string $var Property name
+   */
   public function __get($var)
   {
 
