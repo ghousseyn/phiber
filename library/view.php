@@ -8,7 +8,7 @@
  */
 class view extends Codup\main
 {
-  
+
   protected $vars = array();
 
   function showTime()
@@ -19,9 +19,11 @@ class view extends Codup\main
     if($this->get('layoutEnabled')){
       $this->renderLayout();
     }else{
-      include $this->viewPath;
+      if(file_exists($this->viePath)){
+        include $this->viewPath;
+      }
     }
-  
+
   }
 
 }

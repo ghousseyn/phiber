@@ -6,7 +6,7 @@ class context extends Codup\plugin
 
     function run ()
     {
-
+      //$this->tools->wtf(json_encode(array('test','key' => 'value', 7 => 'another value', 12 => array('test2' => 'value two'))));
     	//$managers = models\dept_emp::getInstance();
     	//$results = $managers->select()->fetch(200);
     	/*foreach($results as $result){
