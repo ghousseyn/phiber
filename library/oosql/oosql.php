@@ -60,7 +60,7 @@ class oosql extends \PDO
 
   private $oosql_select;
 
-  private $conf = null;
+  private static $conf = null;
 
   /**
    * __construct()
@@ -76,9 +76,7 @@ class oosql extends \PDO
     $this->oosql_class = $oosql_class;
     $this->oosql_table = $oosql_table;
 
-    $this->conf = \config::getInstance();
-
-    parent::__construct($this->conf->_dsn, $this->conf->_dbuser, $this->conf->_dbpass);
+    parent::__construct(self::$conf->_dsn, self::$conf->_dbuser, self::$conf->_dbpass);
     $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     $this->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
 
@@ -98,8 +96,13 @@ class oosql extends \PDO
    * @return oosql An oosql\oosql object
    * @static
    */
-  public static function getInstance($oosql_table = null, $oosql_class = null)
+  public static function getInstance($oosql_table = null, $oosql_class = null, $config = null)
   {
+    if($config === null){
+       self::$conf = \config::getInstance();
+    }else{
+       self::$conf = $config;
+    }
     return new self($oosql_table, $oosql_class);
   }
 

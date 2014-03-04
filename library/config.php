@@ -40,9 +40,9 @@ class config
   /*
    * DB configuration properties
    */
-  protected $_dsn = 'mysql:host=127.0.0.1;dbname=codup';
+  public $_dsn = 'mysql:host=127.0.0.1;dbname=codup';
 
-  protected $_dbpass = "hggiHmfv";
+  protected $_dbpass = "password";
 
   protected $_dbuser = "root";
 

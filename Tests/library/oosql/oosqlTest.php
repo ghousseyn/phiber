@@ -2,6 +2,7 @@
 
 require_once 'Tests/CodupTests.php';
 require_once 'library/oosql/oosql.php';
+require_once 'library/config.php';
 
 class oosqlTest extends CodupTests
 {
@@ -10,7 +11,9 @@ class oosqlTest extends CodupTests
 
   public function setUp()
   {
-    $this->oosql = oosql\oosql::getInstance('table','class');
+    $config = config::getInstance();
+    $config->_dsn = 'sqlite:./test.db';
+    $this->oosql = oosql\oosql::getInstance('table','class',$config);
   }
   public function testSelect()
   {
