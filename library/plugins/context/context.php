@@ -1,6 +1,6 @@
 <?php
 
-class context extends Codup\plugin
+class context extends Phiber\plugin
 {
 
 

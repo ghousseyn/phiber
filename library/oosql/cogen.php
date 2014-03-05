@@ -129,7 +129,7 @@ class cogen extends \PDO
 
       print "Generating class $cname ...";
 
-      $text .= '<?php' . PHP_EOL . 'namespace entity;' . PHP_EOL . 'use Codup;';
+      $text .= '<?php' . PHP_EOL . 'namespace entity;' . PHP_EOL . 'use Phiber;';
       $text .= PHP_EOL . "class $cname extends entity  " . PHP_EOL . "{" . PHP_EOL;
       $count = 0;
       $foreign = array();

@@ -1,7 +1,7 @@
 <?php
 namespace entity;
-use Codup;
-class dept_emp extends entity  
+use Phiber;
+class dept_emp extends entity
 {
   public $emp_no;
   public $dept_no;

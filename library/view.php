@@ -4,9 +4,9 @@
  * The view class.
  * @version 	1.0
  * @author 	Hussein Guettaf <ghussein@coda-dz.com>
- * @package 	codup
+ * @package 	Phiber
  */
-class view extends Codup\main
+class view extends Phiber\main
 {
 
   protected $vars = array();

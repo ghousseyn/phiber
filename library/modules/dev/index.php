@@ -1,12 +1,12 @@
 <?php
 
-class index extends Codup\controller
+class index extends Phiber\controller
 {
 
   function main()
   {
 
-    $this->view->message = "This is dev module controller - welcome to Codup";
+    $this->view->message = "This is dev module controller - welcome to Phiber";
 
   }
 
