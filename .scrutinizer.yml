@@ -50,3 +50,4 @@ tools:
 filter:
     excluded_paths:
         - Tests
+        - library/oosql
