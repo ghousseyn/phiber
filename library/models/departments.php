@@ -1,9 +1,9 @@
 <?php
 namespace models;
-use Codup;
+use Phiber;
 use entity;
 
-class departments extends Codup\model
+class departments extends Phiber\model
 {
   function getDepartments($num){
     $deps = entity\departments::getInstance();

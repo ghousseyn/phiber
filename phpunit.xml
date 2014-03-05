@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit colors="true">
     <testsuites>
-        <testsuite name="Codup Test Suite">
+        <testsuite name="Phiber Test Suite">
             <directory>./Tests/</directory>
         </testsuite>
     </testsuites>

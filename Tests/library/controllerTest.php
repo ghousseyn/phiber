@@ -1,18 +1,18 @@
 <?php
 
-require_once 'Tests/CodupTests.php';
+require_once 'Tests/PhiberTests.php';
 require_once 'library/main.php';
 require_once 'library/controller.php';
 
 
-class controllerTest extends CodupTests
+class controllerTest extends PhiberTests
 {
 
   private $controller = null;
 
   public function setUp()
   {
-    $this->controller = Codup\controller::getInstance();
+    $this->controller = Phiber\controller::getInstance();
   }
 
   /**
