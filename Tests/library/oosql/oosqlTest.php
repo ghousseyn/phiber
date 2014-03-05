@@ -156,7 +156,7 @@ class oosqlTest extends CodupTests
    */
   public function testValuesNoArgs()
   {
-    $return = $this->invokeMethod($this->oosql, 'values');
+    $this->invokeMethod($this->oosql, 'values');
   }
 
   /**
@@ -166,7 +166,7 @@ class oosqlTest extends CodupTests
   public function testValuesArgsNotMatching()
   {
     $this->invokeMethod($this->oosql,'insert', array('field1','field2'));
-    $return = $this->invokeMethod($this->oosql, 'values',array('value1'));
+    $this->invokeMethod($this->oosql, 'values',array('value1'));
   }
   public function testValues()
   {
@@ -189,7 +189,7 @@ class oosqlTest extends CodupTests
   public function testFromArgsNotMatching()
   {
     $this->invokeMethod($this->oosql,'delete', array('field1','field2'));
-    $return = $this->invokeMethod($this->oosql, 'from',array('table1'));
+    $this->invokeMethod($this->oosql, 'from',array('table1'));
   }
   public function testFromWithArgs()
   {
