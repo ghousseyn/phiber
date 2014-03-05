@@ -306,10 +306,12 @@ class main
   protected function autoload($class)
   {
 
+
     $path = __dir__ . '/';
 
     if(! strstr($class, '\\')){
 
+      $path .= 'modules/'.$this->route['module'].'/';
       if(file_exists($path . $class . '.php')){
 
         include_once $path . $class . '.php';
