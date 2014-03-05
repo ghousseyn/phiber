@@ -52,11 +52,15 @@ class oosql extends \PDO
 
   private $oosql_del_multiFlag = false;
 
+  private $oosql_multi = array();
+
   private $oosql_del_numargs;
 
   private $oosql_sql;
 
   private $oosql_select;
+
+  private static $conf = null;
 
   /**
    * __construct()
@@ -72,9 +76,7 @@ class oosql extends \PDO
     $this->oosql_class = $oosql_class;
     $this->oosql_table = $oosql_table;
 
-    $conf = \config::getInstance();
-
-    parent::__construct($conf->_dsn, $conf->_dbuser, $conf->_dbpass);
+    parent::__construct(self::$conf->_dsn, self::$conf->_dbuser, self::$conf->_dbpass);
     $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     $this->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
 
@@ -94,9 +96,14 @@ class oosql extends \PDO
    * @return oosql An oosql\oosql object
    * @static
    */
-  public static function getInstance()
+  public static function getInstance($oosql_table = null, $oosql_class = null, $config = null)
   {
-    return new self();
+    self::$conf = $config;
+
+    if($config === null){
+       self::$conf = \config::getInstance();
+    }
+    return new self($oosql_table, $oosql_class);
   }
 
   /**
@@ -114,41 +121,41 @@ class oosql extends \PDO
 
   public function select()
   {
-    $this->oosql_sql = "SELECT";
+    $this->oosql_sql = 'SELECT';
     $numargs = func_num_args();
 
     if($numargs > 0){
       $arg_list = func_get_args();
       for($i = 0; $i < $numargs; $i++){
         if($i != 0 && $numargs > 1){
-          $this->oosql_sql .= ",";
+          $this->oosql_sql .= ',';
         }
-        $this->oosql_sql .= " $this->oosql_table." . $arg_list[$i];
+        $this->oosql_sql .= ' '.$this->oosql_table.'.'.$arg_list[$i];
       }
     }else{
-      $this->oosql_sql .= " $this->oosql_table.* ";
+      $this->oosql_sql .= ' '.$this->oosql_table.'.* ';
     }
 
     $this->oosql_fromFlag = true;
     $this->oosql_select = $this;
+    $this->oosql_where = null;
     return $this;
   }
 
   public function insert()
   {
-    $this->oosql_sql = "INSERT INTO $this->oosql_table";
+    $this->oosql_sql = 'INSERT INTO '.$this->oosql_table;
 
     $arg_list = func_get_args();
-    $arg_list = explode(',', implode('', $arg_list));
-    $numargs = count($arg_list);
+    $numargs = func_num_args();
 
     if($numargs > 0){
       $this->oosql_numargs = $numargs;
-      $this->oosql_sql .= " (";
+      $this->oosql_sql .= ' (';
 
-      $this->oosql_sql .= implode(",", $arg_list);
+      $this->oosql_sql .= implode(',', $arg_list);
 
-      $this->oosql_sql .= ")";
+      $this->oosql_sql .= ')';
     }
 
     return $this;
@@ -157,17 +164,19 @@ class oosql extends \PDO
   public function update()
   {
 
-    $this->oosql_sql = "UPDATE";
+    $this->oosql_sql = 'UPDATE';
 
     $numargs = func_num_args();
 
     if($numargs > 0){
-      if($numargs > 1){
-        $this->oosql_multiFlag = true;
-      }
       $arg_list = func_get_args();
+
+      $this->oosql_multiFlag = true;
+
+      $this->oosql_multi = $arg_list;
+
       for($i = 0; $i < $numargs; $i++){
-        if($i != 0 && $numargs > $i+1){
+        if($i != 0 && $numargs > $i){
           $this->oosql_sql .= ',';
         }
         $this->oosql_sql .= ' ' . $arg_list[$i];
@@ -177,6 +186,7 @@ class oosql extends \PDO
     }
 
     $this->oosql_sql .= ' SET ';
+    $this->oosql_where = null;
     return $this;
   }
 
@@ -184,7 +194,7 @@ class oosql extends \PDO
   {
 
     $this->oosql_sql = 'DELETE';
-
+    $this->oosql_where = null;
     $numargs = func_num_args();
 
     if($numargs > 0){
@@ -194,10 +204,11 @@ class oosql extends \PDO
       }
       $arg_list = func_get_args();
       if(is_array($arg_list[0])){
-        $this->oosql_fromFlag = true;
-        $this->where($arg_list[0][0], $arg_list[0][1])->exe();
-        return;
+        $this->oosql_sql .= ' FROM '.$this->oosql_table;
+        $this->where($arg_list[0][0].' = ?', $arg_list[0][1]);
+        return $this;
       }
+      $this->oosql_sql .= ' FROM';
       for($i = 0; $i < $numargs; $i++){
         if($i != 0 && $numargs > 1){
           $this->oosql_sql .= ',';
@@ -208,6 +219,7 @@ class oosql extends \PDO
     }else{
       $this->oosql_fromFlag = true;
     }
+
 
     return $this;
   }
@@ -220,7 +232,7 @@ class oosql extends \PDO
   {
     foreach($data as $field => $value){
 
-        $this->oosql_sql .= " $field = ?,";
+        $this->oosql_sql .= $field.' = ?,';
         $this->oosql_conValues[] = $value;
 
 
@@ -368,8 +380,8 @@ class oosql extends \PDO
     if($numargs > 0){
       $arg_list = func_get_args();
       for($i = 0; $i < $numargs; $i++){
-        if($i !== 0 && $numargs > $i+1){
-          $this->oosql_sql .= ',';
+        if($i !== 0 && $numargs > $i){
+          $this->oosql_sql .= ', ';
         }
         $this->oosql_sql .= $arg_list[$i];
       }
@@ -383,7 +395,7 @@ class oosql extends \PDO
   public function join($table, $criteria, $type = '')
   {
 
-    $this->oosql_join .= " $type JOIN $table ON $criteria ";
+    $this->oosql_join .= "$type JOIN $table ON $criteria";
     return $this;
   }
 

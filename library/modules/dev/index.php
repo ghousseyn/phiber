@@ -18,8 +18,9 @@ class index extends Codup\controller
     $this->view->text = "welcome to action";
 
     if($this->isAjax()){
+      $this->contextSwitch('json');
       $this->sendJSON(array(0 => "one thing", 1 => "another"));
-      //$this->contextSwitch('html');
+
     }
 
   }

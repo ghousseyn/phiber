@@ -56,13 +56,6 @@ class main
     if($this->conf->debug){
       $this->debug->output();
     }
-    if($this->isAjax()){
-      if($this->get('context') == 'html'){
-
-        $this->register('layoutEnabled', false);
-      }
-    }
-
     $this->view->showTime();
 
   }
@@ -228,15 +221,14 @@ class main
 
   protected function contextSwitch($context)
   {
-    if($context === 'html'){
+    if($context === 'html' || $context === 'json'){
 
-      $this->register('context', 'html');
+      $this->register('context', $context);
+      $this->register('layoutEnabled', false);
 
     }
     if($context === 'json'){
-
-      $this->register('context', 'json');
-
+      $this->view->viewPath = null;
     }
 
   }
@@ -314,10 +306,12 @@ class main
   protected function autoload($class)
   {
 
+
     $path = __dir__ . '/';
 
     if(! strstr($class, '\\')){
 
+      $path .= 'modules/'.$this->route['module'].'/';
       if(file_exists($path . $class . '.php')){
 
         include_once $path . $class . '.php';
@@ -329,9 +323,6 @@ class main
     $parts = explode('\\', $class);
 
     $i = 0;
-    if($parts[0] == '\\'){
-      $i = 1;
-    }
 
     $count = count($parts);
     for($i; $i < $count; $i++){
@@ -354,59 +345,33 @@ class main
 
   protected function load($class, $params = null, $path = null, $inst = true)
   {
-
     $newpath = $path;
-
     if(null === $newpath){
-
       $newpath = __DIR__ . '/';
-
     }
-
     $incpath = $newpath . $class . '.php';
-
     $hash = hash('adler32', $incpath);
-
     if($this->isLoaded($hash) && false !== $inst){
-
       return $this->get($hash);
-
     }
-
-    $serialisable = array('config', 'debug', 'tools', 'view', 'bootstrap');
-
     if(! file_exists($incpath)){
-
       return false;
-
     }
-
     include_once ($incpath);
-
     if(false === $inst){
       return $class;
     }
-
     if(null !== $params && is_array($params)){
-
       $parameters = implode(",", $params);
-
     }else{
-
       $parameters = $params;
-
     }
-
     $instance = $class::getInstance($parameters);
-
+    $serialisable = array('config', 'debug', 'tools', 'view', 'bootstrap');
     if(in_array($class, $serialisable)){
-
       $this->register($hash, $instance);
-
     }
-
     return $instance;
-
   }
 
   protected function isLoaded($hash)
