@@ -98,10 +98,10 @@ class oosql extends \PDO
    */
   public static function getInstance($oosql_table = null, $oosql_class = null, $config = null)
   {
+    self::$conf = $config;
+
     if($config === null){
        self::$conf = \config::getInstance();
-    }else{
-       self::$conf = $config;
     }
     return new self($oosql_table, $oosql_class);
   }
@@ -121,19 +121,19 @@ class oosql extends \PDO
 
   public function select()
   {
-    $this->oosql_sql = "SELECT";
+    $this->oosql_sql = 'SELECT';
     $numargs = func_num_args();
 
     if($numargs > 0){
       $arg_list = func_get_args();
       for($i = 0; $i < $numargs; $i++){
         if($i != 0 && $numargs > 1){
-          $this->oosql_sql .= ",";
+          $this->oosql_sql .= ',';
         }
-        $this->oosql_sql .= " $this->oosql_table." . $arg_list[$i];
+        $this->oosql_sql .= ' '.$this->oosql_table.'.'.$arg_list[$i];
       }
     }else{
-      $this->oosql_sql .= " $this->oosql_table.* ";
+      $this->oosql_sql .= ' '.$this->oosql_table.'.* ';
     }
 
     $this->oosql_fromFlag = true;
@@ -144,18 +144,18 @@ class oosql extends \PDO
 
   public function insert()
   {
-    $this->oosql_sql = "INSERT INTO $this->oosql_table";
+    $this->oosql_sql = 'INSERT INTO '.$this->oosql_table;
 
     $arg_list = func_get_args();
     $numargs = func_num_args();
 
     if($numargs > 0){
       $this->oosql_numargs = $numargs;
-      $this->oosql_sql .= " (";
+      $this->oosql_sql .= ' (';
 
-      $this->oosql_sql .= implode(",", $arg_list);
+      $this->oosql_sql .= implode(',', $arg_list);
 
-      $this->oosql_sql .= ")";
+      $this->oosql_sql .= ')';
     }
 
     return $this;
@@ -164,7 +164,7 @@ class oosql extends \PDO
   public function update()
   {
 
-    $this->oosql_sql = "UPDATE";
+    $this->oosql_sql = 'UPDATE';
 
     $numargs = func_num_args();
 
@@ -232,7 +232,7 @@ class oosql extends \PDO
   {
     foreach($data as $field => $value){
 
-        $this->oosql_sql .= "$field = ?,";
+        $this->oosql_sql .= $field.' = ?,';
         $this->oosql_conValues[] = $value;
 
 
@@ -380,8 +380,8 @@ class oosql extends \PDO
     if($numargs > 0){
       $arg_list = func_get_args();
       for($i = 0; $i < $numargs; $i++){
-        if($i !== 0 && $numargs > $i+1){
-          $this->oosql_sql .= ',';
+        if($i !== 0 && $numargs > $i){
+          $this->oosql_sql .= ', ';
         }
         $this->oosql_sql .= $arg_list[$i];
       }
@@ -395,7 +395,7 @@ class oosql extends \PDO
   public function join($table, $criteria, $type = '')
   {
 
-    $this->oosql_join .= " $type JOIN $table ON $criteria ";
+    $this->oosql_join .= "$type JOIN $table ON $criteria";
     return $this;
   }
 

@@ -126,7 +126,100 @@ class oosqlTest extends CodupTests
   {
     $this->invokeMethod($this->oosql, 'save');
   }
+  public function testCreatWhere()
+  {
+    $array = array('field1' => 11);
+    $return = $this->invokeMethod($this->oosql, 'createWhere',array($array));
+    $sql = $this->getProperty($this->oosql, 'oosql_where');
+    $values = $this->getProperty($this->oosql, 'oosql_conValues');
 
+    $this->assertEquals(' WHERE field1 =?', $sql);
+    $this->assertContains(11, $values);
+    $this->assertInstanceOf('oosql\\oosql', $return);
+  }
+  public function testCreatAndWhere()
+  {
+    $array = array('field1' => 11, 'field2' => 'value', 'field3' => 1.54);
+    $return = $this->invokeMethod($this->oosql, 'createWhere',array($array));
+    $sql = $this->getProperty($this->oosql, 'oosql_where');
+    $values = $this->getProperty($this->oosql, 'oosql_conValues');
+
+    $this->assertEquals(' WHERE field1 =? AND field2 =? AND field3 =?', $sql);
+    $this->assertContains(11, $values);
+    $this->assertContains(1.54, $values);
+    $this->assertContains('value', $values);
+    $this->assertInstanceOf('oosql\\oosql', $return);
+  }
+  /**
+   * @expectedException PDOException
+   * @expectedExceptionCode 9905
+   */
+  public function testValuesNoArgs()
+  {
+    $return = $this->invokeMethod($this->oosql, 'values');
+  }
+
+  /**
+   * @expectedException PDOException
+   * @expectedExceptionCode 9905
+   */
+  public function testValuesArgsNotMatching()
+  {
+    $this->invokeMethod($this->oosql,'insert', array('field1','field2'));
+    $return = $this->invokeMethod($this->oosql, 'values',array('value1'));
+  }
+  public function testValues()
+  {
+    $this->invokeMethod($this->oosql,'insert', array('field1','field2'));
+    $return = $this->invokeMethod($this->oosql, 'values',array('value1',3));
+    $sql = $this->getProperty($this->oosql, 'oosql_sql');
+    $values = $this->getProperty($this->oosql, 'oosql_conValues');
+    $flag = $this->getProperty($this->oosql, 'oosql_fromFlag');
+
+    $this->assertEquals('INSERT INTO table (field1,field2) VALUES ( ?, ?)', $sql);
+    $this->assertFalse($flag);
+    $this->assertcontains('value1',$values);
+    $this->assertcontains(3,$values);
+    $this->assertInstanceOf('oosql\\oosql', $return);
+  }
+  /**
+   * @expectedException PDOException
+   * @expectedExceptionCode 9906
+   */
+  public function testFromArgsNotMatching()
+  {
+    $this->invokeMethod($this->oosql,'delete', array('field1','field2'));
+    $return = $this->invokeMethod($this->oosql, 'from',array('table1'));
+  }
+  public function testFromWithArgs()
+  {
+    $return = $this->invokeMethod($this->oosql, 'from',array('table1','table2'));
+
+    $sql = $this->getProperty($this->oosql, 'oosql_sql');
+    $flag = $this->getProperty($this->oosql, 'oosql_fromFlag');
+    $this->assertEquals(' FROM table1, table2', $sql);
+    $this->assertFalse($flag);
+    $this->assertInstanceOf('oosql\\oosql', $return);
+  }
+  public function testFromNoArgs()
+  {
+    $return = $this->invokeMethod($this->oosql, 'from');
+
+    $sql = $this->getProperty($this->oosql, 'oosql_sql');
+    $flag = $this->getProperty($this->oosql, 'oosql_fromFlag');
+    $this->assertEquals(' FROM table', $sql);
+    $this->assertFalse($flag);
+    $this->assertInstanceOf('oosql\\oosql', $return);
+  }
+  public function testJoinDefault()
+  {
+    $params = array('table1','table.fk_id = table1.id');
+    $return = $this->invokeMethod($this->oosql, 'join',$params);
+
+    $sql = $this->getProperty($this->oosql, 'oosql_join');
+    $this->assertEquals(' JOIN table1 ON table.fk_id = table1.id', $sql);
+    $this->assertInstanceOf('oosql\\oosql', $return);
+  }
 }
 
 ?>
