@@ -1,5 +1,5 @@
 <?php
-namespace Codup;
+namespace Phiber;
 
 class plugin extends main
 {

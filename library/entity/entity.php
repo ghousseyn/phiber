@@ -23,13 +23,13 @@ abstract class entity
   protected static function getooSQL($class)
   {
 
-    $table = strstr($class, '\\');
-    if($table === false){
+    $tablename = strstr($class, '\\');
+    if($tablename === false){
       return false;
     }
 
-    $table = trim(str_replace('\\', '', $table));
-    return new oosql($table, $class);
+    $tablename = trim(str_replace('\\', '', $tablename));
+    return new oosql($tablename, $class);
   }
 
   public function save($obj)
@@ -53,7 +53,7 @@ abstract class entity
 
   }
 
-  function load($obj)
+  public function load($obj)
   {
 
     $primary = $obj->getPrimary();
@@ -62,7 +62,7 @@ abstract class entity
     }
   }
 
-  function __set($var, $val)
+  public function __set($var, $val)
   {
     if(! key_exists($var, get_class_vars(get_class(new static())))){
       self::$oosql_model_extra = true;
@@ -75,24 +75,24 @@ abstract class entity
     unset($this->properties[$property]);
   }
 
-  function __call($table, $arg)
+  public function __call($tablename, $arg)
   {
     $relations = $this->getRelations();
     $obj = $this;
     foreach($relations as $fk => $target){
       $objPath = explode('.', $target);
-      if($objPath[0] == $table){
-        $table = "models\\$table";
-        $instance = $table::getInstance()->getModelObject();
+      if($objPath[0] == $tablename){
+        $tablename = "models\\$tablename";
+        $instance = $tablename::getInstance()->getModelObject();
         $instance->{$objPath[1]} = $obj->{$objPath[1]};
-        // var_dump($instance);
+
         return $instance;
       }
 
     }
   }
 
-  function __get($var)
+  public function __get($var)
   {
     if(key_exists($var, get_class_vars(get_class(new static())))){
       return $this->{$var}();

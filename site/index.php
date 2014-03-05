@@ -1,7 +1,7 @@
 <?php
 
 include "../library/main.php";
-$main = Codup\main::getInstance();
+$main = Phiber\main::getInstance();
 
 $main->run();
 

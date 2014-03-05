@@ -4,9 +4,9 @@
  * The main framework class
  * @version     1.0
  * @author      Hussein Guettaf <ghussein@coda-dz.com>
- * @package     codup
+ * @package     Phiber
  */
-namespace Codup;
+namespace Phiber;
 
 class main
 {
@@ -326,7 +326,7 @@ class main
 
     $count = count($parts);
     for($i; $i < $count; $i++){
-      if($parts[$i] == 'Codup'){
+      if($parts[$i] == 'Phiber'){
         continue;
       }
       if($i == $count - 1){

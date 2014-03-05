@@ -1,7 +1,7 @@
 <?php
 namespace entity;
-use Codup;
-class salaries extends entity  
+use Phiber;
+class salaries extends entity
 {
   public $emp_no;
   public $salary;

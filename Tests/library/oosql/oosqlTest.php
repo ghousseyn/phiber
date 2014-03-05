@@ -1,10 +1,10 @@
 <?php
 
-require_once 'Tests/CodupTests.php';
+require_once 'Tests/PhiberTests.php';
 require_once 'library/oosql/oosql.php';
 require_once 'library/config.php';
 
-class oosqlTest extends CodupTests
+class oosqlTest extends PhiberTests
 {
 
   private $oosql = null;

@@ -4,7 +4,7 @@
  * Tools class.
  * @version 	1.0
  * @author 	Hussein Guettaf <ghussein@coda-dz.com>
- * @package 	codup
+ * @package 	Phiber
  */
 
 class tools
@@ -22,7 +22,7 @@ class tools
     }
     $s = array('s', 'min', 'H');
     $e = floor(log($size) / log(60));
-    
+
     return sprintf('%d ' . $s[$e], ($size / pow(60, floor($e))));
   }
 
