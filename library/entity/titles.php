@@ -1,7 +1,7 @@
 <?php
 namespace entity;
-use Codup;
-class titles extends entity  
+use Phiber;
+class titles extends entity
 {
   public $emp_no;
   public $title;

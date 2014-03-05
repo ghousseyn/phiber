@@ -1,6 +1,6 @@
 <?php
 
-class debug extends Codup\main
+class debug extends Phiber\main
 {
   public $stack;
 

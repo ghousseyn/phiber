@@ -1,7 +1,7 @@
 <?php
 
 
-class CodupTests extends \PHPUnit_Framework_TestCase
+class PhiberTests extends \PHPUnit_Framework_TestCase
 {
   /**
    * Call protected/private method of a class.

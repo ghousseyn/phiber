@@ -1,14 +1,14 @@
 <?php
 
-require_once 'Tests/CodupTests.php';
+require_once 'Tests/PhiberTests.php';
 require_once 'library/main.php';
 
-class mainTest extends CodupTests
+class mainTest extends PhiberTests
 {
     private $main = null;
 
     public function setUp(){
-      $this->main = \Codup\main::getInstance();
+      $this->main = \Phiber\main::getInstance();
     }
 
 
@@ -67,13 +67,13 @@ class mainTest extends CodupTests
     }
 
     public function testLoadFalse(){
-      $class = 'Codup\\controller';
+      $class = 'Phiber\\controller';
       $return = $this->invokeMethod($this->main,'load',array($class));
       $this->assertFalse($return);
     }
     public function testAutoloadSimple()
     {
-      $class = 'Codup\\controller';
+      $class = 'Phiber\\controller';
       $this->invokeMethod($this->main,'autoload',array($class));
       $this->assertTrue(class_exists($class));
     }
@@ -87,7 +87,7 @@ class mainTest extends CodupTests
 
     public function testAutoloadOneLevelGlobalShifted()
     {
-      $class = 'Codup\\oosql\\oosql';
+      $class = 'Phiber\\oosql\\oosql';
       $this->invokeMethod($this->main,'autoload',array($class));
       $this->assertTrue(class_exists('oosql\\oosql'));
     }

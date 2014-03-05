@@ -1,6 +1,6 @@
-[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/ghousseyn/codup/badges/quality-score.png?s=91433b0216a9b35ac12c8dc606b76d7a84aa55fc)](https://scrutinizer-ci.com/g/ghousseyn/codup/) [![Build Status](https://travis-ci.org/ghousseyn/codup.png?branch=alpha)](https://travis-ci.org/ghousseyn/codup) [![Code Coverage](https://scrutinizer-ci.com/g/ghousseyn/codup/badges/coverage.png?s=8ee27f3af143306c25b47b409dd19f9567fffcb7)](https://scrutinizer-ci.com/g/ghousseyn/codup/)
+[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/ghousseyn/Phiber/badges/quality-score.png?s=91433b0216a9b35ac12c8dc606b76d7a84aa55fc)](https://scrutinizer-ci.com/g/ghousseyn/Phiber/) [![Build Status](https://travis-ci.org/ghousseyn/Phiber.png?branch=alpha)](https://travis-ci.org/ghousseyn/Phiber) [![Code Coverage](https://scrutinizer-ci.com/g/ghousseyn/Phiber/badges/coverage.png?s=8ee27f3af143306c25b47b409dd19f9567fffcb7)](https://scrutinizer-ci.com/g/ghousseyn/Phiber/)
 
-codup
+Phiber
 =====
 
 
@@ -66,7 +66,7 @@ Array
    
    //file: /modules/firstmod/cool.php
    
-  class cool extends Codup\controller {
+  class cool extends Phiber\controller {
 
     function index(){
       $this->view->message = "message";
@@ -116,14 +116,14 @@ Array
   * plugins folder
   * follwing the same conventions your plugin loader would be expected to be in
   * the format: {pluginName}.php
-  * The class should also extend Codup\plugin 
+  * The class should also extend Phiber\plugin 
   * The run() method is the entry point and should contain code to 
   * initialize/execute your plugin
   */
   
   //file: /plugins/coolplugin/coolplugin.php
   
-  class coolplugin extends Codup\plugin {
+  class coolplugin extends Phiber\plugin {
 
     function run(){
       
@@ -209,10 +209,10 @@ Array
 ```
 ```php
 namespace models;
-use Codup;
+use Phiber;
 use entity;
 
-class blog_post extends Codup\model
+class blog_post extends Phiber\model
 {
    
   // example model method

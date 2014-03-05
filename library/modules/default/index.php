@@ -1,6 +1,6 @@
 <?php
 
-class index extends Codup\controller
+class index extends Phiber\controller
 {
   public $testing;
   function main()
