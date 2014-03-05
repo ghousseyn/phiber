@@ -1,7 +1,10 @@
 <?php
 include 'cogen.php';
-
-$gen = new oosql\cogen('localhost', 'codup', 'root', 'password');
+try{
+   $gen = new oosql\cogen('localhost', 'codup', 'root', 'hggiHmfv');
+   }catch(\PDOException $e){
+     var_dump($e);
+   }
 
 $gen->generate();
 
