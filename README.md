@@ -1,12 +1,12 @@
-[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/ghousseyn/phiber/badges/quality-score.png?s=91433b0216a9b35ac12c8dc606b76d7a84aa55fc)](https://scrutinizer-ci.com/g/ghousseyn/phiber/) [![Build Status](https://travis-ci.org/ghousseyn/phiber.png?branch=alpha)](https://travis-ci.org/ghousseyn/phiber) [![Code Coverage](https://scrutinizer-ci.com/g/ghousseyn/phiber/badges/coverage.png?s=8ee27f3af143306c25b47b409dd19f9567fffcb7)](https://scrutinizer-ci.com/g/ghousseyn/phiber/)
+[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/ghousseyn/phiber/badges/quality-score.png?s=436bbca471c3881b34e0c2d36b311c003aea5739)](https://scrutinizer-ci.com/g/ghousseyn/phiber/) [![Build Status](https://travis-ci.org/ghousseyn/phiber.png?branch=alpha)](https://travis-ci.org/ghousseyn/phiber) [![Code Coverage](https://scrutinizer-ci.com/g/ghousseyn/phiber/badges/coverage.png?s=6282beaf967e0ac820a325b6897fab427f286908)](https://scrutinizer-ci.com/g/ghousseyn/phiber/)
 
 Phiber
 =====
 
 
-A lightweight MVC PhP framework featuring:
+Phiber is a lightweight MVC PhP framework featuring:
 
-- A comprehensive router 
+- A comprehensive router with zero configuration required
 
 ```
 # for this url for exmaple
@@ -32,7 +32,7 @@ Array
 ```
 
 ``` php
-  //to get var1 for instance in your controller (POST and AJAX calls also)
+  //to get var1 for instance in your controller being it POST or GET (AJAX calls also)
 
   $var1 = $this->_request('var1');
   
@@ -43,12 +43,12 @@ Array
   }
   
   /* 
-   * For ajax requests the default behaviour is to disable the layout if there is any 
+   * For ajax requests you can disable the layout if there is any 
    * along with action template unless the 'html' context is specified
    * in which case only the action template is returned
    */
   if($this->isAjax()){
-  
+  	$this->disableLayout();
   }
   
 ```
@@ -76,8 +76,8 @@ Array
     }
   }
   // if this is in a directory called firstmod 
-  // the url http://localhost/firstmod/cool will fire the index method
-  // the url http://localhost/firstmod/cool/action will fire the action method
+  // http://localhost/firstmod/cool executes the index method (default method configurable)
+  // http://localhost/firstmod/cool/action will fire the action method
   // and so on
   
 ```
