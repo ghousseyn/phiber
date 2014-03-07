@@ -45,10 +45,6 @@ class main
   {
 
     $this->checkSession();
-    $this->register('post', false);
-    $this->register('get', true);
-    $this->register('ajax', false);
-    $this->register('context', null);
     $this->router();
     $this->getView();
     $this->plugins();
@@ -119,6 +115,11 @@ class main
   protected function router()
   {
     $this->uri = urldecode($_SERVER['REQUEST_URI']);
+
+    $this->register('post', false);
+    $this->register('get', true);
+    $this->register('ajax', false);
+    $this->register('context', null);
 
     if($this->isValidURI($this->uri)){
 

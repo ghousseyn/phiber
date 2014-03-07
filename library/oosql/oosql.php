@@ -36,6 +36,8 @@ class oosql extends \PDO
    */
   private $oosql_limit = null;
 
+  private $oosql_order = null;
+
   private $oosql_where = null;
 
   private $oosql_join = null;
@@ -409,6 +411,11 @@ class oosql extends \PDO
     return $this->join($table, $criteria, $type = 'RIGHT');
   }
 
+  public function joinFull($table, $criteria)
+  {
+    return $this->join($table, $criteria, $type = 'FULL OUTER');
+  }
+
   public function where($condition, $value, $type = null)
   {
 
@@ -446,13 +453,7 @@ class oosql extends \PDO
 
   protected function valid_int($val)
   {
-    if(is_int($val)){
-      return true;
-    }
-    if(is_string($val)){
-      return ctype_digit($val);
-    }
-    return false;
+    return ctype_digit(strval($val));
   }
 
   public function exe()
@@ -468,6 +469,9 @@ class oosql extends \PDO
     }
     if(null != $this->oosql_limit){
       $this->oosql_sql .= ' ' . $this->oosql_limit;
+    }
+    if(null != $this->oosql_order){
+      $this->oosql_sql .= ' ' . $this->oosql_order;
     }
 
     if(count($this->oosql_conValues) !== 0){
@@ -504,28 +508,6 @@ class oosql extends \PDO
     return $this->oosql_stmt;
   }
 
-  public function q($query, $fetchMode = null)
-  {
-
-    switch($fetchMode){
-      case \PDO::FETCH_ASSOC:
-      case \PDO::FETCH_BOTH:
-      case \PDO::FETCH_BOUND:
-
-    }
-    $result = $this->query($query)->fetchAll(\pdo::FETCH_OBJ);
-
-    $collection = new collection();
-
-    foreach($result as $res){
-      $collection->add($res);
-
-    }
-    $collection->obj_name = $this->oosql_class;
-    self::$oosql_result[$this->oosql_class] = clone $collection;
-    return $collection;
-
-  }
 
   /**
    *
@@ -549,12 +531,18 @@ class oosql extends \PDO
       }
     }
 
-    $this->oosql_select->exe();
+    if($this->oosql_select instanceof oosql){
+      $this->oosql_select->exe();
+    }else{
+      $msg = 'Query returned no results! You need to select first! ' . $this->oosql_sql;
+      throw new \PDOException($msg,9908,null);
+    }
+
 
     if(! $this->oosql_stmt){
 
       $msg = 'Query returned no results! ' . $this->oosql_sql;
-      throw new \PDOException($msg,9908,null);
+      throw new \PDOException($msg,9909,null);
     }
 
     $result = $this->oosql_stmt->fetchAll();
@@ -592,13 +580,13 @@ class oosql extends \PDO
   public function limit($from, $to)
   {
     if(!$this->oosql_multiFlag){
-      $this->oosql_limit = ' LIMIT ' . $from . ',' . $to;
+      $this->oosql_limit = ' LIMIT ' . $from . ', ' . $to;
     }
     return $this;
   }
   public function orderBy($field){
     if(!$this->oosql_multiFlag){
-      $this->oosql_limit = ' ORDER BY ' . $field;
+      $this->oosql_order = ' ORDER BY ' . $field;
     }
     return $this;
   }
