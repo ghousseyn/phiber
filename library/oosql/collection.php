@@ -28,18 +28,6 @@ class collection extends \ArrayObject
     $this->numObjects++;
   }
 
-  protected function partial(array $array, $count)
-  {
-    if($count === 0){
-      return false;
-    }
-    $collection = new collection();
-    $collection->objects = $array;
-    $collection->numObjects = $count;
-    $collection->obj_name = $this->obj_name;
-    return $collection;
-  }
-
   /*
    * get an obj based on one of it's properties. i.e. a User obj with the
    * property 'username' and a value of 'someUser' can be retrieved by
@@ -57,15 +45,13 @@ class collection extends \ArrayObject
 
   public function objectsWhere($property, $value)
   {
-    $objects = array();
-    $num = 0;
+    $collection = new self();
     foreach($this->objects as $key => $obj){
       if($obj->{$property} === $value){
-        $objects[$num] = $obj;
-        $num++;
+        $collection->add($obj);
       }
     }
-    return $this->partial($objects, $num);
+    return ($collection->count()) ? $collection : false;
   }
   /*
    * alias for objectWhere()
@@ -136,11 +122,10 @@ class collection extends \ArrayObject
   {
     foreach($this->deletedObjects as $key => $obj){
       if($obj->{$property} === $value){
-        $this->objects[] = $obj;
+        $this->add($obj);
         unset($this->deletedObjects[$key]);
       }
     }
-    $this->objects = array_values($this->objects);
     $this->deletedObjects = array_values($this->deletedObjects);
   }
 
