@@ -21,6 +21,10 @@ class main
   protected function __construct()
   {
     spl_autoload_register(array($this, 'autoload'));
+
+    if($this->conf->log){
+      \error::initiate($this->getLog($this->conf->logHandler,$this->conf->logParams));
+    }
     if($this->conf->debug){
 
       $this->debug->start();
@@ -32,10 +36,15 @@ class main
     }
 
   }
-  /*
-   * Implement the getInstance() method
-   */
 
+  protected function getLog($logger,$params)
+  {
+    $logWriter = "\\logger\\$logger";
+    $writer = new $logWriter($params);
+
+    $this->register('log',$writer);
+    return $writer;
+  }
   public static function getInstance()
   {
     return new static();
@@ -297,11 +306,15 @@ class main
   protected function autoload($class)
   {
 
-
-    $path = __dir__ . '/';
+    $path = $this->conf->library . '/';
 
     if(! strstr($class, '\\')){
 
+      if(file_exists($path . $class . '.php')){
+
+        include_once $path . $class . '.php';
+        return;
+      }
       $path .= 'modules/'.$this->route['module'].'/';
       if(file_exists($path . $class . '.php')){
 
@@ -310,7 +323,7 @@ class main
       }
       return;
     }
-    // echo "loadin $path$class.php <br />";
+
     $parts = explode('\\', $class);
 
     $i = 0;
@@ -330,7 +343,10 @@ class main
 
     if(file_exists($path)){
       include_once $path;
+      return;
     }
+
+
 
   }
 

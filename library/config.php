@@ -10,6 +10,11 @@
 class config
 {
 
+  protected $log = true;
+
+  protected $logHandler = 'file';
+
+  protected $logParams = array('default','g:\\logfile.txt');
   /*
    * Path to the library relative to this file (set in the construct)
    */
