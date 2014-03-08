@@ -45,10 +45,6 @@ class main
   {
 
     $this->checkSession();
-    $this->register('post', false);
-    $this->register('get', true);
-    $this->register('ajax', false);
-    $this->register('context', null);
     $this->router();
     $this->getView();
     $this->plugins();
@@ -119,58 +115,53 @@ class main
   protected function router()
   {
     $this->uri = urldecode($_SERVER['REQUEST_URI']);
-
+    $this->register('post', false);
+    $this->register('get', true);
+    $this->register('ajax', false);
+    $this->register('context', null);
     if($this->isValidURI($this->uri)){
-
       $parts = explode("/", trim($this->uri));
-
       array_shift($parts);
-
       if(! empty($parts[0]) && $this->bootstrap->isModule($parts[0])){
 
         $module = array_shift($parts);
-
         $controller = $this->hasController($parts, $module);
         $action = $this->hasAction($parts, $controller);
 
       }else{
 
         $module = "default";
-
         array_shift($parts);
         $controller = $this->hasController($parts, $module);
         $action = $this->hasAction($parts, $controller);
 
       }
-
       if(count($parts)){
-
         $this->setVars($parts);
-
       }
-
-      if($_SERVER['REQUEST_METHOD'] === 'POST'){
-        $this->register('post', true);
-        $this->register('get', false);
-        $this->_requestVars = $_POST;
-      }
-
-      $this->register('_request', $this->_requestVars);
+      $this->setEnvVars();
 
       $route = array('module' => $module, 'controller' => $controller, 'action' => $action, 'vars' => $this->get('_request'));
-      if(! empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'){
-        $this->register('ajax', true);
-      }
-
     }else{
-
       $route = array('module' => 'default', 'controller' => 'index', 'action' => $this->conf->defaultMethod);
 
     }
     $this->register('route', $route);
+  }
+  private function setEnvVars()
+  {
+    $this->register('_request', $this->_requestVars);
+
+    if($_SERVER['REQUEST_METHOD'] === 'POST'){
+      $this->register('post', true);
+      $this->register('get', false);
+      $this->_requestVars = $_POST;
+    }
+    if(! empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'){
+      $this->register('ajax', true);
+    }
 
   }
-
   protected function isValidURI(&$uri)
   {
     $uri = str_replace('/?', '/', $uri);

@@ -126,7 +126,7 @@ class oosqlTest extends PhiberTests
   {
     $this->invokeMethod($this->oosql, 'save');
   }
-  public function testCreatWhere()
+  public function testCreateWhere()
   {
     $array = array('field1' => 11);
     $return = $this->invokeMethod($this->oosql, 'createWhere',array($array));
@@ -137,7 +137,7 @@ class oosqlTest extends PhiberTests
     $this->assertContains(11, $values);
     $this->assertInstanceOf('oosql\\oosql', $return);
   }
-  public function testCreatAndWhere()
+  public function testCreateAndWhere()
   {
     $array = array('field1' => 11, 'field2' => 'value', 'field3' => 1.54);
     $return = $this->invokeMethod($this->oosql, 'createWhere',array($array));
@@ -218,6 +218,127 @@ class oosqlTest extends PhiberTests
 
     $sql = $this->getProperty($this->oosql, 'oosql_join');
     $this->assertEquals(' JOIN table1 ON table.fk_id = table1.id', $sql);
+    $this->assertInstanceOf('oosql\\oosql', $return);
+  }
+  public function testJoinLeft()
+  {
+    $params = array('table1','table.fk_id = table1.id');
+    $return = $this->invokeMethod($this->oosql, 'joinLeft',$params);
+
+    $sql = $this->getProperty($this->oosql, 'oosql_join');
+    $this->assertEquals('LEFT JOIN table1 ON table.fk_id = table1.id', $sql);
+    $this->assertInstanceOf('oosql\\oosql', $return);
+  }
+  public function testJoinRight()
+  {
+    $params = array('table1','table.fk_id = table1.id');
+    $return = $this->invokeMethod($this->oosql, 'joinRight',$params);
+
+    $sql = $this->getProperty($this->oosql, 'oosql_join');
+    $this->assertEquals('RIGHT JOIN table1 ON table.fk_id = table1.id', $sql);
+    $this->assertInstanceOf('oosql\\oosql', $return);
+  }
+  public function testJoinFull()
+  {
+    $params = array('table1','table.fk_id = table1.id');
+    $return = $this->invokeMethod($this->oosql, 'joinFull',$params);
+
+    $sql = $this->getProperty($this->oosql, 'oosql_join');
+    $this->assertEquals('FULL OUTER JOIN table1 ON table.fk_id = table1.id', $sql);
+    $this->assertInstanceOf('oosql\\oosql', $return);
+  }
+  public function testWhere()
+  {
+    $return = $this->invokeMethod($this->oosql, 'where',array('field1 = ?', 'value'));
+    $sql = $this->getProperty($this->oosql, 'oosql_where');
+    $values = $this->getProperty($this->oosql, 'oosql_conValues');
+
+    $this->assertEquals(' WHERE field1 = ?', $sql);
+    $this->assertContains('value', $values);
+    $this->assertInstanceOf('oosql\\oosql', $return);
+  }
+  public function testAndWhere()
+  {
+    $return = $this->invokeMethod($this->oosql, 'andWhere',array('field1 = ?', 'value'));
+    $sql = $this->getProperty($this->oosql, 'oosql_where');
+    $values = $this->getProperty($this->oosql, 'oosql_conValues');
+
+    $this->assertEquals(' AND field1 = ?', $sql);
+    $this->assertContains('value', $values);
+    $this->assertInstanceOf('oosql\\oosql', $return);
+  }
+  public function testOrWhere()
+  {
+    $return = $this->invokeMethod($this->oosql, 'orWhere',array('field1 = ?', 'value'));
+    $sql = $this->getProperty($this->oosql, 'oosql_where');
+    $values = $this->getProperty($this->oosql, 'oosql_conValues');
+
+    $this->assertEquals(' OR field1 = ?', $sql);
+    $this->assertContains('value', $values);
+    $this->assertInstanceOf('oosql\\oosql', $return);
+  }
+  public function testValidInteger()
+  {
+    $return1 = $this->invokeMethod($this->oosql, 'valid_int',array(1.2304e6));
+    $return2 = $this->invokeMethod($this->oosql, 'valid_int',array(16));
+    $return3 = $this->invokeMethod($this->oosql, 'valid_int',array('16'));
+    $return4 = $this->invokeMethod($this->oosql, 'valid_int',array('1.2304e6'));
+    $return5 = $this->invokeMethod($this->oosql, 'valid_int',array(16.2));
+
+    $this->assertTrue($return1);
+    $this->assertTrue($return2);
+    $this->assertTrue($return3);
+    $this->assertFalse($return4);
+    $this->assertFalse($return5);
+  }
+  /**
+   * @expectedException InvalidArgumentException
+   * @expectedExceptionCode 9907
+   */
+  public function testFetchWrongArgs()
+  {
+    $this->invokeMethod($this->oosql, 'fetch',array(0,1,2));
+  }
+  /**
+   * @expectedException PDOException
+   * @expectedExceptionCode 9908
+   */
+  public function testFetchNoResults()
+  {
+    $this->invokeMethod($this->oosql, 'fetch');
+  }
+  public function testLimit()
+  {
+    $return = $this->invokeMethod($this->oosql, 'limit',array(0,10));
+    $limit = $this->getProperty($this->oosql, 'oosql_limit');
+
+    $this->assertEquals(' LIMIT 0, 10', $limit);
+    $this->assertInstanceOf('oosql\\oosql', $return);
+  }
+  public function testLimitMulti()
+  {
+    $this->setProperty($this->oosql, 'oosql_multiFlag',true);
+    $return = $this->invokeMethod($this->oosql, 'limit',array(0,10));
+    $limit = $this->getProperty($this->oosql, 'oosql_limit');
+
+    $this->assertEmpty($limit);
+    $this->assertInstanceOf('oosql\\oosql', $return);
+  }
+  public function testOrderBy()
+  {
+    $return = $this->invokeMethod($this->oosql, 'orderBy',array('column'));
+    $order = $this->getProperty($this->oosql, 'oosql_order');
+
+    $this->assertEquals(' ORDER BY column', $order);
+    $this->assertInstanceOf('oosql\\oosql', $return);
+  }
+  public function testOrderByMulti()
+  {
+    $this->setProperty($this->oosql, 'oosql_multiFlag',true);
+    $return = $this->invokeMethod($this->oosql, 'orderBy',array('column'));
+    $order = $this->getProperty($this->oosql, 'oosql_order');
+
+    $this->assertEmpty($order);
     $this->assertInstanceOf('oosql\\oosql', $return);
   }
 }
