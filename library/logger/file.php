@@ -7,7 +7,7 @@ class file extends logger
   protected $logs = array();
   protected $file = null;
 
-  public function __construct($params)
+  public function __construct($params = array())
   {
     $logName = $params[0];
     $logFile = $params[1];
