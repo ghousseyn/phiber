@@ -11,18 +11,18 @@ class file extends logger
   {
     $logName = $params[0];
     $logFile = $params[1];
-    $this->log[$logName] = $logFile;
+    $this->logs[$logName] = $logFile;
     $this->file = $logFile;
   }
   public function addLog($logName, $logFile)
   {
-    $this->log[$logName] = $logFile;
+    $this->logs[$logName] = $logFile;
     $this->file = $logFile;
     return $this;
   }
   public function getLog($logName)
   {
-    $this->file = $this->log[$logName];
+    $this->file = $this->logs[$logName];
     return $this;
   }
   /**
