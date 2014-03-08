@@ -11,7 +11,7 @@ class view extends Phiber\main
 
   protected $vars = array();
 
-  function showTime()
+  public function showTime()
   {
     if(! $this->conf->debug){
       $this->view->debuginfo = "";
@@ -24,6 +24,10 @@ class view extends Phiber\main
       }
     }
 
+  }
+  public function getURL()
+  {
+    return '/'.$this->route['module'].'/'.$this->route['controller'].'/'.$this->route['action'];
   }
 
 }
