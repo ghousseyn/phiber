@@ -23,7 +23,8 @@ class main
     spl_autoload_register(array($this, 'autoload'));
 
     if($this->conf->log){
-      \error::initiate($this->getLog($this->conf->logHandler,$this->conf->logParams));
+      $log = ($this->isLoaded('log'))?$this->get('log'):$this->getLog($this->conf->logHandler,$this->conf->logParams);
+      \error::initiate($log);
     }
     if($this->conf->debug){
 
@@ -37,12 +38,14 @@ class main
 
   }
 
-  protected function getLog($logger,$params)
+  protected function getLog($logger,$params,$name = null)
   {
     $logWriter = "\\logger\\$logger";
     $writer = new $logWriter($params);
-
-    $this->register('log',$writer);
+    if(null === $name){
+      $name = 'log';
+    }
+    $this->register($name,$writer);
     return $writer;
   }
   public static function getInstance()

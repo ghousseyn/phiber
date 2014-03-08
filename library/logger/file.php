@@ -126,8 +126,10 @@ class file extends logger
       $logs = array_values($this->logs);
       $this->file = $logs[0];
     }
-    $message = '['.$level.'] '.$message.PHP_EOL.$context['exception']->getFile().':'.$context['exception']->getLine().PHP_EOL . $context['exception']->getTraceAsString() . PHP_EOL;
-    error_log($message,3,$this->file);
+    if(isset($context['exception']) && $context['exception'] instanceof \ErrorException){
+      $message = '['.$level.'] '.$message.PHP_EOL.$context['exception']->getFile().':'.$context['exception']->getLine().PHP_EOL . $context['exception']->getTraceAsString() . PHP_EOL;
+    }
+    error_log('['.$level.'] '.$message.PHP_EOL,3,$this->file);
   }
 
 }
