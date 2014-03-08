@@ -272,21 +272,5 @@ class collection extends \ArrayObject
     return $this->numObjects;
   }
 
-  public function __toString()
-  {
-    $str = '';
-    $objects = array();
-
-    foreach($this->objects as $obj){
-      $objects[get_class($obj)] = ((! isset($objects[get_class($obj)])) ? 0 : $objects[get_class($obj)]) + 1;
-    }
-
-    foreach($objects as $key => $count){
-      $str .= '--------------------------<br />' . $count . ' instance' . (($count === 1) ? "" : "s") . ' of class ' . $key . '<br />';
-    }
-
-    return $str;
-  }
-
 }
 ?>
