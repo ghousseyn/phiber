@@ -1,5 +1,8 @@
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/ghousseyn/phiber/badges/quality-score.png?s=436bbca471c3881b34e0c2d36b311c003aea5739)](https://scrutinizer-ci.com/g/ghousseyn/phiber/) [![Build Status](https://travis-ci.org/ghousseyn/phiber.png?branch=alpha)](https://travis-ci.org/ghousseyn/phiber) [![Code Coverage](https://scrutinizer-ci.com/g/ghousseyn/phiber/badges/coverage.png?s=6282beaf967e0ac820a325b6897fab427f286908)](https://scrutinizer-ci.com/g/ghousseyn/phiber/)
 
+
+[![Phiber Framework](site/logo.png)]
+
 Phiber
 =====
 
@@ -11,7 +14,7 @@ Phiber is a lightweight MVC PhP framework featuring:
 ```
 # for this url for exmaple
 
-  http://127.0.0.1/dev/index/action/var1/val1?var2=val2/?var3/val3
+  http://yoursite.com/dev/index/action/var1/val1?var2=val2/?var3/val3
 
 # the router will pass your application an array (for GET and POST and Ajax calls alike)
 
@@ -343,6 +346,104 @@ class blog_post extends Phiber\model
      * Or use the entities directly
      */
      $post = entity\blog_post::getInstance()->find($id)->fetch();
+```
+
+- Log Errors, debug messages and display them however you want 
+
+```php
+   class index extends Phiber\controller
+{
+
+  public function main()
+  {
+    $variableOne = 'test';
+
+    $variableTwo = 'var';
+
+    $variableThree = 32156;
+
+    echo $undefined;
+
+    $this->view->message = "This is dev module controller - welcome to Phiber";
+
+    $this->get('log')->notice('hello from index!:' . __line__);
+
+    $vars = 'scope test';
+
+    $log2 = $this->setLog('file', 'second', 'secondlog');
+
+    $this->get('log')->notice('hello from index!:' . __line__, array('message' => $this->view->message));
+
+    $log2->info('hello from index!:' . __line__);
+
+    $this->logger()->debug('second hello from index!:' . __line__);
+
+    $this->get('secondlog')->debug('second hello from index!:' . __line__);
+
+    trigger_error(' A triggered E_USER_WARNING', E_USER_WARNING);
+  }
+}
+
+// In debug mode (set globally in config.php or dynamically in runtime)
+// The above code will output this to your browser
+
+Notice:Undefined variable: undefined
+
+Code:8 File:{PATH}/library/modules/dev/index.php:14
+
+Vars:
+
+ $variableOne = test
+ $variableTwo = var
+ $variableThree = 32156
+
+Trace:
+
+0. index->main() {PATH}/library/main.php:235
+
+1. Phiber\main->dispatch() {PATH}/library/main.php:82
+
+2. Phiber\main->run() {PATH}/site/index.php:6
+
+[notice] hello from index!:18
+
+Array
+(
+    [message] => This is dev module controller - welcome to Phiber
+)
+
+[info] hello from index!:26
+
+[debug] second hello from index!:28
+
+[debug] second hello from index!:30
+
+Warning: A triggered E_USER_WARNING
+
+Code:512 File:{PATH}library/modules/dev/index.php:32
+
+Vars:
+
+ $variableOne = test
+ $variableTwo = var
+ $variableThree = 32156
+ $vars = scope test
+ $log2 = Instance of logger\file
+
+Trace:
+
+0. trigger_error() {PATH}/library/modules/dev/index.php:32
+
+  Vars:
+  A triggered E_USER_WARNING
+  512
+
+1. index->main() {PATH}/library/main.php:235
+
+2. Phiber\main->dispatch() {PATH}/library/main.php:82
+
+3. Phiber\main->run() {PATH}/site/index.php:6
+
 ```
 
 - and more other cool features to come.
