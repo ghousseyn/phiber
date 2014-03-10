@@ -1,7 +1,7 @@
 <?php
 namespace logger;
 
-abstract class logger
+abstract class logger extends \phiber\main
 {
   const EMERGENCY = 'emergency';
   const ALERT     = 'alert';
@@ -12,6 +12,7 @@ abstract class logger
   const INFO      = 'info';
   const DEBUG     = 'debug';
 
+  public $level = 'warning';
 
   protected $sevirity = array(
                               9801 => 'emergency',
@@ -24,7 +25,10 @@ abstract class logger
                               9808 => 'debug'
                               );
 
-  abstract public function __construct($params = array());
+  public function __construct($params = array())
+  {
+
+  }
 
   /**
    *@param $exception ErrorException
@@ -33,8 +37,17 @@ abstract class logger
    */
   public function handle(\ErrorException $exception, array $context)
   {
-    $context['exception'] = $exception;
-    $this->{$this->sevirity[$exception->getSeverity()]}($exception->getMessage(),$context);
+    $levels = array_flip($this->sevirity);
+    $sevirities = array_slice($levels,$levels[$this->level]-9809,null,true);
+
+    if(!in_array($this->sevirity[$exception->getSeverity()], $sevirities)  ){
+
+      $context['exception'] = $exception;
+      $this->{$this->sevirity[$exception->getSeverity()]}($exception->getMessage(),$context);
+    }else{
+      return false;
+    }
+
   }
   /**
    * @param $message string
