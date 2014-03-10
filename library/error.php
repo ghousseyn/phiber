@@ -39,13 +39,12 @@ class error
   {
     $l = error_reporting();
     if($l & $errno){
-
-      $exit = false;
+      $stop = false;
       switch($errno){
         case E_USER_ERROR:
           $type = 'Fatal Error';
           $sevirity = 9801;//emergency
-          $exit = true;
+          $stop = true;
           break;
         case E_USER_WARNING:
           $type = 'Warning';
@@ -65,20 +64,25 @@ class error
           $type = 'Catchable';
           $sevirity = 9804;//error
           break;
+        case E_USER_DEPRECATED:
+          $type = 'Depricated';
+          $sevirity = 9807;//info
+          break;
         default:
           $type = 'Unknown Error';
           $sevirity = 9802;//alert
-          $exit = true;
+          $stop = true;
           break;
       }
 
       $exception = new \ErrorException($type . ': ' . $errstr, $errno, $sevirity, $errfile, $errline);
 
       self::exception_handler($exception,$errcontext);
-
-      if($exit){
-        exit();
+      if($stop){
+        throw $exception;
       }
+
+
     }
     return false;
   }

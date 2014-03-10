@@ -20,15 +20,10 @@ class main
 
   protected function __construct()
   {
-    spl_autoload_register(array($this, 'autoload'));
+    spl_autoload_register(array($this, 'autoload'),true,true);
 
     if($this->conf->log){
-      $log = ($this->isLoaded('log'))?$this->get('log'):$this->getLog($this->conf->logHandler,$this->conf->logParams);
-      \error::initiate($log);
-    }
-    if($this->conf->debug){
-
-      $this->debug->start();
+      $this->register('errorLog',\error::initiate($this->logger()));
     }
     $this->register('layoutEnabled', $this->conf->layoutEnabled);
     if(! isset($_SESSION)){
@@ -38,15 +33,39 @@ class main
 
   }
 
-  protected function getLog($logger,$params,$name = null)
+  protected function setLog($logger = null,$params = null,$name = null)
   {
+    if(null === $logger){
+      $logger = $this->conf->logHandler;
+    }
+    if(null === $params){
+      $params = array('default',$this->conf->logDir.$this->conf->logFile);
+    }
+    if(!is_array($params)){
+      $params = array($params,$this->conf->logDir.$params.'.log');
+    }
     $logWriter = "\\logger\\$logger";
     $writer = new $logWriter($params);
     if(null === $name){
       $name = 'log';
     }
+    $writer->level = $this->conf->logLevel;
     $this->register($name,$writer);
     return $writer;
+  }
+  protected function getLog($name)
+  {
+    if($this->isLoaded($name)){
+      $log = $this->get($name);
+      return ($log instanceof \logger\logger)? $log : $this->logger();
+    }
+  }
+  protected function logger()
+  {
+    if($this->isLoaded('log')){
+      return $this->get('log');
+    }
+    return $this->setLog();
   }
   public static function getInstance()
   {
@@ -441,10 +460,6 @@ class main
       case 'tools':
 
         return $this->load('tools');
-
-      case 'debug':
-
-        return $this->load('debug');
 
 
     }
