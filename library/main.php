@@ -20,10 +20,10 @@ class main
 
   protected function __construct()
   {
-    spl_autoload_register(array($this, 'autoload'));
-    if($this->conf->debug){
+    spl_autoload_register(array($this, 'autoload'),true,true);
 
-      $this->debug->start();
+    if($this->conf->log){
+      $this->register('errorLog',\error::initiate($this->logger()));
     }
     $this->register('layoutEnabled', $this->conf->layoutEnabled);
     if(! isset($_SESSION)){
@@ -32,10 +32,41 @@ class main
     }
 
   }
-  /*
-   * Implement the getInstance() method
-   */
 
+  protected function setLog($logger = null,$params = null,$name = null)
+  {
+    if(null === $logger){
+      $logger = $this->conf->logHandler;
+    }
+    if(null === $params){
+      $params = array('default',$this->conf->logDir.$this->conf->logFile);
+    }
+    if(!is_array($params)){
+      $params = array($params,$this->conf->logDir.$params.'.log');
+    }
+    $logWriter = "\\logger\\$logger";
+    $writer = new $logWriter($params);
+    if(null === $name){
+      $name = 'log';
+    }
+    $writer->level = $this->conf->logLevel;
+    $this->register($name,$writer);
+    return $writer;
+  }
+  protected function getLog($name)
+  {
+    if($this->isLoaded($name)){
+      $log = $this->get($name);
+      return ($log instanceof \logger\logger)? $log : $this->logger();
+    }
+  }
+  protected function logger()
+  {
+    if($this->isLoaded('log')){
+      return $this->get('log');
+    }
+    return $this->setLog();
+  }
   public static function getInstance()
   {
     return new static();
@@ -297,11 +328,15 @@ class main
   protected function autoload($class)
   {
 
-
-    $path = __dir__ . '/';
+    $path = $this->conf->library . '/';
 
     if(! strstr($class, '\\')){
 
+      if(file_exists($path . $class . '.php')){
+
+        include_once $path . $class . '.php';
+        return;
+      }
       $path .= 'modules/'.$this->route['module'].'/';
       if(file_exists($path . $class . '.php')){
 
@@ -310,7 +345,7 @@ class main
       }
       return;
     }
-    // echo "loadin $path$class.php <br />";
+
     $parts = explode('\\', $class);
 
     $i = 0;
@@ -330,7 +365,10 @@ class main
 
     if(file_exists($path)){
       include_once $path;
+      return;
     }
+
+
 
   }
 
@@ -422,10 +460,6 @@ class main
       case 'tools':
 
         return $this->load('tools');
-
-      case 'debug':
-
-        return $this->load('debug');
 
 
     }
