@@ -44,7 +44,7 @@ class config
    * 'info';
    * 'debug';
    */
-  public $logLevel = 'notice';
+  public $logLevel = 'debug';
   /*
    * Path to the library relative to this file (set in the construct)
    */

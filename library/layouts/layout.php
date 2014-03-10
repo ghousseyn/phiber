@@ -40,8 +40,8 @@
 </head>
 <body>
 
-	<div class="row">
-		<h1 class="text-center">Phiber FRAMEWORK</h1>
+	<div class="row text-center">
+		<img src="/logo.png" alt="Phiber FRAMEWORK" />
 	</div>
 	<div class="content">
 	<div class="grid">
