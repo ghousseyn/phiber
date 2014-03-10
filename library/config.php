@@ -10,6 +10,41 @@
 class config
 {
 
+  /**
+   * Enable/Disable logging
+   * @var boolean
+   */
+  protected $log = true;
+  /**
+   * Default logging handler
+   * @var string
+   */
+  protected $logHandler = 'file';
+  /**
+   * Log filename
+   * @var string A valid filename
+   */
+  protected $logFile = 'logfile.txt';
+  /**
+   * Directory of the logs please set an absolute path. Must be writable by the server
+   * @var string A Valid absolute path (directories will not be created for you)
+   */
+  protected $logDir = null;
+
+  /**
+   * Sets log level inclusive to previous levels i.e setting it to 'alert'
+   * will log 'alert' and 'emergency' level events and 'debug' will log everything
+   *
+   * 'emergency';
+   * 'alert';
+   * 'critical';
+   * 'error';
+   * 'warning';
+   * 'notice';
+   * 'info';
+   * 'debug';
+   */
+  public $logLevel = 'debug';
   /*
    * Path to the library relative to this file (set in the construct)
    */
@@ -33,11 +68,6 @@ class config
   protected $defaultMethod = 'main';
 
   /*
-   * Enable/disable debug
-   */
-  public $debug = false;
-
-  /*
    * DB configuration properties
    */
   public $_dsn = 'mysql:host=127.0.0.1;dbname=codup';
@@ -45,13 +75,19 @@ class config
   protected $_dbpass = "password";
 
   protected $_dbuser = "root";
-
+  /**
+   * Enable/Disable layout globally
+   * @var boolean
+   */
   protected $layoutEnabled = true;
 
   protected function __construct()
   {
     if(null === $this->library){
       $this->library = __dir__;
+    }
+    if(null === $this->logDir){
+      $this->logDir = $this->library.'/logs/';
     }
   }
 
