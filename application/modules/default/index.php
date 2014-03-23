@@ -1,6 +1,6 @@
 <?php
 
-class index extends Phiber\controller
+class index extends \Phiber\controller
 {
   public $testing;
   function main()
@@ -14,5 +14,6 @@ class index extends Phiber\controller
 
 
   }
+
 }
 

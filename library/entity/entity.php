@@ -1,7 +1,7 @@
 <?php
-namespace entity;
+namespace Phiber\entity;
 
-use oosql\oosql;
+use Phiber\oosql\oosql;
 
 abstract class entity
 {
@@ -29,7 +29,7 @@ abstract class entity
     }
 
     $tablename = trim(str_replace('\\', '', $tablename));
-    return new oosql($tablename, $class);
+    return oosql::getInstance($tablename, $class);
   }
 
   public function save($obj)
@@ -37,7 +37,7 @@ abstract class entity
 
     if(self::$oosql_model_extra){
 
-      $originalProps = get_class_vars(get_class(new static()));
+      $originalProps = get_object_vars(new static);
       $mixedProps = array_keys(get_object_vars($obj));
 
       foreach($mixedProps as $property){
@@ -64,7 +64,7 @@ abstract class entity
 
   public function __set($var, $val)
   {
-    if(! key_exists($var, get_class_vars(get_class(new static())))){
+    if(! key_exists($var, get_object_vars(new static))){
       self::$oosql_model_extra = true;
     }
     $this->{$var} = $val;
@@ -94,7 +94,7 @@ abstract class entity
 
   public function __get($var)
   {
-    if(key_exists($var, get_class_vars(get_class(new static())))){
+    if(key_exists($var, get_object_vars(new static))){
       return $this->{$var}();
     }
 

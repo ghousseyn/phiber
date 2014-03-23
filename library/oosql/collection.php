@@ -3,7 +3,7 @@
  * Thanks to Aaron Ficher
  * http://www.aaron-fisher.com/articles/web/php/object-collections-in-php/
  */
-namespace oosql;
+namespace Phiber\oosql;
 
 class collection extends \ArrayObject
 {
@@ -68,7 +68,7 @@ class collection extends \ArrayObject
     return $this->objectsWhere($property, $value);
   }
   /*
-   * get an objects number based on one of it's properties. i.e. a User obj key
+   * get matched objects keys based on one of it's properties. i.e. a User obj key
    * with the property 'username' and a value of 'someUser' can be retrieved by
    * Collection::keyWhere('username', 'someUser')
    */

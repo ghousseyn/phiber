@@ -23,8 +23,9 @@ class main
     spl_autoload_register(array($this, 'autoload'),true,true);
 
     if($this->conf->log){
-      $this->register('errorLog',\error::initiate($this->logger()));
+      $this->register('errorLog',error::initiate($this->logger()));
     }
+
     $this->register('layoutEnabled', $this->conf->layoutEnabled);
     if(! isset($_SESSION)){
       session_start();
@@ -39,12 +40,12 @@ class main
       $logger = $this->conf->logHandler;
     }
     if(null === $params){
-      $params = array('default',$this->conf->logDir.$this->conf->logFile);
+      $params = array('default',$this->conf->logDir.'/'.$this->conf->logFile);
     }
     if(!is_array($params)){
-      $params = array($params,$this->conf->logDir.$params.'.log');
+      $params = array($params,$this->conf->logDir.'/'.$params.'.log');
     }
-    $logWriter = "\\logger\\$logger";
+    $logWriter = "Phiber\\Logger\\$logger";
     $writer = new $logWriter($params);
     if(null === $name){
       $name = 'log';
@@ -57,7 +58,7 @@ class main
   {
     if($this->isLoaded($name)){
       $log = $this->get($name);
-      return ($log instanceof \logger\logger)? $log : $this->logger();
+      return ($log instanceof Logger\logger)? $log : $this->logger();
     }
   }
   protected function logger()
@@ -96,7 +97,7 @@ class main
   {
 
     foreach($this->bootstrap->getPlugins() as $plugin){
-      $this->load($plugin, null, $this->conf->library . "/plugins/" . $plugin . "/")->run();
+      $this->load($plugin, null, $this->conf->application . "/plugins/" . $plugin . "/")->run();
     }
   }
 
@@ -125,7 +126,7 @@ class main
     $path[] = $this->route['controller'];
     $path[] = $this->route['action'];
 
-      $path = $this->conf->library . "/modules/" . array_shift($path) . "/views/" . implode("/", $path) . ".php";
+      $path = $this->conf->application . "/modules/" . array_shift($path) . "/views/" . implode("/", $path) . ".php";
 
     $this->view->viewPath = $path;
 
@@ -139,7 +140,7 @@ class main
       }
 
     }else{
-      include_once $this->conf->library . "/layouts/layout.php";
+      include_once $this->conf->application . "/layouts/layout.php";
     }
   }
 
@@ -281,7 +282,7 @@ class main
   private function hasController(&$parts, $module)
   {
 
-      $this->path = $this->conf->library . '/modules/' . $module . '/';
+      $this->path = $this->conf->application . '/modules/' . $module . '/';
 
 
     if(! empty($parts[0]) && file_exists($this->path . $parts[0] . '.php')){
@@ -337,10 +338,12 @@ class main
         include_once $path . $class . '.php';
         return;
       }
-      $path .= 'modules/'.$this->route['module'].'/';
-      if(file_exists($path . $class . '.php')){
 
-        include_once $path . $class . '.php';
+      $module = $this->conf->application.'/modules/'.$this->route['module'].'/';
+
+      if(file_exists($module . $class . '.php')){
+
+        include_once $module . $class . '.php';
 
       }
       return;
@@ -348,18 +351,21 @@ class main
 
     $parts = explode('\\', $class);
 
-    $i = 0;
 
     $count = count($parts);
-    for($i; $i < $count; $i++){
-      if($parts[$i] == 'Phiber'){
+      if($parts[0] !== 'Phiber'){
+
+        $path = $this->conf->application . '/';
+      }
+    for($i=0; $i < $count; $i++){
+      if($parts[$i] === 'Phiber'){
         continue;
       }
       if($i == $count - 1){
         $path .= $parts[$i] . '.php';
         break;
       }
-      $path = $path . $parts[$i] . '/';
+      $path .=  $parts[$i] . '/';
 
     }
 
@@ -379,6 +385,7 @@ class main
       $newpath = __DIR__ . '/';
     }
     $incpath = $newpath . $class . '.php';
+//echo $incpath,'<br>';
     $hash = hash('adler32', $incpath);
     if($this->isLoaded($hash) && false !== $inst){
       return $this->get($hash);
