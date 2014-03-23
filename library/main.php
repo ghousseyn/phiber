@@ -365,7 +365,7 @@ class main
         $path .= $parts[$i] . '.php';
         break;
       }
-      $path .=  $parts[$i] . '/';
+      $path .=  strtolower($parts[$i]) . '/';
 
     }
 
