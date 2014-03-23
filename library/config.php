@@ -44,17 +44,11 @@ class config
    * 'info';
    * 'debug';
    */
-  public $logLevel = 'debug';
+  public $logLevel = 'warning';
   /*
    * Path to the library relative to this file (set in the construct)
    */
   protected $library = null;
-  /*
-   * Regenerate session id or not (false will disable the functionality) Set it
-   * to true for a default value of 1800 seconds (30 minutes) Or set it to
-   * whatever value you like to set in seconds
-   */
-  protected $sessionReginerate = false;
   /*
    * If set to true the session will be destroyed after 1800 seconds (30
    * minutes) of inactivity Alternatively set the value that you like in seconds
@@ -66,6 +60,8 @@ class config
    * none-existant action is called (or none specified)
    */
   protected $defaultMethod = 'main';
+
+  protected $application = null;
 
   /*
    * DB configuration properties
@@ -86,8 +82,11 @@ class config
     if(null === $this->library){
       $this->library = __dir__;
     }
+    if(null === $this->application){
+      $this->application = $this->library.'/../application';
+    }
     if(null === $this->logDir){
-      $this->logDir = $this->library.'/logs/';
+      $this->logDir = $this->application.'/logs';
     }
   }
 

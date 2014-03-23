@@ -45,7 +45,7 @@ class tools
   /*
    * Thanks to Aaron Fisher http://www.aaron-fisher.com/articles/web/php/wtf/
    */
-  public function wtf($var, $arrayOfObjectsToHide = array(), $fontSize = 12)
+  public static function staticWTF($var, $arrayOfObjectsToHide = array(), $fontSize = 12)
   {
     $text = print_r($var, true);
     $text = str_replace('<', '&lt;', $text);
@@ -62,8 +62,11 @@ class tools
         if(is_object($value)){
 
           $value = 'Instance of '.get_class($value);
+        }else{
+          $value = print_r($value,true);
         }
-          $text .= " $$var = $value".PHP_EOL;
+
+        $text .= " $$var = $value".PHP_EOL;
 
       }
       $text .= PHP_EOL.'Trace:'.PHP_EOL;
@@ -108,9 +111,8 @@ class tools
     }
     echo '<pre style="font-size: ' . $fontSize . 'px;	line-height: ' . $fontSize . 'px;background-color: #fff; padding: 10px;">' . $text . '</pre>';
   }
-  public static function staticWTF($var, $arrayOfObjectsToHide = array(), $fontSize = 12)
+  public function wtf($var, $arrayOfObjectsToHide = array(), $fontSize = 12)
   {
-    $instance = new self();
-    $instance->wtf($var, $arrayOfObjectsToHide , $fontSize );
+       self::wtf($var, $arrayOfObjectsToHide , $fontSize );
   }
 }

@@ -1,4 +1,5 @@
 <?php
+namespace Phiber;
 
 class error
 {
@@ -11,26 +12,26 @@ class error
 
   protected function __construct()
   {
-    set_error_handler('error::error_handler');
-    set_exception_handler('error::exception_handler');
+    set_error_handler('Phiber\error::error_handler');
+    set_exception_handler('Phiber\error::exception_handler');
 
     if(! ini_get('log_errors')){
       ini_set('log_errors', true);
     }
   }
-  public static function initiate(logger\logger $writer)
+  public static function initiate(Logger\logger $writer)
   {
     self::$instance = new self();
     self::$instance->setWriter($writer);
     return self::$instance;
   }
 
-  public function setWriter(logger\logger $writer)
+  public function setWriter(Logger\logger $writer)
   {
     $this->writer = $writer;
   }
 
-  public function write(ErrorException $exception, $context = array())
+  public function write(\ErrorException $exception, $context = array())
   {
     $this->writer->handle($exception, $context);
   }

@@ -1,11 +1,12 @@
 <?php
 
-class context extends Phiber\plugin
+class context extends \Phiber\plugin
 {
 
 
     function run ()
     {
+      $this->view->header = 'HEADER FROM EXAMPLE PLUGIN "context"';
       //$this->tools->wtf(json_encode(array('test','key' => 'value', 7 => 'another value', 12 => array('test2' => 'value two'))));
     	//$managers = models\dept_emp::getInstance();
     	//$results = $managers->select()->fetch(200);
