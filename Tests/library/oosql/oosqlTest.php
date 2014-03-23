@@ -119,8 +119,8 @@ class oosqlTest extends PhiberTests
     $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   /**
-   * @expectedException PDOException
-   * @expectedExceptionCode 9902
+   * @expectedException Exception
+   * @expectedExceptionCode 9806
    */
   public function testSave()
   {
@@ -151,8 +151,8 @@ class oosqlTest extends PhiberTests
     $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   /**
-   * @expectedException PDOException
-   * @expectedExceptionCode 9905
+   * @expectedException Exception
+   * @expectedExceptionCode 9805
    */
   public function testValuesNoArgs()
   {
@@ -160,8 +160,8 @@ class oosqlTest extends PhiberTests
   }
 
   /**
-   * @expectedException PDOException
-   * @expectedExceptionCode 9905
+   * @expectedException Exception
+   * @expectedExceptionCode 9805
    */
   public function testValuesArgsNotMatching()
   {
@@ -183,8 +183,8 @@ class oosqlTest extends PhiberTests
     $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   /**
-   * @expectedException PDOException
-   * @expectedExceptionCode 9906
+   * @expectedException Exception
+   * @expectedExceptionCode 9805
    */
   public function testFromArgsNotMatching()
   {
@@ -293,15 +293,15 @@ class oosqlTest extends PhiberTests
   }
   /**
    * @expectedException InvalidArgumentException
-   * @expectedExceptionCode 9907
+   * @expectedExceptionCode 9805
    */
   public function testFetchWrongArgs()
   {
     $this->invokeMethod($this->oosql, 'fetch',array(0,1,2));
   }
   /**
-   * @expectedException PDOException
-   * @expectedExceptionCode 9908
+   * @expectedException Exception
+   * @expectedExceptionCode 9805
    */
   public function testFetchNoResults()
   {
