@@ -31,37 +31,451 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+        <p><a href="https://scrutinizer-ci.com/g/ghousseyn/phiber/"><img src="https://scrutinizer-ci.com/g/ghousseyn/phiber/badges/quality-score.png?s=436bbca471c3881b34e0c2d36b311c003aea5739" alt="Scrutinizer Quality Score"></a> <a href="https://travis-ci.org/ghousseyn/phiber"><img src="https://travis-ci.org/ghousseyn/phiber.png?branch=alpha" alt="Build Status"></a> <a href="https://scrutinizer-ci.com/g/ghousseyn/phiber/"><img src="https://scrutinizer-ci.com/g/ghousseyn/phiber/badges/coverage.png?s=6282beaf967e0ac820a325b6897fab427f286908" alt="Code Coverage"></a></p>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<p>[<img src="site/logo.png" alt="Phiber Framework">]</p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+<h1>
+<a name="phiber" class="anchor" href="#phiber"><span class="octicon octicon-link"></span></a>Phiber</h1>
+
+<p>Phiber is a lightweight MVC PhP framework featuring:</p>
+
+<ul>
+<li>A comprehensive router with zero configuration required</li>
+</ul><pre><code># for this url for exmaple
+
+  http://yoursite.com/dev/index/action/var1/val1?var2=val2/?var3/val3
+
+# the router will pass your application an array (for GET and POST and Ajax calls alike)
+
+Array
+(
+    [module] =&gt; dev
+    [controller] =&gt; index
+    [action] =&gt; action
+    [vars] =&gt; Array
+        (
+            [var1] =&gt; val1
+            [var2] =&gt; val2
+            [var3] =&gt; val3
+        )
+
+)
+
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<div class="highlight highlight-php"><pre>  <span class="c1">//to get var1 for instance in your controller being it POST or GET (AJAX calls also)</span>
 
-<h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+  <span class="nv">$var1</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_request</span><span class="p">(</span><span class="s1">'var1'</span><span class="p">);</span>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+  <span class="c1">//Check request type</span>
 
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
+  <span class="k">if</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">isPost</span><span class="p">()){</span>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+  <span class="p">}</span>
 
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+  <span class="cm">/* </span>
+<span class="cm">   * For ajax requests you can disable the layout if there is any </span>
+<span class="cm">   * along with action template unless the 'html' context is specified</span>
+<span class="cm">   * in which case only the action template is returned</span>
+<span class="cm">   */</span>
+  <span class="k">if</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">isAjax</span><span class="p">()){</span>
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">disableLayout</span><span class="p">();</span>
+  <span class="p">}</span>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+</pre></div>
 
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+<ul>
+<li>Easily extensible with modules/plugins (automatically loaded and extremely easy to create) </li>
+</ul><div class="highlight highlight-php"><pre>  <span class="cm">/* </span>
+<span class="cm">  * For modules just create a folder under modules directory and toss your</span>
+<span class="cm">  * controllers there all class files in the format {classname}.php will be</span>
+<span class="cm">  * accessible as controllers </span>
+<span class="cm">  * you don't need the word controller in the class name and your actions</span>
+<span class="cm">  * doesn't need the word action neither</span>
+<span class="cm">  */</span>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+   <span class="c1">//file: /modules/firstmod/cool.php</span>
+
+  <span class="k">class</span> <span class="nc">cool</span> <span class="k">extends</span> <span class="nx">Phiber\controller</span> <span class="p">{</span>
+
+    <span class="k">function</span> <span class="nf">index</span><span class="p">(){</span>
+      <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">view</span><span class="o">-&gt;</span><span class="na">message</span> <span class="o">=</span> <span class="s2">"message"</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">function</span> <span class="nf">action</span><span class="p">(){</span>
+      <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">view</span><span class="o">-&gt;</span><span class="na">title</span> <span class="o">=</span> <span class="s2">"Cool title from action"</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="c1">// if this is in a directory called firstmod </span>
+  <span class="c1">// http://localhost/firstmod/cool executes the index method (default method configurable)</span>
+  <span class="c1">// http://localhost/firstmod/cool/action will fire the action method</span>
+  <span class="c1">// and so on</span>
+
+</pre></div>
+
+<div class="highlight highlight-php"><pre>
+  <span class="cm">/*</span>
+<span class="cm">  *  The template should be in a subdirectory under views called 'cool' with</span>
+<span class="cm">  *  template files in it mapping the actions</span>
+<span class="cm">  *  so for our controller we need an 'index.php' and an 'action.php'</span>
+<span class="cm">  */</span>
+
+  <span class="cm">/*</span>
+<span class="cm">  * file: /modules/firstmod/views/cool/index.php</span>
+<span class="cm">  */</span>
+
+  <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">class</span><span class="o">=</span><span class="s2">"cool-msg-style"</span><span class="o">&gt;</span>
+    <span class="o">&lt;?</span><span class="nx">php</span> <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">message</span> <span class="cp">?&gt;</span><span class="x"></span>
+<span class="x">  &lt;/div&gt;</span>
+</pre></div>
+
+<div class="highlight highlight-php"><pre>  <span class="cm">/*</span>
+<span class="cm">  * file: /modules/firstmod/views/cool/action.php</span>
+<span class="cm">  */</span>
+  <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">class</span><span class="o">=</span><span class="s2">"cool-title-style"</span><span class="o">&gt;</span>
+    <span class="o">&lt;?</span><span class="nx">php</span> <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">title</span> <span class="cp">?&gt;</span><span class="x"></span>
+<span class="x">  &lt;/div&gt;</span>
+</pre></div>
+
+<div class="highlight highlight-php"><pre>  <span class="c1">// Plugins</span>
+
+  <span class="cm">/*</span>
+<span class="cm">  * For plugins just create a folder named after your plugin and place it in the </span>
+<span class="cm">  * plugins folder</span>
+<span class="cm">  * follwing the same conventions your plugin loader would be expected to be in</span>
+<span class="cm">  * the format: {pluginName}.php</span>
+<span class="cm">  * The class should also extend Phiber\plugin </span>
+<span class="cm">  * The run() method is the entry point and should contain code to </span>
+<span class="cm">  * initialize/execute your plugin</span>
+<span class="cm">  */</span>
+
+  <span class="c1">//file: /plugins/coolplugin/coolplugin.php</span>
+
+  <span class="k">class</span> <span class="nc">coolplugin</span> <span class="k">extends</span> <span class="nx">Phiber\plugin</span> <span class="p">{</span>
+
+    <span class="k">function</span> <span class="nf">run</span><span class="p">(){</span>
+
+      <span class="cm">/* Your usefull code here */</span>
+
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+</pre></div>
+
+<ul>
+<li>ZF like templating</li>
+</ul><div class="highlight highlight-php"><pre>  <span class="o">/**</span>
+  <span class="o">*</span> <span class="nx">from</span> <span class="nx">your</span> <span class="nx">controller</span>
+  <span class="o">*</span> <span class="o">/</span>
+
+  <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">view</span><span class="o">-&gt;</span><span class="na">variable</span> <span class="o">=</span> <span class="s2">"some text"</span><span class="p">;</span>
+
+  <span class="c1">//in the template </span>
+
+  <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">variable</span><span class="p">;</span>
+</pre></div>
+
+<ul>
+<li>Ajax context aware (html, plain-text or json)</li>
+</ul><div class="highlight highlight-php"><pre>  <span class="c1">//check for ajax calls</span>
+
+  <span class="k">if</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">isAjax</span><span class="p">()){</span>
+
+    <span class="c1">//send what you want through ajax</span>
+
+    <span class="k">echo</span> <span class="s2">"text here"</span><span class="p">;</span>
+
+    <span class="c1">//or json</span>
+
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">sendJSON</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="s1">'success'</span><span class="o">=&gt;</span><span class="k">true</span><span class="p">));</span>
+
+    <span class="cm">/*</span>
+
+<span class="cm">    {"success":true}</span>
+
+<span class="cm">    */</span>
+
+    <span class="p">}</span>
+
+  <span class="c1">//alternatively you could just leave your action as it is</span>
+
+  <span class="k">if</span><span class="p">(</span><span class="nv">$trueCondition</span><span class="p">){</span>
+
+        <span class="cm">/* do some processing */</span>
+  <span class="p">}</span>
+
+  <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">view</span><span class="o">-&gt;</span><span class="na">msg1</span> <span class="o">=</span> <span class="s2">"result one"</span><span class="p">;</span>
+  <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">view</span><span class="o">-&gt;</span><span class="na">someothervar</span> <span class="o">=</span> <span class="s2">"some cool findings"</span><span class="p">;</span>
+
+  <span class="c1">//Then switch to the 'html' context to send the contents of the template file as it is (no layout)</span>
+
+  <span class="k">if</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">isAjax</span><span class="p">()){</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">contextSwitch</span><span class="p">(</span><span class="s1">'html'</span><span class="p">);</span>
+  <span class="p">}</span>
+
+</pre></div>
+
+<ul>
+<li>An ORM and a query builder to handle database interactions with a relation-aware model class generator (currently supporting only MySQL)</li>
+</ul><div class="highlight highlight-php"><pre>
+<span class="o">/**</span>
+<span class="o">*</span> <span class="k">for</span> <span class="nx">a</span> <span class="nx">table</span> <span class="s2">"blog_post"</span> <span class="nx">an</span> <span class="nx">entity</span> <span class="nb">file</span> <span class="nx">with</span> <span class="nx">the</span> <span class="k">class</span> <span class="nc">blog_post</span> <span class="nx">will</span> <span class="nx">be</span>
+<span class="o">*</span> <span class="nx">generated</span> <span class="k">for</span> <span class="nx">you</span> <span class="nx">using</span> <span class="nx">the</span> <span class="nx">generate</span> <span class="nx">tool</span><span class="o">.</span>
+<span class="o">*</span> <span class="nx">Edit</span> <span class="nx">the</span> <span class="nx">generate</span><span class="o">.</span><span class="nx">php</span> <span class="nb">file</span> <span class="k">and</span> <span class="nx">put</span> <span class="nx">in</span> <span class="nx">your</span> <span class="nx">db</span> <span class="nx">credentials</span>
+<span class="o">*</span> <span class="nx">you</span> <span class="nx">can</span> <span class="nx">specify</span> <span class="nx">the</span> <span class="nx">path</span> <span class="nx">where</span> <span class="nx">the</span> <span class="nx">files</span> <span class="nx">should</span> <span class="nx">be</span> <span class="nx">saved</span> <span class="nx">using</span> <span class="nx">the</span> <span class="nv">$gen</span><span class="o">-&gt;</span><span class="na">path</span>
+<span class="o">*</span> <span class="nx">property</span><span class="o">.</span>
+<span class="o">*</span> <span class="nx">Then</span> <span class="nx">execute</span> <span class="nx">generate</span><span class="o">.</span><span class="nx">php</span> <span class="nx">in</span> <span class="nx">cli</span> <span class="k">and</span> <span class="nx">move</span> <span class="nx">the</span> <span class="nx">created</span> <span class="nx">files</span> <span class="nx">to</span> <span class="nx">the</span> <span class="nx">entity</span> <span class="nx">dir</span>
+<span class="o">*</span> <span class="k">if</span> <span class="nx">you</span> <span class="nx">specified</span> <span class="nx">a</span> <span class="nx">different</span> <span class="nx">path</span><span class="o">.</span>
+<span class="o">*</span> <span class="nx">The</span> <span class="nx">tool</span> <span class="nx">will</span> <span class="nx">inspect</span> <span class="nx">your</span> <span class="nx">database</span> <span class="k">and</span> <span class="nx">identify</span> <span class="nx">Primary</span> <span class="nx">keys</span> <span class="p">(</span><span class="nx">composite</span> <span class="nx">too</span><span class="p">)</span>
+<span class="o">*</span> <span class="nx">foreign</span> <span class="nx">keys</span> <span class="p">(</span><span class="nx">relations</span><span class="p">)</span> <span class="k">and</span> <span class="nx">the</span> <span class="nx">other</span> <span class="nx">columns</span>
+<span class="o">*</span> <span class="nx">Each</span> <span class="nx">table</span> <span class="nx">will</span> <span class="nx">have</span> <span class="nx">its</span> <span class="nx">own</span> <span class="nx">entity</span> <span class="k">class</span> <span class="nc">file</span>
+<span class="o">*</span> <span class="o">/</span>
+
+<span class="c1">// From your model (in models folder)</span>
+<span class="c1">// create file: /models/blog_post.php</span>
+</pre></div>
+
+<div class="highlight highlight-php"><pre><span class="k">namespace</span> <span class="nx">models</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">Phiber</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">entity</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">blog_post</span> <span class="k">extends</span> <span class="nx">Phiber\model</span>
+<span class="p">{</span>
+
+  <span class="c1">// example model method</span>
+
+   <span class="k">public</span> <span class="nx">funciton</span> <span class="nx">getPost</span><span class="p">(</span><span class="nv">$id</span><span class="p">){</span>
+      <span class="nv">$post</span> <span class="o">=</span> <span class="nx">entity\blog_post</span><span class="o">::</span><span class="na">getInstance</span><span class="p">();</span>
+      <span class="k">return</span> <span class="nv">$post</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="nv">$id</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">fetch</span><span class="p">();</span>
+   <span class="p">}</span>
+   <span class="o">....</span> <span class="nx">Any</span> <span class="nx">domain</span> <span class="nx">specific</span> <span class="nx">logic</span> <span class="nx">can</span> <span class="nx">be</span> <span class="nx">put</span> <span class="nx">here</span> <span class="nx">too</span>
+<span class="p">}</span>
+
+<span class="c1">//within your model you can do more:  </span>
+
+<span class="c1">// create new</span>
+
+   <span class="nv">$post</span><span class="o">-&gt;</span><span class="na">title</span> <span class="o">=</span> <span class="s2">"Great tips"</span><span class="p">;</span>
+   <span class="nv">$post</span><span class="o">-&gt;</span><span class="na">link</span> <span class="o">=</span> <span class="s2">"http://www.somelink.com"</span><span class="p">;</span>
+   <span class="nv">$post</span><span class="o">-&gt;</span><span class="na">save</span><span class="p">();</span>
+
+<span class="c1">// fetch existing</span>
+<span class="c1">// get post with primary key = 0 (regardless of the name of your primary key)</span>
+
+   <span class="nv">$result</span> <span class="o">=</span> <span class="nv">$post</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">fetch</span><span class="p">();</span>  <span class="c1">// Careful when using composite primary keys coz this will much only the first member</span>
+
+<span class="c1">// OR</span>
+
+   <span class="nv">$result</span> <span class="o">=</span> <span class="nv">$post</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="s1">'user_id'</span> <span class="o">=&gt;</span><span class="mi">14</span><span class="p">))</span><span class="o">-&gt;</span><span class="na">limit</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">fetch</span><span class="p">();</span> <span class="c1">// fetchs 5 results</span>
+
+<span class="c1">// OR</span>
+
+   <span class="nv">$result</span> <span class="o">=</span> <span class="nv">$post</span><span class="o">-&gt;</span><span class="na">select</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">where</span><span class="p">(</span><span class="s1">'user_id = ?'</span><span class="p">,</span><span class="mi">14</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">limit</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">fetch</span><span class="p">();</span> <span class="c1">// same as previous</span>
+
+<span class="c1">// $result is a collection</span>
+
+   <span class="c1">//show results</span>
+
+        <span class="k">foreach</span> <span class="p">(</span><span class="nv">$result</span> <span class="k">as</span> <span class="nv">$r</span><span class="p">){</span>
+
+            <span class="k">echo</span> <span class="s2">"Title: </span><span class="si">$r-&gt;title</span><span class="s2"> "</span><span class="p">;</span>
+
+        <span class="p">}</span>
+
+   <span class="c1">//change results (only changed columns will be included in the query)</span>
+
+        <span class="k">foreach</span> <span class="p">(</span><span class="nv">$result</span> <span class="k">as</span> <span class="nv">$r</span><span class="p">){</span>
+
+            <span class="nv">$r</span><span class="o">-&gt;</span><span class="na">title</span> <span class="o">=</span> <span class="s2">"</span><span class="si">$r-&gt;title</span><span class="s2"> (great)"</span><span class="p">;</span>
+            <span class="nv">$r</span><span class="o">-&gt;</span><span class="na">save</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="cm">/*</span>
+<span class="cm">    *   If table "blog_post" has a constraint fk to other tables like "user" for example</span>
+<span class="cm">    *   you can either join on select using with() (eager loading)</span>
+<span class="cm">    */</span>
+
+    <span class="nv">$result</span> <span class="o">=</span> <span class="nv">$post</span><span class="o">-&gt;</span><span class="na">select</span><span class="p">()</span>
+                   <span class="o">-&gt;</span><span class="na">where</span><span class="p">(</span><span class="s1">'user_id = ?'</span><span class="p">,</span><span class="mi">14</span><span class="p">)</span>
+                   <span class="o">-&gt;</span><span class="na">with</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="s1">'user'</span> <span class="o">=&gt;</span> <span class="k">array</span><span class="p">(</span><span class="s2">"col1"</span><span class="p">,</span><span class="s2">"col2"</span><span class="p">)))</span> <span class="c1">// not specifying any columns will select user.*</span>
+                   <span class="o">-&gt;</span><span class="na">limit</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">fetch</span><span class="p">();</span>
+
+    <span class="c1">// $result is a collection instance (you can search within it, sort it and do a lot of things)</span>
+
+    <span class="nv">$result</span><span class="o">-&gt;</span><span class="na">sortByProperty</span><span class="p">(</span><span class="s1">'rating'</span><span class="p">);</span> <span class="c1">// defaults to regular sort (other sorting options are available)</span>
+
+    <span class="cm">/*</span>
+<span class="cm">    *   or load it when needed (lazy loading) </span>
+<span class="cm">    *   by calling a virtual method named after the related table like this</span>
+<span class="cm">    */</span>             
+
+    <span class="nv">$user</span> <span class="o">=</span> <span class="nv">$result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">user</span><span class="p">();</span> 
+
+
+
+    <span class="cm">/*</span>
+<span class="cm">    *   The good thing about this is that data from "user" table is not loaded yet</span>
+<span class="cm">    *   but you can rather update the related record without fetching it (neat)  </span>
+<span class="cm">    *   something like this:</span>
+<span class="cm">    */</span>
+
+    <span class="nv">$user</span><span class="o">-&gt;</span><span class="na">banned</span> <span class="o">=</span> <span class="s2">"1"</span><span class="p">;</span>
+    <span class="nv">$user</span><span class="o">-&gt;</span><span class="na">active</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="nv">$user</span><span class="o">-&gt;</span><span class="na">save</span><span class="p">();</span>
+
+    <span class="cm">/*</span>
+<span class="cm">    * This will generate an update query to the user where the user_id from the</span>
+<span class="cm">    * previous query matches</span>
+<span class="cm">    * No EXTRA selects</span>
+<span class="cm">    * but when needed just call the load() method</span>
+<span class="cm">    */</span>
+
+    <span class="nv">$user</span> <span class="o">=</span> <span class="nv">$user</span><span class="o">-&gt;</span><span class="na">load</span><span class="p">();</span> 
+
+    <span class="c1">// user data is loaded now and can be displayed or manipulated then saved</span>
+
+     <span class="k">echo</span> <span class="nv">$user</span><span class="o">-&gt;</span><span class="na">alias</span><span class="p">;</span>
+
+     <span class="sd">/**</span>
+<span class="sd">     *   Joins</span>
+<span class="sd">     */</span>
+      <span class="cm">/*</span>
+<span class="cm">          * Tables have defined relations (innodb)</span>
+<span class="cm">          *</span>
+<span class="cm">          * SELECT     dept_manager.dept_no,</span>
+<span class="cm">          *         dept_manager.emp_no,</span>
+<span class="cm">          *         dept_manager.from_date,</span>
+<span class="cm">          *         dept_manager.to_date ,</span>
+<span class="cm">          *         departments.dept_name ,</span>
+<span class="cm">          *         employees.last_name</span>
+<span class="cm">          * FROM    dept_manager</span>
+<span class="cm">          *     JOIN    departments</span>
+<span class="cm">          *       ON        dept_manager.dept_no = departments.dept_no</span>
+<span class="cm">          *     JOIN    employees</span>
+<span class="cm">          *       ON        dept_manager.emp_no = employees.emp_no</span>
+<span class="cm">          * WHERE dept_manager.emp_no = 110039</span>
+<span class="cm">          */</span>
+
+
+        <span class="nv">$res</span> <span class="o">=</span> <span class="nv">$dept_manager</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="mi">110039</span><span class="p">)</span>
+                            <span class="o">-&gt;</span><span class="na">with</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="s1">'departments'</span> <span class="o">=&gt;</span> <span class="k">array</span><span class="p">(</span><span class="s2">"dept_name"</span><span class="p">)))</span>
+                            <span class="o">-&gt;</span><span class="na">with</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="s1">'employees'</span> <span class="o">=&gt;</span> <span class="k">array</span><span class="p">(</span><span class="s2">"last_name"</span><span class="p">)))</span>
+                            <span class="o">-&gt;</span><span class="na">fetch</span><span class="p">();</span>
+
+     <span class="sd">/**</span>
+<span class="sd">     * From your controllers you can either use your models</span>
+<span class="sd">     */</span>
+     <span class="nv">$post</span> <span class="o">=</span> <span class="nx">models\blog_post</span><span class="o">::</span><span class="na">getInstance</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getPost</span><span class="p">(</span><span class="nv">$id</span><span class="p">);</span>
+
+     <span class="sd">/**</span>
+<span class="sd">     * Or use the entities directly</span>
+<span class="sd">     */</span>
+     <span class="nv">$post</span> <span class="o">=</span> <span class="nx">entity\blog_post</span><span class="o">::</span><span class="na">getInstance</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">find</span><span class="p">(</span><span class="nv">$id</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">fetch</span><span class="p">();</span>
+</pre></div>
+
+<ul>
+<li>Log Errors, debug messages and display them however you want </li>
+</ul><div class="highlight highlight-php"><pre>   <span class="k">class</span> <span class="nc">index</span> <span class="k">extends</span> <span class="nx">Phiber\controller</span>
+<span class="p">{</span>
+
+  <span class="k">public</span> <span class="k">function</span> <span class="nf">main</span><span class="p">()</span>
+  <span class="p">{</span>
+    <span class="nv">$variableOne</span> <span class="o">=</span> <span class="s1">'test'</span><span class="p">;</span>
+
+    <span class="nv">$variableTwo</span> <span class="o">=</span> <span class="s1">'var'</span><span class="p">;</span>
+
+    <span class="nv">$variableThree</span> <span class="o">=</span> <span class="mi">32156</span><span class="p">;</span>
+
+    <span class="k">echo</span> <span class="nv">$undefined</span><span class="p">;</span>
+
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">view</span><span class="o">-&gt;</span><span class="na">message</span> <span class="o">=</span> <span class="s2">"This is dev module controller - welcome to Phiber"</span><span class="p">;</span>
+
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="s1">'log'</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">notice</span><span class="p">(</span><span class="s1">'hello from index!:'</span> <span class="o">.</span> <span class="k">__line__</span><span class="p">);</span>
+
+    <span class="nv">$vars</span> <span class="o">=</span> <span class="s1">'scope test'</span><span class="p">;</span>
+
+    <span class="nv">$log2</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">setLog</span><span class="p">(</span><span class="s1">'file'</span><span class="p">,</span> <span class="s1">'second'</span><span class="p">,</span> <span class="s1">'secondlog'</span><span class="p">);</span>
+
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="s1">'log'</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">notice</span><span class="p">(</span><span class="s1">'hello from index!:'</span> <span class="o">.</span> <span class="k">__line__</span><span class="p">,</span> <span class="k">array</span><span class="p">(</span><span class="s1">'message'</span> <span class="o">=&gt;</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">view</span><span class="o">-&gt;</span><span class="na">message</span><span class="p">));</span>
+
+    <span class="nv">$log2</span><span class="o">-&gt;</span><span class="na">info</span><span class="p">(</span><span class="s1">'hello from index!:'</span> <span class="o">.</span> <span class="k">__line__</span><span class="p">);</span>
+
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">logger</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">debug</span><span class="p">(</span><span class="s1">'second hello from index!:'</span> <span class="o">.</span> <span class="k">__line__</span><span class="p">);</span>
+
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="s1">'secondlog'</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">debug</span><span class="p">(</span><span class="s1">'second hello from index!:'</span> <span class="o">.</span> <span class="k">__line__</span><span class="p">);</span>
+
+    <span class="nb">trigger_error</span><span class="p">(</span><span class="s1">' A triggered E_USER_WARNING'</span><span class="p">,</span> <span class="nx">E_USER_WARNING</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// In debug mode (set globally in config.php or dynamically in runtime)</span>
+<span class="c1">// The above code will output this to your browser</span>
+
+<span class="nx">Notice</span><span class="o">:</span><span class="nx">Undefined</span> <span class="nx">variable</span><span class="o">:</span> <span class="nx">undefined</span>
+
+<span class="nx">Code</span><span class="o">:</span><span class="mi">8</span> <span class="nx">File</span><span class="o">:</span><span class="p">{</span><span class="nx">PATH</span><span class="p">}</span><span class="o">/</span><span class="nx">library</span><span class="o">/</span><span class="nx">modules</span><span class="o">/</span><span class="nx">dev</span><span class="o">/</span><span class="nx">index</span><span class="o">.</span><span class="nx">php</span><span class="o">:</span><span class="mi">14</span>
+
+<span class="nx">Vars</span><span class="o">:</span>
+
+ <span class="nv">$variableOne</span> <span class="o">=</span> <span class="nx">test</span>
+ <span class="nv">$variableTwo</span> <span class="o">=</span> <span class="k">var</span>
+ <span class="nv">$variableThree</span> <span class="o">=</span> <span class="mi">32156</span>
+
+<span class="nx">Trace</span><span class="o">:</span>
+
+<span class="mf">0.</span> <span class="nx">index</span><span class="o">-&gt;</span><span class="na">main</span><span class="p">()</span> <span class="p">{</span><span class="nx">PATH</span><span class="p">}</span><span class="o">/</span><span class="nx">library</span><span class="o">/</span><span class="nx">main</span><span class="o">.</span><span class="nx">php</span><span class="o">:</span><span class="mi">235</span>
+
+<span class="mf">1.</span> <span class="nx">Phiber\main</span><span class="o">-&gt;</span><span class="na">dispatch</span><span class="p">()</span> <span class="p">{</span><span class="nx">PATH</span><span class="p">}</span><span class="o">/</span><span class="nx">library</span><span class="o">/</span><span class="nx">main</span><span class="o">.</span><span class="nx">php</span><span class="o">:</span><span class="mi">82</span>
+
+<span class="mf">2.</span> <span class="nx">Phiber\main</span><span class="o">-&gt;</span><span class="na">run</span><span class="p">()</span> <span class="p">{</span><span class="nx">PATH</span><span class="p">}</span><span class="o">/</span><span class="nx">site</span><span class="o">/</span><span class="nx">index</span><span class="o">.</span><span class="nx">php</span><span class="o">:</span><span class="mi">6</span>
+
+<span class="p">[</span><span class="nx">notice</span><span class="p">]</span> <span class="nx">hello</span> <span class="nx">from</span> <span class="nx">index</span><span class="o">!:</span><span class="mi">18</span>
+
+<span class="k">Array</span>
+<span class="p">(</span>
+    <span class="p">[</span><span class="nx">message</span><span class="p">]</span> <span class="o">=&gt;</span> <span class="k">This</span> <span class="nx">is</span> <span class="nx">dev</span> <span class="nx">module</span> <span class="nx">controller</span> <span class="o">-</span> <span class="nx">welcome</span> <span class="nx">to</span> <span class="nx">Phiber</span>
+<span class="p">)</span>
+
+<span class="p">[</span><span class="nx">info</span><span class="p">]</span> <span class="nx">hello</span> <span class="nx">from</span> <span class="nx">index</span><span class="o">!:</span><span class="mi">26</span>
+
+<span class="p">[</span><span class="nx">debug</span><span class="p">]</span> <span class="nx">second</span> <span class="nx">hello</span> <span class="nx">from</span> <span class="nx">index</span><span class="o">!:</span><span class="mi">28</span>
+
+<span class="p">[</span><span class="nx">debug</span><span class="p">]</span> <span class="nx">second</span> <span class="nx">hello</span> <span class="nx">from</span> <span class="nx">index</span><span class="o">!:</span><span class="mi">30</span>
+
+<span class="nx">Warning</span><span class="o">:</span> <span class="nx">A</span> <span class="nx">triggered</span> <span class="nx">E_USER_WARNING</span>
+
+<span class="nx">Code</span><span class="o">:</span><span class="mi">512</span> <span class="nx">File</span><span class="o">:</span><span class="p">{</span><span class="nx">PATH</span><span class="p">}</span><span class="nx">library</span><span class="o">/</span><span class="nx">modules</span><span class="o">/</span><span class="nx">dev</span><span class="o">/</span><span class="nx">index</span><span class="o">.</span><span class="nx">php</span><span class="o">:</span><span class="mi">32</span>
+
+<span class="nx">Vars</span><span class="o">:</span>
+
+ <span class="nv">$variableOne</span> <span class="o">=</span> <span class="nx">test</span>
+ <span class="nv">$variableTwo</span> <span class="o">=</span> <span class="k">var</span>
+ <span class="nv">$variableThree</span> <span class="o">=</span> <span class="mi">32156</span>
+ <span class="nv">$vars</span> <span class="o">=</span> <span class="nx">scope</span> <span class="nx">test</span>
+ <span class="nv">$log2</span> <span class="o">=</span> <span class="nx">Instance</span> <span class="nx">of</span> <span class="nx">logger\file</span>
+
+<span class="nx">Trace</span><span class="o">:</span>
+
+<span class="mf">0.</span> <span class="nb">trigger_error</span><span class="p">()</span> <span class="p">{</span><span class="nx">PATH</span><span class="p">}</span><span class="o">/</span><span class="nx">library</span><span class="o">/</span><span class="nx">modules</span><span class="o">/</span><span class="nx">dev</span><span class="o">/</span><span class="nx">index</span><span class="o">.</span><span class="nx">php</span><span class="o">:</span><span class="mi">32</span>
+
+  <span class="nx">Vars</span><span class="o">:</span>
+  <span class="nx">A</span> <span class="nx">triggered</span> <span class="nx">E_USER_WARNING</span>
+  <span class="mi">512</span>
+
+<span class="mf">1.</span> <span class="nx">index</span><span class="o">-&gt;</span><span class="na">main</span><span class="p">()</span> <span class="p">{</span><span class="nx">PATH</span><span class="p">}</span><span class="o">/</span><span class="nx">library</span><span class="o">/</span><span class="nx">main</span><span class="o">.</span><span class="nx">php</span><span class="o">:</span><span class="mi">235</span>
+
+<span class="mf">2.</span> <span class="nx">Phiber\main</span><span class="o">-&gt;</span><span class="na">dispatch</span><span class="p">()</span> <span class="p">{</span><span class="nx">PATH</span><span class="p">}</span><span class="o">/</span><span class="nx">library</span><span class="o">/</span><span class="nx">main</span><span class="o">.</span><span class="nx">php</span><span class="o">:</span><span class="mi">82</span>
+
+<span class="mf">3.</span> <span class="nx">Phiber\main</span><span class="o">-&gt;</span><span class="na">run</span><span class="p">()</span> <span class="p">{</span><span class="nx">PATH</span><span class="p">}</span><span class="o">/</span><span class="nx">site</span><span class="o">/</span><span class="nx">index</span><span class="o">.</span><span class="nx">php</span><span class="o">:</span><span class="mi">6</span>
+
+</pre></div>
+
+<ul>
+<li>and more other cool features to come.</li>
+</ul><p>This project is under heavy developement and still in alpha stage. Please come back soon.</p>
+
+<p>Needless to say, any help is much appreciated.</p>
+
+<p>We try to keep up with <a href="http://semver.org/">Semantic Versioning</a></p>
       </section>
     </div>
 
