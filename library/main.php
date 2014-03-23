@@ -365,7 +365,7 @@ class main
         $path .= $parts[$i] . '.php';
         break;
       }
-      $path .=  $parts[$i] . '/';
+      $path .=  strtolower($parts[$i]) . '/';
 
     }
 
@@ -385,7 +385,7 @@ class main
       $newpath = __DIR__ . '/';
     }
     $incpath = $newpath . $class . '.php';
-//echo $incpath,'<br>';
+
     $hash = hash('adler32', $incpath);
     if($this->isLoaded($hash) && false !== $inst){
       return $this->get($hash);
