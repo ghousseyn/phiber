@@ -1,7 +1,7 @@
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/ghousseyn/phiber/badges/quality-score.png?s=436bbca471c3881b34e0c2d36b311c003aea5739)](https://scrutinizer-ci.com/g/ghousseyn/phiber/) [![Build Status](https://travis-ci.org/ghousseyn/phiber.png?branch=alpha)](https://travis-ci.org/ghousseyn/phiber) [![Code Coverage](https://scrutinizer-ci.com/g/ghousseyn/phiber/badges/coverage.png?s=6282beaf967e0ac820a325b6897fab427f286908)](https://scrutinizer-ci.com/g/ghousseyn/phiber/)
 
 
-[![Phiber Framework](site/logo.png)]
+![Phiber Framework](site/logo.png)
 
 Phiber
 =====
