@@ -46,7 +46,7 @@
 	<div class="content">
 	<div class="grid">
 		<div class="row space-top space-bot">
-			<h3 class="text-center">FLUID GRID LAYOUT - WIDTH 1200PX</h3>
+			<h3 class="text-center"><?php echo $this->header ?></h3>
 		</div>
 		<div class="row space-bot">
 			<div class="c12">

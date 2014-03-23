@@ -1,10 +1,14 @@
 <?php
 
-class index extends Phiber\controller
+class index extends \Phiber\controller
 {
 
   public function main()
   {
+    $authorized = false;
+    $row = array('description'=> 'test data', 'status'=> 'active');
+    $this->view->message = "<li>".$row['description']. "(" . ($authorized ? $row['status'] : "N/A"). ")</li>";
+
     $variableOne = 'test';
 
     $variableTwo = 'var';
@@ -13,7 +17,7 @@ class index extends Phiber\controller
 
     echo $undefined;
 
-    $this->view->message = "This is dev module controller - welcome to Phiber";
+
 
     $this->get('log')->notice('hello from index!:' . __line__);
 
@@ -23,7 +27,7 @@ class index extends Phiber\controller
 
     $this->get('log')->notice('hello from index!:' . __line__, array('message' => $this->view->message));
 
-    $log2->info('hello from index!:' . __line__);
+    $log2->info('hello from second log index!:' . __line__);
 
     $this->logger()->debug('second hello from index!:' . __line__);
 
@@ -46,5 +50,6 @@ class index extends Phiber\controller
     }
 
   }
+
 }
 ?>

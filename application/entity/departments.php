@@ -1,7 +1,7 @@
 <?php
 namespace entity;
 
-class departments extends entity
+class departments extends \Phiber\entity\entity
 {
   public $dept_no;
   public $dept_name;

@@ -1,5 +1,5 @@
 <?php
-namespace oosql;
+namespace Phiber\oosql;
 
 class oosql extends \PDO
 {
@@ -68,12 +68,12 @@ class oosql extends \PDO
    * __construct()
    * @param string $oosql_table The table we are querying
    * @param string $oosql_class The class name (type of the object holding the results)
-   * @throws \PDOException
+   * @throws \Exception
    */
   function __construct($oosql_table = null, $oosql_class = null)
   {
     if($oosql_class === null || $oosql_table === null){
-      throw new \PDOException('Class or Table name not provided!',9901,null);
+      throw new \Exception('Class or Table name not provided!',9805,null);
     }
     $this->oosql_class = $oosql_class;
     $this->oosql_table = $oosql_table;
@@ -105,6 +105,7 @@ class oosql extends \PDO
     if($config === null){
        self::$conf = \config::getInstance();
     }
+
     return new self($oosql_table, $oosql_class);
   }
 
@@ -246,7 +247,7 @@ class oosql extends \PDO
   /**
    * Decides if this is an insert or an update and what fields have changed if appropriate
    * @param mixed $object If null this is an insert if not than it's an update
-   * @throws \PDOException
+   * @throws \Exception
    */
   public function save($object = null)
   {
@@ -254,7 +255,7 @@ class oosql extends \PDO
     if(null === $object){
       if(null === $this->oosql_model_obj){
         $msg = 'Nothing to save! ' . $this->oosql_sql;
-        throw new \PDOException($msg,9902,null);
+        throw new \Exception($msg,9806,null);
       }
       // This is a brand new record let's insert;
       $this->insert(implode(',', array_keys((array) $this->oosql_model_obj)))->values(implode(',', array_values((array) $this->oosql_model_obj)))->exe();
@@ -277,7 +278,7 @@ class oosql extends \PDO
       }
       if(null === $data){
         $msg = 'Nothing to save! ' . $this->oosql_sql;
-        throw new \PDOException($msg,9903,null);
+        throw new \Exception($msg,9806,null);
       }
       $this->update()->set($data)->createWhere($object->getPrimaryValue())->exe();
       return true;
@@ -297,7 +298,7 @@ class oosql extends \PDO
         return true;
       }
       $msg = 'Nothing to save! ' . $this->oosql_sql;
-      throw new \PDOException($msg,9904,null);
+      throw new \Exception($msg,9806,null);
   }
 
   /**
@@ -327,7 +328,7 @@ class oosql extends \PDO
 
   /**
    * Assembles values part of an insert
-   * @throws \PDOException
+   * @throws \Exception
    */
   public function values()
   {
@@ -338,7 +339,7 @@ class oosql extends \PDO
 
     if(($this->oosql_numargs !== 0 && $numargs !== $this->oosql_numargs) || $numargs === 0){
       $msg = 'Columns and passed data do not match! ' . $this->oosql_sql;
-      throw new \PDOException($msg,9905,null);
+      throw new \Exception($msg,9805,null);
     }
 
     $this->oosql_sql .= ' VALUES (';
@@ -359,7 +360,7 @@ class oosql extends \PDO
 
   /**
    * Assembles the FROM part of the query
-   * @throws \PDOException
+   * @throws \Exception
    */
   public function from()
   {
@@ -371,7 +372,7 @@ class oosql extends \PDO
 
       if($numargs < $this->oosql_del_numargs){
         $msg = 'Columns and passed data do not match! ' . $this->oosql_sql;
-        throw new \PDOException($msg,9906,null);
+        throw new \PDOException($msg,9805,null);
       }
 
 
@@ -512,7 +513,7 @@ class oosql extends \PDO
   /**
    *
    * @throws \InvalidArgumentException
-   * @throws \PDOException
+   * @throws \Exception
    */
   public function fetch()
   {
@@ -527,7 +528,7 @@ class oosql extends \PDO
           $this->limit($argumants[0], $argumants[1]);
           break;
         default:
-          throw new \InvalidArgumentException('Fetch expects zero, one or two arguments as a query result limit',9907,null);
+          throw new \InvalidArgumentException('Fetch expects zero, one or two arguments as a query result limit',9805,null);
       }
     }
 
@@ -535,14 +536,14 @@ class oosql extends \PDO
       $this->oosql_select->exe();
     }else{
       $msg = 'Query returned no results! You need to select first! ' . $this->oosql_sql;
-      throw new \PDOException($msg,9908,null);
+      throw new \PDOException($msg,9805,null);
     }
 
 
     if(! $this->oosql_stmt){
 
       $msg = 'Query returned no results! ' . $this->oosql_sql;
-      throw new \PDOException($msg,9909,null);
+      throw new \PDOException($msg,9805,null);
     }
 
     $result = $this->oosql_stmt->fetchAll();

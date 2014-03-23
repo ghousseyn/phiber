@@ -1,5 +1,5 @@
 <?php
-namespace logger;
+namespace Phiber\Logger;
 
 class file extends logger
 {
@@ -120,7 +120,7 @@ class file extends logger
    * @param $context array
    * @return null
    */
-  public function log($level, $message, array $context = array())
+  protected function log($level, $message, array $context = array())
   {
     if(null === $this->file){
       $logs = array_values($this->logs);
@@ -137,7 +137,7 @@ class file extends logger
       }else{
         $object = (count($context))?$context:$message;
       }
-      $this->tools->wtf($object);
+      \tools::staticWTF($object);
     }
 
 
