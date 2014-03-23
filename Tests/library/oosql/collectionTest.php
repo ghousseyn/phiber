@@ -9,7 +9,7 @@ class collectionTest extends PhiberTests
 
   public function setUp()
   {
-    $this->collection = new oosql\collection();
+    $this->collection = new \Phiber\oosql\collection();
   }
   /**
    *
@@ -50,7 +50,7 @@ class collectionTest extends PhiberTests
 
     $collection2 = $this->collection->objectsWhere('integer',144);
 
-    $this->assertInstanceOf('oosql\\collection',$collection2);
+    $this->assertInstanceOf('Phiber\\oosql\\collection',$collection2);
     $this->assertEquals(3,count($this->collection));
     $this->assertEquals(2,count($collection2));
   }

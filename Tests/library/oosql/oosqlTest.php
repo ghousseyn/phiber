@@ -13,7 +13,7 @@ class oosqlTest extends PhiberTests
   {
     $config = config::getInstance();
     $config->_dsn = 'sqlite:./test.db';
-    $this->oosql = oosql\oosql::getInstance('table','class',$config);
+    $this->oosql = \Phiber\oosql\oosql::getInstance('table','class',$config);
   }
   public function testSelect()
   {
@@ -23,8 +23,8 @@ class oosqlTest extends PhiberTests
     $select = $this->getProperty($this->oosql, 'oosql_select');
     $this->assertEquals('SELECT table.* ', $sql);
     $this->assertTrue($flag);
-    $this->assertInstanceOf('oosql\\oosql', $select);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $select);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
 
   public function testSelectColumnsSpecified()
@@ -35,15 +35,15 @@ class oosqlTest extends PhiberTests
     $select = $this->getProperty($this->oosql, 'oosql_select');
     $this->assertEquals('SELECT table.column1, table.column2', $sql);
     $this->assertTrue($flag);
-    $this->assertInstanceOf('oosql\\oosql', $select);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $select);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testInsert()
   {
     $return = $this->invokeMethod($this->oosql, 'insert');
     $sql = $this->getProperty($this->oosql, 'oosql_sql');
     $this->assertEquals('INSERT INTO table', $sql);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testInsertColumnsSpecified()
   {
@@ -52,7 +52,7 @@ class oosqlTest extends PhiberTests
     $numargs = $this->getProperty($this->oosql, 'oosql_numargs');
     $this->assertEquals(2, $numargs);
     $this->assertEquals('INSERT INTO table (column1,column2)', $sql);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testUpdate()
   {
@@ -61,7 +61,7 @@ class oosqlTest extends PhiberTests
     $flag = $this->getProperty($this->oosql, 'oosql_multiFlag');
     $this->assertFalse($flag);
     $this->assertEquals('UPDATE table SET ', $sql);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testUpdateMultiple()
   {
@@ -70,7 +70,7 @@ class oosqlTest extends PhiberTests
     $flag = $this->getProperty($this->oosql, 'oosql_multiFlag');
     $this->assertTrue($flag);
     $this->assertEquals('UPDATE table1, table2 SET ', $sql);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testDelete()
   {
@@ -79,7 +79,7 @@ class oosqlTest extends PhiberTests
     $flag = $this->getProperty($this->oosql, 'oosql_fromFlag');
     $this->assertTrue($flag);
     $this->assertEquals('DELETE', $sql);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testDeleteMulti()
   {
@@ -92,7 +92,7 @@ class oosqlTest extends PhiberTests
     $this->assertTrue($flagMulti);
     $this->assertEquals(2,$flagArgs);
     $this->assertEquals('DELETE FROM table1, table2', $sql);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testDeleteShortCut()
   {
@@ -103,7 +103,7 @@ class oosqlTest extends PhiberTests
     $this->assertFalse($flag);
     $this->assertContains(1, $value);
     $this->assertEquals('DELETE FROM table', $sql);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testSet()
   {
@@ -116,7 +116,7 @@ class oosqlTest extends PhiberTests
     $this->assertEquals('UPDATE table SET field1 = ?,field2 = ?', $sql);
     $this->assertContains('value',$values);
     $this->assertContains(12,$values);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   /**
    * @expectedException PDOException
@@ -135,7 +135,7 @@ class oosqlTest extends PhiberTests
 
     $this->assertEquals(' WHERE field1 =?', $sql);
     $this->assertContains(11, $values);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testCreateAndWhere()
   {
@@ -148,7 +148,7 @@ class oosqlTest extends PhiberTests
     $this->assertContains(11, $values);
     $this->assertContains(1.54, $values);
     $this->assertContains('value', $values);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   /**
    * @expectedException PDOException
@@ -180,7 +180,7 @@ class oosqlTest extends PhiberTests
     $this->assertFalse($flag);
     $this->assertcontains('value1',$values);
     $this->assertcontains(3,$values);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   /**
    * @expectedException PDOException
@@ -199,7 +199,7 @@ class oosqlTest extends PhiberTests
     $flag = $this->getProperty($this->oosql, 'oosql_fromFlag');
     $this->assertEquals(' FROM table1, table2', $sql);
     $this->assertFalse($flag);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testFromNoArgs()
   {
@@ -209,7 +209,7 @@ class oosqlTest extends PhiberTests
     $flag = $this->getProperty($this->oosql, 'oosql_fromFlag');
     $this->assertEquals(' FROM table', $sql);
     $this->assertFalse($flag);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testJoinDefault()
   {
@@ -218,7 +218,7 @@ class oosqlTest extends PhiberTests
 
     $sql = $this->getProperty($this->oosql, 'oosql_join');
     $this->assertEquals(' JOIN table1 ON table.fk_id = table1.id', $sql);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testJoinLeft()
   {
@@ -227,7 +227,7 @@ class oosqlTest extends PhiberTests
 
     $sql = $this->getProperty($this->oosql, 'oosql_join');
     $this->assertEquals('LEFT JOIN table1 ON table.fk_id = table1.id', $sql);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testJoinRight()
   {
@@ -236,7 +236,7 @@ class oosqlTest extends PhiberTests
 
     $sql = $this->getProperty($this->oosql, 'oosql_join');
     $this->assertEquals('RIGHT JOIN table1 ON table.fk_id = table1.id', $sql);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testJoinFull()
   {
@@ -245,7 +245,7 @@ class oosqlTest extends PhiberTests
 
     $sql = $this->getProperty($this->oosql, 'oosql_join');
     $this->assertEquals('FULL OUTER JOIN table1 ON table.fk_id = table1.id', $sql);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testWhere()
   {
@@ -255,7 +255,7 @@ class oosqlTest extends PhiberTests
 
     $this->assertEquals(' WHERE field1 = ?', $sql);
     $this->assertContains('value', $values);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testAndWhere()
   {
@@ -265,7 +265,7 @@ class oosqlTest extends PhiberTests
 
     $this->assertEquals(' AND field1 = ?', $sql);
     $this->assertContains('value', $values);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testOrWhere()
   {
@@ -275,7 +275,7 @@ class oosqlTest extends PhiberTests
 
     $this->assertEquals(' OR field1 = ?', $sql);
     $this->assertContains('value', $values);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testValidInteger()
   {
@@ -313,7 +313,7 @@ class oosqlTest extends PhiberTests
     $limit = $this->getProperty($this->oosql, 'oosql_limit');
 
     $this->assertEquals(' LIMIT 0, 10', $limit);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testLimitMulti()
   {
@@ -322,7 +322,7 @@ class oosqlTest extends PhiberTests
     $limit = $this->getProperty($this->oosql, 'oosql_limit');
 
     $this->assertEmpty($limit);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testOrderBy()
   {
@@ -330,7 +330,7 @@ class oosqlTest extends PhiberTests
     $order = $this->getProperty($this->oosql, 'oosql_order');
 
     $this->assertEquals(' ORDER BY column', $order);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testOrderByMulti()
   {
@@ -339,7 +339,7 @@ class oosqlTest extends PhiberTests
     $order = $this->getProperty($this->oosql, 'oosql_order');
 
     $this->assertEmpty($order);
-    $this->assertInstanceOf('oosql\\oosql', $return);
+    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
 }
 

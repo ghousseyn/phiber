@@ -1,7 +1,7 @@
 <?php
-namespace logger;
+namespace Phiber\Logger;
 
-abstract class logger extends \phiber\main
+abstract class logger extends \Phiber\main
 {
   const EMERGENCY = 'emergency';
   const ALERT     = 'alert';
@@ -31,6 +31,8 @@ abstract class logger extends \phiber\main
   }
 
   /**
+   * Handle the log request by deciding the severity and if we should log it or not
+   * Unknown severities will become 'alerts'
    *@param $exception ErrorException
    *@param $context array
    *@return null
@@ -38,12 +40,17 @@ abstract class logger extends \phiber\main
   public function handle(\ErrorException $exception, array $context)
   {
     $levels = array_flip($this->sevirity);
+    $sevirity = $exception->getSeverity();
+
+    if(!in_array($sevirity, $levels)){
+       $sevirity = 9802;
+    }
     $sevirities = array_slice($levels,$levels[$this->level]-9809,null,true);
 
-    if(!in_array($this->sevirity[$exception->getSeverity()], $sevirities)  ){
+    if(!in_array($this->sevirity[$sevirity], $sevirities)  ){
 
       $context['exception'] = $exception;
-      $this->{$this->sevirity[$exception->getSeverity()]}($exception->getMessage(),$context);
+      $this->{$this->sevirity[$sevirity]}($exception->getMessage(),$context);
     }else{
       return false;
     }
@@ -111,7 +118,7 @@ abstract class logger extends \phiber\main
    * @param $context array
    * @return null
    */
-  public abstract function log($level, $message, array $context = array());
+  protected abstract function log($level, $message, array $context = array());
 }
 
 ?>

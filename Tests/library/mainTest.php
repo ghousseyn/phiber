@@ -80,7 +80,7 @@ class mainTest extends PhiberTests
 
     public function testAutoloadOneLevel()
     {
-      $class = 'oosql\\oosql';
+      $class = 'Phiber\\oosql\\oosql';
       $this->invokeMethod($this->main,'autoload',array($class));
       $this->assertTrue(class_exists($class));
     }
@@ -89,7 +89,7 @@ class mainTest extends PhiberTests
     {
       $class = 'Phiber\\oosql\\oosql';
       $this->invokeMethod($this->main,'autoload',array($class));
-      $this->assertTrue(class_exists('oosql\\oosql'));
+      $this->assertTrue(class_exists('Phiber\\oosql\\oosql'));
     }
 
     public function testGet()
