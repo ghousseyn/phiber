@@ -1,5 +1,5 @@
 <?php
 namespace Phiber;
-class model extends main{}
+class model extends phiber{}
 
 ?>

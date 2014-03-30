@@ -1,7 +1,7 @@
 <?php
 
 require_once 'Tests/PhiberTests.php';
-require_once 'library/main.php';
+require_once 'library/phiber.php';
 require_once 'library/controller.php';
 
 

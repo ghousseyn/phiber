@@ -15,7 +15,7 @@ class tools
     return new self();
   }
 
-  public function convertTime($size)
+  public static function convertTime($size)
   {
     if(0 == $size){
       return;
@@ -26,7 +26,7 @@ class tools
     return ($size / pow(60, floor($e))).$s[$e];
   }
 
-  public function convertSize($size)
+  public static function convertSize($size)
   {
     if(0 == $size){
       return;
@@ -35,9 +35,9 @@ class tools
     return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
   }
 
-  public function orDefault($value, $default)
+  public static function orDefault($value, $default)
   {
-    if(null != $value){
+    if(null !== $value){
       return $value;
     }
     return $default;
@@ -45,7 +45,7 @@ class tools
   /*
    * Thanks to Aaron Fisher http://www.aaron-fisher.com/articles/web/php/wtf/
    */
-  public static function staticWTF($var, $arrayOfObjectsToHide = array(), $fontSize = 12)
+  public static function wtf($var, $arrayOfObjectsToHide = array(), $fontSize = 12)
   {
     $text = print_r($var, true);
     $text = str_replace('<', '&lt;', $text);
@@ -77,7 +77,7 @@ class tools
         }
 
        $text .= PHP_EOL.$step.'. '.$class.$data["function"].'() '.$data["file"].':'.$data["line"].PHP_EOL;
-       if(count($data['args'])){
+       if(isset($data['args']) && count($data['args'])){
          $text .= PHP_EOL.'  Vars:'.PHP_EOL;
          foreach($data['args'] as $arg => $val){
            $text .= "  $val".PHP_EOL;
@@ -111,8 +111,5 @@ class tools
     }
     echo '<pre style="font-size: ' . $fontSize . 'px;	line-height: ' . $fontSize . 'px;background-color: #fff; padding: 10px;">' . $text . '</pre>';
   }
-  public function wtf($var, $arrayOfObjectsToHide = array(), $fontSize = 12)
-  {
-       self::wtf($var, $arrayOfObjectsToHide , $fontSize );
-  }
+
 }

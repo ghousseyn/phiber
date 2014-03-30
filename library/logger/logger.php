@@ -1,7 +1,7 @@
 <?php
 namespace Phiber\Logger;
 
-abstract class logger extends \Phiber\main
+abstract class logger extends \Phiber\phiber
 {
   const EMERGENCY = 'emergency';
   const ALERT     = 'alert';

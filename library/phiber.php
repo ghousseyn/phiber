@@ -8,49 +8,52 @@
  */
 namespace Phiber;
 
-class main
+class phiber
 {
 
   private $path = null;
   private $uri = null;
+  private $phiber_flags;
+  private $confFile = null;
 
   protected $_requestVars = array();
 
   protected $vars = array();
 
-  protected function __construct()
+  protected $phiber_bootstrap;
+
+  protected $keyHashes;
+
+  protected function __construct($confFile = null)
   {
+
     spl_autoload_register(array($this, 'autoload'),true,true);
 
-    if($this->conf->log){
-      $this->register('errorLog',error::initiate($this->logger()));
+    if(null !== $confFile){
+      $this->confFile = $confFile;
     }
-
-    $this->register('layoutEnabled', $this->conf->layoutEnabled);
-    if(! isset($_SESSION)){
-      session_start();
-      $_SESSION['user']['activity'] = time();
-    }
+    $this->phiber_bootstrap = \bootstrap::getInstance();
+    $this->keyHashes = array('config'=>md5('Phiber.Config'),'view'=>md5('Phiber.View'));
 
   }
 
   protected function setLog($logger = null,$params = null,$name = null)
   {
     if(null === $logger){
-      $logger = $this->conf->logHandler;
+      $logger = \config::PHIBER_LOG_DEFAULT_HANDLER;
     }
     if(null === $params){
-      $params = array('default',$this->conf->logDir.'/'.$this->conf->logFile);
+      $params = array('default',$this->config->logDir.'/'.\config::PHIBER_LOG_DEFAULT_FILE);
     }
     if(!is_array($params)){
-      $params = array($params,$this->conf->logDir.'/'.$params.'.log');
+      $params = array($params,$this->config->logDir.'/'.$params.'.log');
     }
     $logWriter = "Phiber\\Logger\\$logger";
     $writer = new $logWriter($params);
     if(null === $name){
       $name = 'log';
     }
-    $writer->level = $this->conf->logLevel;
+    $writer->level = $this->config->logLevel;
     $this->register($name,$writer);
     return $writer;
   }
@@ -75,15 +78,21 @@ class main
 
   public function run()
   {
+    Session\session::start();
 
-    $this->checkSession();
+    Session\session::checkSession();
+
+    if(\config::PHIBER_LOG){
+
+      $this->register('errorLog',error::initiate($this->logger()));
+
+    }
+
     $this->router();
     $this->getView();
     $this->plugins();
     $this->dispatch();
-    if($this->conf->debug){
-      $this->debug->output();
-    }
+    $this->register('layoutEnabled', $this->config->layoutEnabled);
     $this->view->showTime();
 
   }
@@ -96,40 +105,28 @@ class main
   protected function plugins()
   {
 
-    foreach($this->bootstrap->getPlugins() as $plugin){
-      $this->load($plugin, null, $this->conf->application . "/plugins/" . $plugin . "/")->run();
+    foreach($this->phiber_bootstrap->getPlugins() as $plugin){
+      $this->load($plugin, null, $this->config->application . "/plugins/" . $plugin . "/")->run();
     }
-  }
-
- protected function checkSession()
-  {
-    if($this->conf->inactive){
-      if(isset($_SESSION['user']['activity']) && (time() - $_SESSION['user']['activity'] > $this->load('tools')->orDefault((int) $this->conf->inactive, 1800))){
-
-        // session_unset();
-        session_destroy();
-      }
-    }
-    if($this->conf->sessionReginerate){
-      if(isset($_SESSION['user']['created']) && (time() - $_SESSION['user']['created'] > $this->tools->orDefault((int) $this->conf->sessionReginerate, 1800))){
-        session_regenerate_id(true);
-        $_SESSION['user']['created'] = time();
-      }
-    }
-
   }
 
   protected function getView()
   {
 
-    $path[] = $this->route['module'];
-    $path[] = $this->route['controller'];
-    $path[] = $this->route['action'];
+    $path = array_slice($this->route, 0,3,true);
 
-      $path = $this->conf->application . "/modules/" . array_shift($path) . "/views/" . implode("/", $path) . ".php";
+    $path = $this->config->application . "/modules/" . array_shift($path) . "/views/" . implode("/", $path) . ".php";
 
     $this->view->viewPath = $path;
 
+  }
+  protected function setView($path)
+  {
+    if(file_exists($path)){
+      $this->view->viewPath = $path;
+      return true;
+    }
+    return false;
   }
 
   protected function renderLayout($layout = null)
@@ -140,7 +137,7 @@ class main
       }
 
     }else{
-      include_once $this->conf->application . "/layouts/layout.php";
+      include_once $this->config->application . "/layouts/layout.php";
     }
   }
 
@@ -151,10 +148,11 @@ class main
     $this->register('get', true);
     $this->register('ajax', false);
     $this->register('context', null);
+
     if($this->isValidURI($this->uri)){
       $parts = explode("/", trim($this->uri));
       array_shift($parts);
-      if(! empty($parts[0]) && $this->bootstrap->isModule($parts[0])){
+      if(! empty($parts[0]) && $this->phiber_bootstrap->getModules()->isModule($parts[0])){
 
         $module = array_shift($parts);
         $controller = $this->hasController($parts, $module);
@@ -171,18 +169,19 @@ class main
       if(count($parts)){
         $this->setVars($parts);
       }
+
       $this->setEnvVars();
 
       $route = array('module' => $module, 'controller' => $controller, 'action' => $action, 'vars' => $this->get('_request'));
     }else{
-      $route = array('module' => 'default', 'controller' => 'index', 'action' => $this->conf->defaultMethod);
+      $route = array('module' => 'default', 'controller' => 'index', 'action' => \config::PHIBER_CONTROLLER_DEFAULT_METHOD);
+      $this->path = $this->config->application . '/modules/default/';
 
     }
     $this->register('route', $route);
   }
   private function setEnvVars()
   {
-    $this->register('_request', $this->_requestVars);
 
     if($_SERVER['REQUEST_METHOD'] === 'POST'){
       $this->register('post', true);
@@ -192,6 +191,7 @@ class main
     if(! empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'){
       $this->register('ajax', true);
     }
+    $this->register('_request', $this->_requestVars);
 
   }
   protected function isValidURI(&$uri)
@@ -202,7 +202,8 @@ class main
     $uri = str_replace('&', '/', $uri);
     $uri = str_replace('=', '/', $uri);
 
-    if(preg_match('~^(?:[/\\w\\s-\,\$\.\*\!\'\(\)\~]+)+/?$~', $uri)){
+    if(preg_match('~^(?:[/\\w\\s-\,\$\.\*\!\'\(\)\~]+)+/?$~u', $uri)){
+
       return true;
     }
     return false;
@@ -210,22 +211,22 @@ class main
 
   protected function isPost()
   {
-    return $this->get('post');
+    return Session\session::get('post');
   }
 
   protected function isGet()
   {
-    return $this->get('get');
+    return Session\session::get('get');
   }
 
   protected function isAjax()
   {
-    return $this->get('ajax');
+    return Session\session::get('ajax');
   }
 
   protected function dispatch()
   {
-    // $mod = $this->route["module"];
+
     $controller = $this->route['controller'];
     $action = $this->route['action'];
 
@@ -236,7 +237,7 @@ class main
       $instance->{$action}();
     }else{
 
-      $instance->{$this->conf->defaultMethod}();
+      $instance->{\config::PHIBER_CONTROLLER_DEFAULT_METHOD}();
 
     }
 
@@ -261,9 +262,10 @@ class main
     $vars = $this->get('_request');
     if(is_array($vars) && isset($vars[$var])){
       return $vars[$var];
-    }
-    if(null !== $default){
-      return $default;
+    }else{
+      if(null !== $default){
+        return $default;
+      }
     }
 
   }
@@ -272,7 +274,8 @@ class main
   {
     foreach($parts as $k => $val){
       if($k == 0 || ($k % 2) == 0){
-        $this->_requestVars[$parts[$k]] = $parts[$k + 1];
+        $value = (isset($parts[$k + 1]))?$parts[$k + 1]:null;
+        $this->_requestVars[$parts[$k]] = $value;
       }
 
     }
@@ -282,7 +285,7 @@ class main
   private function hasController(&$parts, $module)
   {
 
-      $this->path = $this->conf->application . '/modules/' . $module . '/';
+      $this->path = $this->config->application . '/modules/' . $module . '/';
 
 
     if(! empty($parts[0]) && file_exists($this->path . $parts[0] . '.php')){
@@ -291,7 +294,7 @@ class main
 
     }
 
-    return 'index';
+    return \config::PHIBER_CONTROLLER_DEFAULT;
 
   }
 
@@ -305,32 +308,68 @@ class main
     }
 
     array_shift($parts);
-    return $this->conf->defaultMethod;
+    return \config::PHIBER_CONTROLLER_DEFAULT_METHOD;
 
   }
 
   protected function register($name, $value)
   {
 
-    $_SESSION[$name] = $value;
+    $_SESSION['phiber'][$name] = $value;
 
   }
 
   protected function get($index)
   {
-    if(isset($_SESSION[$index])){
+    if(isset($_SESSION['phiber'][$index])){
 
-      return $_SESSION[$index];
+      return $_SESSION['phiber'][$index];
 
     }
 
   }
-
+  protected function isGlobalFlagSet($flag)
+  {
+    return \Phiber\Flag\flag::_isset($flag, $this->get('phiber_flags'));
+  }
+  protected function isLocalFlagSet($flag,$identifier = null)
+  {
+    if(null === $identifier){
+      $class = get_called_class();
+      $identifier = sha1($class.get_parent_class($class).implode('',get_class_methods($class)));
+    }
+    return \Phiber\Flag\flag::_isset($flag, $this->get($identifier));
+  }
+  protected function setGlobalFlag($flag, $value)
+  {
+    $flags = $this->get('phiber_flags');
+    \Phiber\Flag\flag::_set($flag, $value, $flags);
+    $this->register('phiber_flags', $flags);
+  }
+  protected function setLocalFlag($flag, $value,$identifier = null)
+  {
+    if(null === $identifier){
+      $class = get_called_class();
+      $identifier = sha1($class.get_parent_class($class).implode('',get_class_methods($class)));
+    }
+    $flags = $this->get($identifier);
+    \Phiber\Flag\flag::_set($flag, $value, $flags);
+    $this->register($identifier, $flags);
+  }
   protected function autoload($class)
   {
 
-    $path = $this->conf->library . '/';
+    $path = $this->config->library . '/';
 
+    if('config' === $class && null !== $this->confFile){
+      if(file_exists($this->confFile)){
+        include_once $this->confFile;
+        return;
+      }else{
+        trigger_error("Could not find configuration file: ".$this->confFile, E_USER_WARNING);
+      }
+
+    }
     if(! strstr($class, '\\')){
 
       if(file_exists($path . $class . '.php')){
@@ -339,7 +378,7 @@ class main
         return;
       }
 
-      $module = $this->conf->application.'/modules/'.$this->route['module'].'/';
+      $module = $this->config->application.'/modules/'.$this->route['module'].'/';
 
       if(file_exists($module . $class . '.php')){
 
@@ -355,7 +394,7 @@ class main
     $count = count($parts);
       if($parts[0] !== 'Phiber'){
 
-        $path = $this->conf->application . '/';
+        $path = $this->config->application . '/';
       }
     for($i=0; $i < $count; $i++){
       if($parts[$i] === 'Phiber'){
@@ -386,14 +425,22 @@ class main
     }
     $incpath = $newpath . $class . '.php';
 
-    $hash = hash('adler32', $incpath);
-    if($this->isLoaded($hash) && false !== $inst){
-      return $this->get($hash);
+
+    if(in_array($class, array('config','view'))){
+
+      $hash = $this->keyHashes[$class];
+
+      if($this->isLoaded($hash) && false !== $inst){
+
+        return $this->get($hash);
+      }
     }
+
     if(! file_exists($incpath)){
       return false;
     }
     include_once ($incpath);
+
     if(false === $inst){
       return $class;
     }
@@ -402,9 +449,10 @@ class main
     }else{
       $parameters = $params;
     }
+
     $instance = $class::getInstance($parameters);
-    $serialisable = array('config', 'debug', 'tools', 'view', 'bootstrap');
-    if(in_array($class, $serialisable)){
+
+    if(isset($hash)){
       $this->register($hash, $instance);
     }
     return $instance;
@@ -412,7 +460,7 @@ class main
 
   protected function isLoaded($hash)
   {
-    if(isset($_SESSION[$hash])){
+    if(isset($_SESSION['phiber'][$hash])){
 
       return true;
 
@@ -433,7 +481,7 @@ class main
    * @property object $view An instance of the view class
    * @property array $route Current route
    * @property string $content The path to the selected template (partial view)
-   * @property object $conf An instance of the config class
+   * @property object $config An instance of the config class
    * @property object $bootstrap An instance of the the bootstrap class
    * @property object $tools An instance of the tools class
    * @property object $debug An instance of the debug class
@@ -456,18 +504,9 @@ class main
 
         return $this->viewPath;
 
-      case 'conf':
+      case 'config':
 
         return $this->load('config');
-
-      case 'bootstrap':
-
-        return $this->load('bootstrap');
-
-      case 'tools':
-
-        return $this->load('tools');
-
 
     }
     if(key_exists($var, $this->vars)){
