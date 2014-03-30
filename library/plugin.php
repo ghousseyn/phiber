@@ -1,7 +1,7 @@
 <?php
 namespace Phiber;
 
-class plugin extends main
+class plugin extends phiber
 {
 
 }

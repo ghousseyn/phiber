@@ -82,7 +82,7 @@ abstract class entity
     foreach($relations as $fk => $target){
       $objPath = explode('.', $target);
       if($objPath[0] == $tablename){
-        $tablename = "models\\$tablename";
+        $tablename = "entity\\$tablename";
         $instance = $tablename::getInstance()->getModelObject();
         $instance->{$objPath[1]} = $obj->{$objPath[1]};
 

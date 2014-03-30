@@ -6,16 +6,11 @@
  * @author 	Hussein Guettaf <ghussein@coda-dz.com>
  * @package 	Phiber
  */
-class view extends Phiber\main
+class view extends Phiber\phiber
 {
-
-  protected $vars = array();
-
   public function showTime()
   {
-    if(! $this->conf->debug){
-      $this->view->debuginfo = "";
-    }
+
     if($this->get('layoutEnabled')){
       $this->renderLayout();
     }else{
@@ -24,6 +19,7 @@ class view extends Phiber\main
       }
     }
 
+    unset($_SESSION['phiber'][$this->keyHashes['view']]);
   }
   public function getURL()
   {

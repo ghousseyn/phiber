@@ -1,6 +1,6 @@
 <?php
 namespace Phiber;
-class controller extends main
+class controller extends phiber
 {
 
   protected function sendJSON($arr, $options = 0 , $depth = 512)

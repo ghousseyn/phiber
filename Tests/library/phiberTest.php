@@ -1,14 +1,14 @@
 <?php
 
 require_once 'Tests/PhiberTests.php';
-require_once 'library/main.php';
+require_once 'library/phiber.php';
 
-class mainTest extends PhiberTests
+class phiberTest extends PhiberTests
 {
     private $main = null;
 
     public function setUp(){
-      $this->main = \Phiber\main::getInstance();
+      $this->main = \Phiber\phiber::getInstance();
     }
 
 
@@ -107,7 +107,7 @@ class mainTest extends PhiberTests
       $parts = array('nonExistant');
       $return = $this->invokeMethod($this->main,'hasAction',array(&$parts,$controller));
       $this->assertEquals(count($parts),0);
-      $this->assertEquals($return, $this->main->conf->defaultMethod);
+      $this->assertEquals($return, config::PHIBER_CONTROLLER_DEFAULT_METHOD);
     }
 
     public function testHasAction()

@@ -131,13 +131,13 @@ class file extends logger
       $message = $message.PHP_EOL.$context['exception']->getFile().':'.$context['exception']->getLine().PHP_EOL . $context['exception']->getTraceAsString() . PHP_EOL;
     }
     error_log($message.PHP_EOL,3,$this->file);
-    if($this->conf->logLevel === 'debug'){
+    if($this->config->logLevel === 'debug'){
       if(isset($context['exception']) && $context['exception'] instanceof \ErrorException){
         $object = $context['exception'];
       }else{
         $object = (count($context))?$context:$message;
       }
-      \tools::staticWTF($object);
+      \tools::wtf($object);
     }
 
 
