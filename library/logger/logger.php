@@ -27,10 +27,7 @@ abstract class logger extends \Phiber\phiber
                               9808 => 'debug'
                               );
 
-  public function __construct($params = array())
-  {
-
-  }
+  public function __construct($params = array()){}
 
   /**
    * Handle the log request by deciding the severity and if we should log it or not
