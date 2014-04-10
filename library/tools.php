@@ -80,7 +80,7 @@ class tools
        if(isset($data['args']) && count($data['args'])){
          $text .= PHP_EOL.'  Vars:'.PHP_EOL;
          foreach($data['args'] as $arg => $val){
-           $text .= "  $val".PHP_EOL;
+           $text .= print_r($val,true).PHP_EOL;
          }
       }
       unset($class);

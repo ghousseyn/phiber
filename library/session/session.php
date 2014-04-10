@@ -8,8 +8,6 @@ class session extends eventfull
 {
   public static $namespace = 'phiber';
 
-  protected static $observers;
-
   const EVENT_REGEN = 'session.regenerate';
 
   const EVENT_DESTR = 'session.destroy';
@@ -50,7 +48,7 @@ class session extends eventfull
   public static function destroy($authority = null)
   {
     if(!session_destroy()){
-      trigger_error("Session could not be destroyed!",E_USER_WARNING);
+      trigger_error("Session could not be destroyed!",E_USER_NOTICE);
       return false;
     }
     if(null === $authority){
@@ -63,7 +61,7 @@ class session extends eventfull
   {
     if(!session_regenerate_id(true)){
 
-      trigger_error("Session ID could not be regenerated!",E_USER_WARNING);
+      trigger_error("Session ID could not be regenerated!",E_USER_NOTICE);
       return false;
     }
 
@@ -95,6 +93,10 @@ class session extends eventfull
 
     }
   }
+  public static function setNS($namespace,$value)
+  {
+    $_SESSION[$namespace] = $value;
+  }
   public static function set($index, $value, $namespace = null)
   {
     $namespace = (isset($namespace))?$namespace:self::$namespace;
@@ -118,7 +120,7 @@ class session extends eventfull
     $namespace = (isset($namespace))?$namespace:self::$namespace;
     $key = key($value);
     if($asArray){
-      // $value = array( key => array( key => value ) )
+      // $value = array( key => array( key , value ) )
       $_SESSION[$namespace][$index][$key][$value[$key][0]] = $value[$key][1];
     }else{
       $_SESSION[$namespace][$index][] = $value;

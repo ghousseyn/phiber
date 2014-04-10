@@ -8,7 +8,10 @@ use Phiber\Event\event;
 
 abstract class eventfull implements phiberEventSubject
 {
-  abstract public static function getEvents();
+  public static function getEvents()
+  {
+    return array();
+  }
 
   private static $event_listeners_namespace = 'phiber_event_listeners';
 
@@ -39,8 +42,9 @@ abstract class eventfull implements phiberEventSubject
   {
     if(null !== $event){
       $parts = explode('.',$event);
-
-      $path = $_SESSION[self::$event_listeners_namespace][sha1($observer->__toString())][$parts[0]];
+      if(isset($_SESSION[self::$event_listeners_namespace][sha1($observer->__toString())][$parts[0]])){
+        $path = $_SESSION[self::$event_listeners_namespace][sha1($observer->__toString())][$parts[0]];
+      }
 
       $path[$parts[1]] = null;
 
@@ -56,6 +60,7 @@ abstract class eventfull implements phiberEventSubject
   }
   public static function notify(event $event)
   {
+
     if(session::isStarted() && is_array(session::getNS(self::$event_listeners_namespace))){
       foreach(session::getNS(self::$event_listeners_namespace) as $observer){
         if(isset($observer[strstr($event->current['event'],'.',true)]) && in_array($event->current['event'], $observer[strstr($event->current['event'],'.',true)]))

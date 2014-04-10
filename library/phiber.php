@@ -8,38 +8,33 @@
  */
 namespace Phiber;
 
+use Phiber\Flag\flag;
+
+use Phiber\flag\httpMethod;
+
 class phiber
 {
 
-  private $path = null;
-  private $uri = null;
+  const SESSION_NAMESPACE = 'phiber';
+  private $path;
+  private $uri;
   private $phiber_flags;
-  private $confFile = null;
+  private $confFile;
+  private $phiber_bootstrap;
+  protected $keyHashes;
+  private $method;
 
   protected $_requestVars = array();
-
   protected $vars = array();
 
-  protected $phiber_bootstrap;
-
-  protected $keyHashes;
-
-  protected function __construct($confFile = null)
+  private function __construct()
   {
-
-    spl_autoload_register(array($this, 'autoload'),true,true);
-
-    if(null !== $confFile){
-      $this->confFile = $confFile;
-    }
-    $this->phiber_bootstrap = \bootstrap::getInstance();
-    $this->keyHashes = array('config'=>md5('Phiber.Config'),'view'=>md5('Phiber.View'));
-
+    $this->keyHashes = array('view'=>md5('Phiber.View'));
   }
 
   protected function setLog($logger = null,$params = null,$name = null)
   {
-    if(null === $logger){
+    if(null === $logger || !file_exists($this->config->library.'/logger/'.$logger.'.php')){
       $logger = \config::PHIBER_LOG_DEFAULT_HANDLER;
     }
     if(null === $params){
@@ -54,46 +49,67 @@ class phiber
       $name = 'log';
     }
     $writer->level = $this->config->logLevel;
-    $this->register($name,$writer);
+    $this->register(sha1($name),array($logger,$params));
     return $writer;
   }
-  protected function getLog($name)
+  protected function logger($name = 'log')
   {
-    if($this->isLoaded($name)){
+    $name = sha1($name);
+    if(Session\session::exists($name)){
       $log = $this->get($name);
-      return ($log instanceof Logger\logger)? $log : $this->logger();
-    }
-  }
-  protected function logger()
-  {
-    if($this->isLoaded('log')){
-      return $this->get('log');
+      $class = "Phiber\\Logger\\$log[0]";
+      if(file_exists($this->config->library.'/logger/'.$class.'.php')){
+        $logObject = new $class;
+        return ($logObject instanceof Logger\logger)? $logObject : $this->logger();
+      }
+
     }
     return $this->setLog();
   }
+
   public static function getInstance()
   {
     return new static();
   }
 
-  public function run()
+  public function run($confFile = null)
   {
+    spl_autoload_register(array($this, 'autoload'),true,true);
+
+    if(null !== $confFile){
+      $this->confFile = $confFile;
+    }
+
+    $this->phiber_bootstrap = \bootstrap::getInstance();
+
+
     Session\session::start();
 
     Session\session::checkSession();
 
     if(\config::PHIBER_LOG){
 
-      $this->register('errorLog',error::initiate($this->logger()));
+      error::initiate($this->logger());
 
     }
 
+    $this->register('context', null);
+    $this->register('layoutEnabled', $this->config->layoutEnabled);
+
+    $this->whatMethod();
     $this->router();
     $this->getView();
     $this->plugins();
     $this->dispatch();
-    $this->register('layoutEnabled', $this->config->layoutEnabled);
+
     $this->view->showTime();
+
+  }
+  private function whatMethod()
+  {
+    $this->method = $_SERVER['REQUEST_METHOD'];
+
+    $this->register('http_method', $this->method);
 
   }
 
@@ -106,7 +122,7 @@ class phiber
   {
 
     foreach($this->phiber_bootstrap->getPlugins() as $plugin){
-      $this->load($plugin, null, $this->config->application . "/plugins/" . $plugin . "/")->run();
+      $this->load($plugin, null, $this->config->application . '/plugins/' . $plugin . '/')->run();
     }
   }
 
@@ -115,7 +131,7 @@ class phiber
 
     $path = array_slice($this->route, 0,3,true);
 
-    $path = $this->config->application . "/modules/" . array_shift($path) . "/views/" . implode("/", $path) . ".php";
+    $path = $this->config->application . '/modules/' . array_shift($path) . '/views/' . implode('/', $path) . '.php';
 
     $this->view->viewPath = $path;
 
@@ -137,17 +153,13 @@ class phiber
       }
 
     }else{
-      include_once $this->config->application . "/layouts/layout.php";
+      include_once $this->config->application . '/layouts/layout.php';
     }
   }
 
   protected function router()
   {
     $this->uri = urldecode($_SERVER['REQUEST_URI']);
-    $this->register('post', false);
-    $this->register('get', true);
-    $this->register('ajax', false);
-    $this->register('context', null);
 
     if($this->isValidURI($this->uri)){
       $parts = explode("/", trim($this->uri));
@@ -160,7 +172,7 @@ class phiber
 
       }else{
 
-        $module = "default";
+        $module = 'default';
         array_shift($parts);
         $controller = $this->hasController($parts, $module);
         $action = $this->hasAction($parts, $controller);
@@ -170,7 +182,9 @@ class phiber
         $this->setVars($parts);
       }
 
-      $this->setEnvVars();
+    if($this->isPost()){
+      $this->_requestVars = $_POST;
+    }
 
       $route = array('module' => $module, 'controller' => $controller, 'action' => $action, 'vars' => $this->get('_request'));
     }else{
@@ -178,22 +192,14 @@ class phiber
       $this->path = $this->config->application . '/modules/default/';
 
     }
-    $this->register('route', $route);
-  }
-  private function setEnvVars()
-  {
 
-    if($_SERVER['REQUEST_METHOD'] === 'POST'){
-      $this->register('post', true);
-      $this->register('get', false);
-      $this->_requestVars = $_POST;
-    }
     if(! empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'){
       $this->register('ajax', true);
     }
+    $this->register('route', $route);
     $this->register('_request', $this->_requestVars);
-
   }
+
   protected function isValidURI(&$uri)
   {
     $uri = str_replace('/?', '/', $uri);
@@ -209,22 +215,49 @@ class phiber
     return false;
   }
 
+  private function isHttpMethod($method)
+  {
+    return (strtoupper($method) === strtoupper($this->get('http_method')));
+  }
   protected function isPost()
   {
-    return Session\session::get('post');
+    return $this->isHttpMethod('post');
   }
 
   protected function isGet()
   {
-    return Session\session::get('get');
+    return $this->isHttpMethod('get');
   }
 
+  protected function isPut()
+  {
+    return $this->isHttpMethod('put');
+  }
+
+  protected function isHead()
+  {
+    return $this->isHttpMethod('head');
+  }
+
+  protected function isDelete()
+  {
+     return $this->isHttpMethod('delete');
+  }
+  protected function isOptions()
+  {
+    return $this->isHttpMethod('options');
+  }
+
+  protected function isTrace()
+  {
+    return $this->isHttpMethod('trace');
+  }
   protected function isAjax()
   {
     return Session\session::get('ajax');
   }
 
-  protected function dispatch()
+  private function dispatch()
   {
 
     $controller = $this->route['controller'];
@@ -257,7 +290,7 @@ class phiber
 
   }
 
-  protected function _request($var, $default = null)
+  protected function _requestParam($var, $default = null)
   {
     $vars = $this->get('_request');
     if(is_array($vars) && isset($vars[$var])){
@@ -315,47 +348,25 @@ class phiber
   protected function register($name, $value)
   {
 
-    $_SESSION['phiber'][$name] = $value;
+    Session\session::set($name, $value);
 
   }
 
   protected function get($index)
   {
-    if(isset($_SESSION['phiber'][$index])){
-
-      return $_SESSION['phiber'][$index];
-
-    }
-
+    return Session\session::get($index);
   }
-  protected function isGlobalFlagSet($flag)
+  protected function isFlagSet($flag)
   {
     return \Phiber\Flag\flag::_isset($flag, $this->get('phiber_flags'));
   }
-  protected function isLocalFlagSet($flag,$identifier = null)
+
+  protected function setFlag($flag, $value)
   {
-    if(null === $identifier){
-      $class = get_called_class();
-      $identifier = sha1($class.get_parent_class($class).implode('',get_class_methods($class)));
-    }
-    return \Phiber\Flag\flag::_isset($flag, $this->get($identifier));
+    \Phiber\Flag\flag::_set($flag, $value, $_SESSION[self::SESSION_NAMESPACE]['phiber_flags']);
   }
-  protected function setGlobalFlag($flag, $value)
-  {
-    $flags = $this->get('phiber_flags');
-    \Phiber\Flag\flag::_set($flag, $value, $flags);
-    $this->register('phiber_flags', $flags);
-  }
-  protected function setLocalFlag($flag, $value,$identifier = null)
-  {
-    if(null === $identifier){
-      $class = get_called_class();
-      $identifier = sha1($class.get_parent_class($class).implode('',get_class_methods($class)));
-    }
-    $flags = $this->get($identifier);
-    \Phiber\Flag\flag::_set($flag, $value, $flags);
-    $this->register($identifier, $flags);
-  }
+
+
   protected function autoload($class)
   {
 
@@ -366,7 +377,7 @@ class phiber
         include_once $this->confFile;
         return;
       }else{
-        trigger_error("Could not find configuration file: ".$this->confFile, E_USER_WARNING);
+        trigger_error("Could not find configuration file: ".$this->confFile, E_USER_ERROR);
       }
 
     }
@@ -426,11 +437,11 @@ class phiber
     $incpath = $newpath . $class . '.php';
 
 
-    if(in_array($class, array('config','view'))){
+    if(in_array($class, array('view'))){
 
       $hash = $this->keyHashes[$class];
 
-      if($this->isLoaded($hash) && false !== $inst){
+      if(Session\session::exists($hash) && false !== $inst){
 
         return $this->get($hash);
       }
@@ -458,18 +469,6 @@ class phiber
     return $instance;
   }
 
-  protected function isLoaded($hash)
-  {
-    if(isset($_SESSION['phiber'][$hash])){
-
-      return true;
-
-    }
-
-    return false;
-
-  }
-
   public function __set($var, $val)
   {
 
@@ -482,9 +481,6 @@ class phiber
    * @property array $route Current route
    * @property string $content The path to the selected template (partial view)
    * @property object $config An instance of the config class
-   * @property object $bootstrap An instance of the the bootstrap class
-   * @property object $tools An instance of the tools class
-   * @property object $debug An instance of the debug class
    * @param string $var Property name
    */
   public function __get($var)

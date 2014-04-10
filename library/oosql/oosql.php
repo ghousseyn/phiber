@@ -531,14 +531,14 @@ class oosql extends \PDO
       $this->oosql_select->exe();
     }else{
       $msg = 'Query returned no results! You need to select first! ' . $this->oosql_sql;
-      throw new \PDOException($msg,9805,null);
+      throw new \Exception($msg,9805,null);
     }
 
 
     if(! $this->oosql_stmt){
 
       $msg = 'Query returned no results! ' . $this->oosql_sql;
-      throw new \PDOException($msg,9805,null);
+      throw new \Exception($msg,9805,null);
     }
 
     $result = $this->oosql_stmt->fetchAll();
