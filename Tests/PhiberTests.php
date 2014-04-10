@@ -15,7 +15,7 @@ class PhiberTests extends \PHPUnit_Framework_TestCase
 
   public function invokeMethod(&$object, $methodName, array $parameters = array())
   {
-    $reflection = new \ReflectionClass(get_class($object));
+    $reflection = new \ReflectionClass($object);
     $method = $reflection->getMethod($methodName);
     $method->setAccessible(true);
 
@@ -33,7 +33,7 @@ class PhiberTests extends \PHPUnit_Framework_TestCase
 
   public function getProperty(&$object, $propertyName)
   {
-    $reflection = new \ReflectionClass(get_class($object));
+    $reflection = new \ReflectionClass($object);
     $property = $reflection->getProperty($propertyName);
     $property->setAccessible(true);
 
@@ -50,11 +50,41 @@ class PhiberTests extends \PHPUnit_Framework_TestCase
 
   public function setProperty(&$object, $propertyName,$value)
   {
-    $reflection = new \ReflectionClass(get_class($object));
+    $reflection = new \ReflectionClass($object);
     $property = $reflection->getProperty($propertyName);
     $property->setAccessible(true);
 
     return $property->setValue($object,$value);
+  }
+
+  public function __autoload($class)
+  {
+
+    $parts = explode('\\', $class);
+
+
+    $count = count($parts);
+    if($parts[0] == 'Phiber'){
+
+      $path = 'library/';
+    }
+    for($i=0; $i < $count; $i++){
+      if($parts[$i] === 'Phiber'){
+        continue;
+      }
+      if($i == $count - 1){
+        $path .= $parts[$i] . '.php';
+        break;
+      }
+      $path .=  strtolower($parts[$i]) . '/';
+
+    }
+
+    if(file_exists($path)){
+      include_once $path;
+      return;
+    }
+
   }
 
 }

@@ -19,9 +19,10 @@ class view extends Phiber\phiber
       }
     }
 
-    unset($_SESSION['phiber'][$this->keyHashes['view']]);
+    Phiber\Session\session::delete($this->keyHashes['view']);
+
   }
-  public function getURL()
+  public function getURI()
   {
     return '/'.$this->route['module'].'/'.$this->route['controller'].'/'.$this->route['action'];
   }

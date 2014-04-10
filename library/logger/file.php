@@ -13,6 +13,7 @@ class file extends logger
     $logFile = $params[1];
     $this->logs[$logName] = $logFile;
     $this->file = $logFile;
+    $this->level = $this->config->logLevel;
   }
   public function addLog($logName, $logFile)
   {
@@ -130,8 +131,10 @@ class file extends logger
     if(isset($context['exception']) && $context['exception'] instanceof \ErrorException){
       $message = $message.PHP_EOL.$context['exception']->getFile().':'.$context['exception']->getLine().PHP_EOL . $context['exception']->getTraceAsString() . PHP_EOL;
     }
+    $message = $this->prepend.' '.str_replace('#',PHP_EOL."#",$message).' '.$this->append;
+
     error_log($message.PHP_EOL,3,$this->file);
-    if($this->config->logLevel === 'debug'){
+    if($this->level === 'debug'){
       if(isset($context['exception']) && $context['exception'] instanceof \ErrorException){
         $object = $context['exception'];
       }else{

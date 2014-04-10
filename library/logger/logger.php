@@ -13,6 +13,8 @@ abstract class logger extends \Phiber\phiber
   const DEBUG     = 'debug';
 
   public $level = 'warning';
+  public $prepend;
+  public $append;
 
   protected $sevirity = array(
                               9801 => 'emergency',

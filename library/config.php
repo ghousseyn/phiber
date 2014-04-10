@@ -74,6 +74,8 @@ class config
    * 'debug';
    */
   public $logLevel = 'debug';
+  const STOP_ON_WARNINGS = true;
+  const STOP_ON_USER_WARNINGS = true;
   /**
    * Path to the library relative to this file (set in the construct)
    */
