@@ -62,7 +62,6 @@ class oosql extends \PDO
 
   private $oosql_select;
 
-  private static $conf = null;
 
   /**
    * __construct()
@@ -78,7 +77,7 @@ class oosql extends \PDO
     $this->oosql_class = $oosql_class;
     $this->oosql_table = $oosql_table;
 
-    parent::__construct(self::$conf->_dsn, self::$conf->_dbuser, self::$conf->_dbpass);
+    parent::__construct(\config::PHIBER_DB_DSN, \config::PHIBER_DB_USER, \config::PHIBER_DB_PASS);
     $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     $this->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
 
@@ -100,11 +99,7 @@ class oosql extends \PDO
    */
   public static function getInstance($oosql_table = null, $oosql_class = null, $config = null)
   {
-    self::$conf = $config;
 
-    if($config === null){
-       self::$conf = \config::getInstance();
-    }
 
     return new self($oosql_table, $oosql_class);
   }
@@ -536,14 +531,14 @@ class oosql extends \PDO
       $this->oosql_select->exe();
     }else{
       $msg = 'Query returned no results! You need to select first! ' . $this->oosql_sql;
-      throw new \PDOException($msg,9805,null);
+      throw new \Exception($msg,9805,null);
     }
 
 
     if(! $this->oosql_stmt){
 
       $msg = 'Query returned no results! ' . $this->oosql_sql;
-      throw new \PDOException($msg,9805,null);
+      throw new \Exception($msg,9805,null);
     }
 
     $result = $this->oosql_stmt->fetchAll();

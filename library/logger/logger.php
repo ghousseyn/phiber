@@ -1,7 +1,7 @@
 <?php
 namespace Phiber\Logger;
 
-abstract class logger extends \Phiber\main
+abstract class logger extends \Phiber\phiber
 {
   const EMERGENCY = 'emergency';
   const ALERT     = 'alert';
@@ -13,6 +13,8 @@ abstract class logger extends \Phiber\main
   const DEBUG     = 'debug';
 
   public $level = 'warning';
+  public $prepend;
+  public $append;
 
   protected $sevirity = array(
                               9801 => 'emergency',
@@ -25,10 +27,7 @@ abstract class logger extends \Phiber\main
                               9808 => 'debug'
                               );
 
-  public function __construct($params = array())
-  {
-
-  }
+  public function __construct($params = array()){}
 
   /**
    * Handle the log request by deciding the severity and if we should log it or not
