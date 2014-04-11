@@ -13,10 +13,6 @@ class bootstrap
 
   protected $plugins = null;
 
-  public function __construct()
-  {
-    $this->getModules();
-  }
 
   public static function getInstance()
   {
@@ -26,16 +22,23 @@ class bootstrap
   public function getModules()
   {
 
-    /*//Auto discovery
-     * foreach (new DirectoryIterator(__dir__ . '/modules') as $mods) { if
-     * ($mods->isDot()) { continue; } if (is_dir(__dir__ . "/modules/" .
-     * $mods->getFilename())) { $dir = $mods->getFilename(); $settings = __dir__
-     * . "/modules/" . $dir . "/settings.xml"; if (file_exists($settings)) {
-     * $this->modules[$mods->getFilename()]['settings_path'] = $settings; }
-     * $this->modules[$dir] = $dir; } }
-     */
+    // Auto discovery
+    foreach(new DirectoryIterator(config::getInstance()->application. '/modules') as $mods){
+      if($mods->isDot()){
+        continue;
+      }
 
-    $this->modules = array("dev" => "dev");
+      if(is_dir(config::getInstance()->application. "/modules/" . $mods->getFilename())){
+
+        $dir = $mods->getFilename();
+        $settings = __dir__ . "/modules/" . $dir . "/settings.xml";
+        if(file_exists($settings)){
+          $this->modules[$mods->getFilename()]['settings_path'] = $settings;
+        }
+        $this->modules[$dir] = $dir;
+      }
+    }
+    return $this;
 
   }
 
@@ -50,11 +53,11 @@ class bootstrap
   public function getPlugins()
   {
     $this->plugins = array("context");
-    /*//Auto discovery
-     * $path = __dir__ . '/plugins'; foreach (new DirectoryIterator($path) as
-     * $plugin) { if ($plugin->isDot()) { continue; } $dir = $path . "/" .
-     * $plugin->getFilename(); if (is_dir($dir)) { $this->plugins[] =
-     * $plugin->getFilename(); } }
+    /*
+     * //Auto discovery $path = __dir__ . '/plugins'; foreach (new
+     * DirectoryIterator($path) as $plugin) { if ($plugin->isDot()) { continue;
+     * } $dir = $path . "/" . $plugin->getFilename(); if (is_dir($dir)) {
+     * $this->plugins[] = $plugin->getFilename(); } }
      */
     return $this->plugins;
 

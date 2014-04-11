@@ -1,9 +1,9 @@
 <?php
 
-include "../library/main.php";
-$main = Phiber\main::getInstance();
+include "../library/phiber.php";
+$phiber = Phiber\phiber::getInstance();
 
-$main->run();
+$phiber->run();
 
 ?>
 

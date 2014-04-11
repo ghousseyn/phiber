@@ -4,9 +4,12 @@ namespace Phiber;
 class error
 {
 
-  public $debug = false;
+  private static $stop = false;
 
-  public static $instance= null;
+  public static $instance;
+  public static $stop_on_user_warnings = \config::STOP_ON_USER_WARNINGS;
+  public static $stop_on_warnings = \config::STOP_ON_WARNINGS;
+  public static $log_errors = \config::PHIBER_LOG;
 
   private $writer = null;
 
@@ -14,8 +17,9 @@ class error
   {
     set_error_handler('Phiber\error::error_handler');
     set_exception_handler('Phiber\error::exception_handler');
+    register_shutdown_function('Phiber\error::fatal_error_handler');
 
-    if(! ini_get('log_errors')){
+    if(! ini_get('log_errors') && self::$log_errors){
       ini_set('log_errors', true);
     }
   }
@@ -40,20 +44,29 @@ class error
   {
     $l = error_reporting();
     if($l & $errno){
+      restore_error_handler();
       $stop = false;
       switch($errno){
+        case E_ERROR:
+        case E_COMPILE_ERROR:
+        case E_CORE_ERROR:
+        case E_PARSE:
         case E_USER_ERROR:
           $type = 'Fatal Error';
           $sevirity = 9801;//emergency
-          $stop = true;
+          self::$stop = true;
           break;
         case E_USER_WARNING:
-          $type = 'Warning';
+          $type = 'User Warning';
           $sevirity = 9805;//warning
+          self::$stop = self::$stop_on_user_warnings;
           break;
+        case E_COMPILE_WARNING:
+        case E_CORE_WARNING:
         case E_WARNING:
           $type = 'Warning';
           $sevirity = 9803;//critical
+          self::$stop = self::$stop_on_warnings;
           break;
         case E_USER_NOTICE:
         case E_NOTICE:
@@ -65,6 +78,7 @@ class error
           $type = 'Catchable';
           $sevirity = 9804;//error
           break;
+        case E_DEPRECATED:
         case E_USER_DEPRECATED:
           $type = 'Depricated';
           $sevirity = 9807;//info
@@ -72,31 +86,42 @@ class error
         default:
           $type = 'Unknown Error';
           $sevirity = 9802;//alert
-          $stop = true;
+          //$stop = true;
           break;
       }
 
       $exception = new \ErrorException($type . ': ' . $errstr, $errno, $sevirity, $errfile, $errline);
 
       self::exception_handler($exception,$errcontext);
-      if($stop){
-        throw $exception;
-      }
 
 
+
+      return true;
     }
     return false;
   }
 
   public static function exception_handler($exception,$context=array())
   {
-
+    restore_exception_handler();
     if($exception instanceof \ErrorException){
       self::$instance->write($exception,$context);
     }elseif($exception instanceof \Exception){
       self::$instance->write(new \ErrorException($exception->getMessage(), 0,$exception->getCode(),$exception->getFile(),$exception->getLine()),$context);
     }
+    if(self::$stop){
+      throw $exception;
+    }
+    return true;
 
+  }
+
+  public static function fatal_error_handler()
+  {
+    $error = error_get_last();
+    if(isset($error['type']) ){
+      self::error_handler($error['type'], $error['message'], $error['file'], $error['line'], array());
+    }
   }
 
 }

@@ -1,33 +1,17 @@
 <?php
 
 require_once 'Tests/PhiberTests.php';
-require_once 'library/main.php';
+require_once 'library/phiber.php';
 
-class mainTest extends PhiberTests
+class phiberTest extends PhiberTests
 {
     private $main = null;
 
     public function setUp(){
-      $this->main = \Phiber\main::getInstance();
+
+      $this->main = \Phiber\phiber::getInstance();
     }
 
-
-
-    public function testGetView(){
-
-      $route = array('module' => 'default', 'controller' => 'index', 'action' => 'main');
-      $this->invokeMethod($this->main,'register',array('route',$route));
-      $this->invokeMethod($this->main,'getView');
-      $this->assertFileExists($this->main->view->viewPath);
-    }
-
-    public function testViewFileNotAvailable(){
-
-      $route = array('module' => 'defaulte', 'controller' => 'indexe', 'action' => 'mainee');
-      $this->invokeMethod($this->main,'register',array('route',$route));
-      $this->invokeMethod($this->main,'getView');
-      $this->assertFileNotExists($this->main->view->viewPath);
-    }
 
     /**
     *
@@ -92,22 +76,13 @@ class mainTest extends PhiberTests
       $this->assertTrue(class_exists('Phiber\\oosql\\oosql'));
     }
 
-    public function testGet()
-    {
-      $value = 'test';
-      $index = 'index';
-      $this->invokeMethod($this->main,'register',array($index,$value));
-      $return = $this->invokeMethod($this->main,'get',array($index));
-      $this->assertEquals($return, $value);
-    }
-
     public function testHasActionDefault()
     {
       $controller = 'index';
       $parts = array('nonExistant');
       $return = $this->invokeMethod($this->main,'hasAction',array(&$parts,$controller));
       $this->assertEquals(count($parts),0);
-      $this->assertEquals($return, $this->main->conf->defaultMethod);
+      $this->assertEquals($return, config::PHIBER_CONTROLLER_DEFAULT_METHOD);
     }
 
     public function testHasAction()
@@ -143,65 +118,6 @@ class mainTest extends PhiberTests
       $parts = array('var1', 'val1', 'var2', 'val2');
       $this->invokeMethod($this->main,'setVars',array($parts));
       $this->assertEquals($this->getProperty($this->main,'_requestVars'), $expected);
-    }
-
-    public function test_request()
-    {
-      $this->invokeMethod($this->main,'register',array('_request',array('var1'=>'val1','var2'=>'val2')));
-      $return = $this->invokeMethod($this->main,'_request',array('var1'));
-      $this->assertEquals($return, 'val1');
-    }
-    public function test_requestDefault()
-    {
-      $this->invokeMethod($this->main,'register',array('_request',array('var1'=>'val1','var2'=>'val2')));
-      $return = $this->invokeMethod($this->main,'_request',array('var3','val3'));
-      $this->assertEquals($return, 'val3');
-    }
-
-    public function testContextSwitchJson()
-    {
-      $this->invokeMethod($this->main,'contextSwitch',array('json'));
-      $this->assertEquals($this->invokeMethod($this->main,'get',array('context')),'json');
-    }
-    public function testContextSwitchHtml()
-    {
-      $this->invokeMethod($this->main,'contextSwitch',array('html'));
-      $this->assertEquals($this->invokeMethod($this->main,'get',array('context')),'html');
-    }
-
-    public function testIsPost()
-    {
-      $this->invokeMethod($this->main,'register',array('post',true));
-      $this->assertTrue($this->invokeMethod($this->main,'isPost'));
-    }
-
-    public function testIsGet()
-    {
-      $this->invokeMethod($this->main,'register',array('get',true));
-      $this->assertTrue($this->invokeMethod($this->main,'isGet'));
-    }
-
-    public function testIsAjax()
-    {
-      $this->invokeMethod($this->main,'register',array('ajax',true));
-      $this->assertTrue($this->invokeMethod($this->main,'isAjax'));
-    }
-    public function testIsNotPost()
-    {
-      $this->invokeMethod($this->main,'register',array('post',false));
-      $this->assertFalse($this->invokeMethod($this->main,'isPost'));
-    }
-
-    public function testIsNotGet()
-    {
-      $this->invokeMethod($this->main,'register',array('get',false));
-      $this->assertFalse($this->invokeMethod($this->main,'isGet'));
-    }
-
-    public function testIsNotAjax()
-    {
-      $this->invokeMethod($this->main,'register',array('ajax',false));
-      $this->assertFalse($this->invokeMethod($this->main,'isAjax'));
     }
 
 
