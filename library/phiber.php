@@ -34,7 +34,7 @@ class phiber
 
   protected function setLog($logger = null,$params = null,$name = null)
   {
-    if(null === $logger || !file_exists($this->config->library.'/logger/'.$logger.'.php')){
+    if(null === $logger || !stream_resolve_include_path($this->config->library.'/logger/'.$logger.'.php')){
       $logger = \config::PHIBER_LOG_DEFAULT_HANDLER;
     }
     if(null === $params){
@@ -44,7 +44,7 @@ class phiber
       $params = array($params,$this->config->logDir.'/'.$params.'.log');
     }
     $logWriter = "Phiber\\Logger\\$logger";
-    $writer = new $logWriter($params);
+    $writer = new $logWriter($params,$this->config->logLevel);
     if(null === $name){
       $name = 'log';
     }
@@ -58,8 +58,8 @@ class phiber
     if(Session\session::exists($name)){
       $log = $this->get($name);
       $class = "Phiber\\Logger\\$log[0]";
-      if(file_exists($this->config->library.'/logger/'.$class.'.php')){
-        $logObject = new $class;
+      if(stream_resolve_include_path($this->config->library.'/logger/'.$log[0].'.php')){
+        $logObject = new $class($log[1],$this->config->logLevel);
         return ($logObject instanceof Logger\logger)? $logObject : $this->logger();
       }
 
@@ -98,10 +98,10 @@ class phiber
 
     $this->whatMethod();
     $this->router();
-    $this->getView();
+
     $this->plugins();
     $this->dispatch();
-
+    $this->getView();
     $this->view->showTime();
 
   }
@@ -138,7 +138,7 @@ class phiber
   }
   protected function setView($path)
   {
-    if(file_exists($path)){
+    if(stream_resolve_include_path($path)){
       $this->view->viewPath = $path;
       return true;
     }
@@ -148,7 +148,7 @@ class phiber
   protected function renderLayout($layout = null)
   {
     if(null !== $layout){
-      if(file_exists($layout)){
+      if(stream_resolve_include_path($layout)){
         include_once $layout;
       }
 
@@ -321,7 +321,7 @@ class phiber
       $this->path = $this->config->application . '/modules/' . $module . '/';
 
 
-    if(! empty($parts[0]) && file_exists($this->path . $parts[0] . '.php')){
+    if(! empty($parts[0]) && stream_resolve_include_path($this->path . $parts[0] . '.php')){
 
       return array_shift($parts);
 
@@ -363,9 +363,8 @@ class phiber
 
   protected function setFlag($flag, $value)
   {
-    \Phiber\Flag\flag::_set($flag, $value, $_SESSION[self::SESSION_NAMESPACE]['phiber_flags']);
+    \Phiber\Flag\flag::_set($flag, $value, Session\session::get('phiber_flags'));
   }
-
 
   protected function autoload($class)
   {
@@ -373,7 +372,7 @@ class phiber
     $path = $this->config->library . '/';
 
     if('config' === $class && null !== $this->confFile){
-      if(file_exists($this->confFile)){
+      if(stream_resolve_include_path($this->confFile)){
         include_once $this->confFile;
         return;
       }else{
@@ -383,7 +382,7 @@ class phiber
     }
     if(! strstr($class, '\\')){
 
-      if(file_exists($path . $class . '.php')){
+      if(stream_resolve_include_path($path . $class . '.php')){
 
         include_once $path . $class . '.php';
         return;
@@ -391,7 +390,7 @@ class phiber
 
       $module = $this->config->application.'/modules/'.$this->route['module'].'/';
 
-      if(file_exists($module . $class . '.php')){
+      if(stream_resolve_include_path($module . $class . '.php')){
 
         include_once $module . $class . '.php';
 
@@ -419,7 +418,7 @@ class phiber
 
     }
 
-    if(file_exists($path)){
+    if(stream_resolve_include_path($path)){
       include_once $path;
       return;
     }
@@ -447,7 +446,7 @@ class phiber
       }
     }
 
-    if(! file_exists($incpath)){
+    if(! stream_resolve_include_path($incpath)){
       return false;
     }
     include_once ($incpath);

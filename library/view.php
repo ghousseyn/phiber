@@ -14,7 +14,7 @@ class view extends Phiber\phiber
     if($this->get('layoutEnabled')){
       $this->renderLayout();
     }else{
-      if(file_exists($this->viewPath)){
+      if(stream_resolve_include_path($this->viewPath)){
         include $this->viewPath;
       }
     }
