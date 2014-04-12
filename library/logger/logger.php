@@ -55,62 +55,93 @@ abstract class logger extends \Phiber\phiber
     }
 
   }
-  /**
+/**
+   *
    * @param $message string
    * @param $context array
    * @return null
    */
-  public abstract function emergency($message, array $context = array());
+  public function emergency($message, array $context = array())
+  {
+    $this->log(self::EMERGENCY, $message, $context);
+  }
 
   /**
+   *
    * @param $message string
    * @param $context array
    * @return null
    */
-  public abstract function alert($message, array $context = array());
+  public function alert($message, array $context = array())
+  {
+    $this->log(self::ALERT, $message, $context);
+  }
 
   /**
+   *
    * @param $message string
    * @param $context array
    * @return null
    */
-  public abstract function critical($message, array $context = array());
+  public function critical($message, array $context = array())
+  {
+    $this->log(self::CRITICAL, $message, $context);
+  }
 
   /**
+   *
    * @param $message string
    * @param $context array
    * @return null
    */
-  public abstract function error($message, array $context = array());
+  public function error($message, array $context = array())
+  {
+    $this->log(self::ERROR, $message, $context);
+  }
 
   /**
+   *
    * @param $message string
    * @param $context array
    * @return null
    */
-  public abstract function warning($message, array $context = array());
+  public function warning($message, array $context = array())
+  {
+    $this->log(self::WARNING, $message, $context);
+  }
 
   /**
+   *
    * @param $message string
    * @param $context array
    * @return null
    */
-  public abstract function notice($message, array $context = array());
+  public function notice($message, array $context = array())
+  {
+    $this->log(self::NOTICE, $message, $context);
+  }
 
   /**
+   *
    * @param $message string
    * @param $context array
    * @return null
    */
-  public abstract function info($message, array $context = array());
+  public function info($message, array $context = array())
+  {
+    $this->log(self::INFO, $message, $context);
+  }
 
   /**
+   *
    * @param $message string
    * @param $context array
    * @return null
    */
-  public abstract function debug($message, array $context = array());
-
+  public function debug($message, array $context = array())
+  {
+    $this->log(self::DEBUG, $message, $context);
+  }
   /**
    * @param $level mixed
    * @param $message string
