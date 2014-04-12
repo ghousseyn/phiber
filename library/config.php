@@ -15,7 +15,7 @@ class config
   */
   const PHIBER_DB_DSN = 'mysql:host=127.0.0.1;dbname=codup';
 
-  const PHIBER_DB_PASS = "hggiHmfv";
+  const PHIBER_DB_PASS = "password";
 
   const PHIBER_DB_USER = "root";
   /**
