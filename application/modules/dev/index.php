@@ -63,7 +63,7 @@ class index extends Phiber\controller
 
     }
 
-    test::getInstance()->db();
+   // test::getInstance()->db();
     if($this->isFlagSet($this->active)){
       echo 'User is Active','<br>';
     }else{
