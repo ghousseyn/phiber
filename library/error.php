@@ -19,6 +19,7 @@ class error
     set_exception_handler('Phiber\error::exception_handler');
     register_shutdown_function('Phiber\error::fatal_error_handler');
 
+    ini_set('display_errors', false);
     if(! ini_get('log_errors') && self::$log_errors){
       ini_set('log_errors', true);
     }
@@ -42,10 +43,11 @@ class error
 
   public static function error_handler($errno, $errstr, $errfile, $errline, $errcontext)
   {
+
     $l = error_reporting();
     if($l & $errno){
       restore_error_handler();
-      $stop = false;
+      self::$stop = false;
       switch($errno){
         case E_ERROR:
         case E_COMPILE_ERROR:
@@ -90,11 +92,10 @@ class error
           break;
       }
 
+
       $exception = new \ErrorException($type . ': ' . $errstr, $errno, $sevirity, $errfile, $errline);
 
       self::exception_handler($exception,$errcontext);
-
-
 
       return true;
     }
@@ -103,15 +104,18 @@ class error
 
   public static function exception_handler($exception,$context=array())
   {
+    if(self::$stop){
+       throw $exception;
+    }
     restore_exception_handler();
     if($exception instanceof \ErrorException){
+
       self::$instance->write($exception,$context);
     }elseif($exception instanceof \Exception){
+
       self::$instance->write(new \ErrorException($exception->getMessage(), 0,$exception->getCode(),$exception->getFile(),$exception->getLine()),$context);
     }
-    if(self::$stop){
-      throw $exception;
-    }
+
     return true;
 
   }

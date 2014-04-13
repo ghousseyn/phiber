@@ -44,7 +44,7 @@ class index extends Phiber\controller
 
     $this->logger()->debug('second hello from index!:' . __line__);
 
-    $this->logger('secondlog')->debug('second hello from index!:' . __line__);
+    $this->logger('secondlog')->debug('second log hello from index!:' . __line__);
     try{
 
       trigger_error(' A triggered E_USER_WARNING', E_USER_WARNING);
@@ -63,7 +63,7 @@ class index extends Phiber\controller
 
     }
 
-    test::getInstance()->db();
+   // test::getInstance()->db();
     if($this->isFlagSet($this->active)){
       echo 'User is Active','<br>';
     }else{
