@@ -66,7 +66,7 @@ class PhiberTests extends \PHPUnit_Framework_TestCase
     $count = count($parts);
     if($parts[0] == 'Phiber'){
 
-      $path = 'library/';
+      $path = './library/';
     }
     for($i=0; $i < $count; $i++){
       if($parts[$i] === 'Phiber'){

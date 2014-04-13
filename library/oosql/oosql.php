@@ -77,7 +77,7 @@ class oosql extends \PDO
     $this->oosql_class = $oosql_class;
     $this->oosql_table = $oosql_table;
 
-    parent::__construct(\config::PHIBER_DB_DSN, \config::PHIBER_DB_USER, \config::PHIBER_DB_PASS);
+    parent::__construct(\config::$PHIBER_DB_DSN, \config::PHIBER_DB_USER, \config::PHIBER_DB_PASS);
     $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     $this->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
 
@@ -97,10 +97,8 @@ class oosql extends \PDO
    * @return oosql An oosql\oosql object
    * @static
    */
-  public static function getInstance($oosql_table = null, $oosql_class = null, $config = null)
+  public static function getInstance($oosql_table = null, $oosql_class = null, $dsn = null)
   {
-
-
     return new self($oosql_table, $oosql_class);
   }
 
