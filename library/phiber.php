@@ -8,10 +8,6 @@
  */
 namespace Phiber;
 
-use Phiber\Flag\flag;
-
-use Phiber\flag\httpMethod;
-
 class phiber
 {
 
@@ -118,7 +114,7 @@ class phiber
     header("Location: $url", $replace, $code);
   }
 
-  protected function plugins()
+  private function plugins()
   {
 
     foreach($this->phiber_bootstrap->getPlugins() as $plugin){
@@ -126,7 +122,7 @@ class phiber
     }
   }
 
-  protected function getView()
+  private function getView()
   {
 
     $path = array_slice($this->route, 0,3,true);
@@ -145,19 +141,15 @@ class phiber
     return false;
   }
 
-  protected function renderLayout($layout = null)
+  /**
+   * @todo move path def to config
+   */
+  protected function renderLayout()
   {
-    if(null !== $layout){
-      if(stream_resolve_include_path($layout)){
-        include_once $layout;
-      }
-
-    }else{
-      include_once $this->config->application . '/layouts/layout.php';
-    }
+    include_once $this->config->application . '/layouts/layout.php';
   }
 
-  protected function router()
+  private function router()
   {
     $this->uri = urldecode($_SERVER['REQUEST_URI']);
 
@@ -200,7 +192,7 @@ class phiber
     $this->register('_request', $this->_requestVars);
   }
 
-  protected function isValidURI(&$uri)
+  private function isValidURI(&$uri)
   {
     $uri = str_replace('/?', '/', $uri);
     $uri = str_replace('?', '/?', $uri);
@@ -276,6 +268,10 @@ class phiber
 
   }
 
+  protected function reDispatch()
+  {
+    $this->dispatch();
+  }
   protected function contextSwitch($context)
   {
     if($context === 'html' || $context === 'json'){

@@ -54,10 +54,7 @@
 				   <p class="note-content">
 					<?php
 						include $this->content;
-
-
-
-					?>
+        			?>
 				   </p>
 
 				</div>
@@ -66,10 +63,6 @@
 
 	</div><!-- grid -->
 
-		<?php
-			echo $this->debuginfo;
-		?>
-
-	</div>
+  </div>
 </body>
 </html>
