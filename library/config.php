@@ -15,50 +15,50 @@ class config
   */
   public static $PHIBER_DB_DSN = 'mysql:host=127.0.0.1;dbname=codup';
 
-  const PHIBER_DB_PASS = "password";
+  public static $PHIBER_DB_PASS = "hggiHmfv";
 
-  const PHIBER_DB_USER = "root";
+  public static $PHIBER_DB_USER = "root";
   /**
    * Enable/Disable logging
    * @var boolean
    */
-  const PHIBER_LOG = true;
+  public static $PHIBER_LOG = true;
   /**
    * Default logging handler
    * @var string
    */
-  const PHIBER_LOG_DEFAULT_HANDLER = 'file';
+  public static $PHIBER_LOG_DEFAULT_HANDLER = 'file';
   /**
    * Log filename
    * @var string A valid filename
    */
-  const PHIBER_LOG_DEFAULT_FILE = 'logfile.log';
+  public static $PHIBER_LOG_DEFAULT_FILE = 'logfile.log';
   /**
    * Session will be destroyed after 1800 seconds (30
    * minutes) of inactivity Alternatively set the value that you like in seconds
   */
-  const PHIBER_SESSION_INACTIVE = 1800;
+  public static $PHIBER_SESSION_INACTIVE = 1800;
   /**
    * The session will be destroyed after 1800 seconds (30
    * minutes) of inactivity Alternatively set the value that you like in seconds
   */
-  const PHIBER_SESSION_REGENERATE = 60;
+  public static $PHIBER_SESSION_REGENERATE = 60;
   /**
    * The action method that should be called from your controller in case a
    * none-existant action is called (or none specified)
    */
-  const PHIBER_CONTROLLER_DEFAULT_METHOD = 'main';
+  public static $PHIBER_CONTROLLER_DEFAULT_METHOD = 'main';
   /**
    *
    * @var unknown_type
    */
 
-  const PHIBER_CONTROLLER_DEFAULT = 'index';
+  public static $PHIBER_CONTROLLER_DEFAULT = 'index';
   /**
    * Directory of the logs please set an absolute path. Must be writable by the server
    * @var string A Valid absolute path (directories will not be created for you)
    */
-  protected $logDir = null;
+  public $logDir = null;
 
   /**
    * Sets log level inclusive to previous levels i.e setting it to 'alert'
@@ -74,8 +74,10 @@ class config
    * 'debug';
    */
   public $logLevel = 'debug';
-  const STOP_ON_WARNINGS = true;
-  const STOP_ON_USER_WARNINGS = true;
+
+  public static $STOP_ON_WARNINGS = true;
+
+  public static $STOP_ON_USER_WARNINGS = true;
   /**
    * Path to the library relative to this file (set in the construct)
    */

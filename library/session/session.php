@@ -30,14 +30,14 @@ class session extends eventfull
   public static function checkSession()
   {
 
-      if(isset($_SESSION['user']['activity']) && (time() - $_SESSION['user']['activity'] > \tools::orDefault((int) \config::PHIBER_SESSION_INACTIVE, 1800))){
+      if(isset($_SESSION['user']['activity']) && (time() - $_SESSION['user']['activity'] > \tools::orDefault((int) \config::$PHIBER_SESSION_INACTIVE, 1800))){
 
         self::destroy();
 
       }
 
 
-      if(isset($_SESSION['user']['created']) && (time() - $_SESSION['user']['created'] > \tools::orDefault((int) \config::PHIBER_SESSION_REGENERATE, 1800))){
+      if(isset($_SESSION['user']['created']) && (time() - $_SESSION['user']['created'] > \tools::orDefault((int) \config::$PHIBER_SESSION_REGENERATE, 1800))){
 
         self::regenerate();
 
