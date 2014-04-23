@@ -1,9 +1,9 @@
 <?php
 namespace Phiber;
 
-class plugin extends phiber
+abstract class plugin extends wire
 {
-
+  abstract public function run();
 }
 
 ?>
