@@ -238,10 +238,7 @@ class phiber extends wire
 
   }
 
-  protected function reDispatch()
-  {
-    $this->dispatch();
-  }
+
 
 
 }
