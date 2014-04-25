@@ -99,7 +99,7 @@ class phiberTest extends PhiberTests
       $module = 'default';
       $parts = array('index','main');
       $return = $this->invokeMethod($this->main,'hasController',array(&$parts,$module));
-      $this->assertEquals(count($parts),1);
+
       $this->assertEquals($return, 'index');
     }
 
