@@ -15,7 +15,7 @@ class config
   */
   public static $PHIBER_DB_DSN = 'mysql:host=127.0.0.1;dbname=codup';
 
-  public static $PHIBER_DB_PASS = "hggiHmfv";
+  public static $PHIBER_DB_PASS = "password";
 
   public static $PHIBER_DB_USER = "root";
   /**
