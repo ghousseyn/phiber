@@ -40,7 +40,7 @@ class cogen extends \PDO
       return false;
     }
 
-    $collection = new collection();
+    $collection = new \Phiber\oosql\collection();
     $counter = count($result);
     for($i = 0; $i < $counter; $i++){
       $collection->add($result[$i]);
@@ -130,7 +130,7 @@ class cogen extends \PDO
       print "Generating class $cname ...";
 
       $text .= '<?php' . PHP_EOL . 'namespace entity;' . PHP_EOL . 'use Phiber;';
-      $text .= PHP_EOL . "class $cname extends entity  " . PHP_EOL . "{" . PHP_EOL;
+      $text .= PHP_EOL . "class $cname extends Phiber\entity\entity  " . PHP_EOL . "{" . PHP_EOL;
       $count = 0;
       $foreign = array();
       $primary = array();
@@ -167,7 +167,7 @@ class cogen extends \PDO
         $text .= '  public function getPrimary()' . PHP_EOL . '  {' . PHP_EOL . '    return array("' . implode('","', $primary) . '");' . PHP_EOL . '  }' . PHP_EOL;
 
         if($primaryCount > 1){
-          $text .= '  public function getPrimaryValue($key=null)' . PHP_EOL . '  {' . PHP_EOL . '    if(null === $key){' . PHP_EOL . '      return $this->getCompositeValue();' . PHP_EOL . '    }' . PHP_EOL . '    $pri = $this->getPrimary();' . PHP_EOL . '    if(in_array($key,$pri)){' . PHP_EOL . '      return $this->{$pri[$key]};' . PHP_EOL . '    }' . PHP_EOL . '  }' . PHP_EOL;
+          $text .= '  public function getPrimaryValue(array $key = null)' . PHP_EOL . '  {' . PHP_EOL . '    if(null === $key){' . PHP_EOL . '      return $this->getCompositeValue();' . PHP_EOL . '    }' . PHP_EOL . '    $pri = $this->getPrimary();' . PHP_EOL . '    if(in_array($key,$pri)){' . PHP_EOL . '      return $this->{$pri[$key]};' . PHP_EOL . '    }' . PHP_EOL . '  }' . PHP_EOL;
           $text .= '  public function getCompositeValue()' . PHP_EOL . '  {' . PHP_EOL . '    return array(' . PHP_EOL;
           foreach($primary as $pkey){
             $text .= '            "' . $pkey . '" => $this->' . $pkey . ',' . PHP_EOL;
@@ -204,8 +204,8 @@ class cogen extends \PDO
       fclose($f);
       unset($text);
       print " Done" . PHP_EOL;
-
+      $h++;
     }
-    print "Generated " . $h++ . " classes in " . number_format((microtime(true) - $this->time), 4) . " ms | Memory: " . number_format((memory_get_usage() - $this->mem) / 1024, 4) . "kb";
+    print "Generated " . $h . " classes in " . number_format((microtime(true) - $this->time), 4) . " ms | Memory: " . number_format((memory_get_usage() - $this->mem) / 1024, 4) . "kb";
   }
 }
