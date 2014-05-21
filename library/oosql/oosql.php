@@ -117,7 +117,7 @@ class oosql extends \PDO
 
   public function select()
   {
-    $this->oosql_sql = 'SELECT';
+    $this->oosql_sql = 'SELECT ';
     $numargs = func_num_args();
 
     if($numargs > 0){
@@ -126,7 +126,7 @@ class oosql extends \PDO
         if($i != 0 && $numargs > 1){
           $this->oosql_sql .= ',';
         }
-        $this->oosql_sql .= ' '.$this->oosql_table.'.'.$arg_list[$i];
+        $this->oosql_sql .= $arg_list[$i];
       }
     }else{
       $this->oosql_sql .= ' '.$this->oosql_table.'.* ';
@@ -391,7 +391,7 @@ class oosql extends \PDO
   public function join($table, $criteria, $type = '')
   {
 
-    $this->oosql_join .= "$type JOIN $table ON $criteria";
+    $this->oosql_join .= " $type JOIN $table ON $criteria";
     return $this;
   }
 

@@ -19,7 +19,7 @@ class phiber extends wire
   private $path;
   private $uri;
   private $phiber_flags;
-  private $confFile;
+
   private $phiber_bootstrap;
   private $_requestVars = array();
   private $method;
@@ -30,9 +30,10 @@ class phiber extends wire
 
     if(null !== $confFile){
       $this->confFile = $confFile;
+
     }
 
-    $this->phiber_bootstrap = \bootstrap::getInstance();
+    $this->phiber_bootstrap = \bootstrap::getInstance($this->config);
 
 
     Session\session::start();
@@ -47,7 +48,7 @@ class phiber extends wire
 
     $this->register('context', null);
     $this->register('layoutEnabled', $this->config->layoutEnabled);
-
+    $this->register('ajax', false);
 
     $this->router(array('~/info/(\d+)/(\d+)~'=>'/flags'));
 

@@ -31,7 +31,7 @@ class file extends logger
     }
     $message = $this->prepend.' '.str_replace('#',PHP_EOL."#",$message).' '.$this->append;
 
-    error_log($message.PHP_EOL,3,$this->file);
+
     if($this->level === 'debug'){
       if($exception){
         $object = $context['exception'];
@@ -40,6 +40,7 @@ class file extends logger
       }
       \tools::wtf($object);
     }
+    error_log($message.PHP_EOL,3,$this->file);
 
 
   }

@@ -13,10 +13,17 @@ class bootstrap
 
   protected $plugins = null;
 
+  protected $config = null;
 
-  public static function getInstance()
+  public function __construct(config $config)
   {
-    return new self();
+    $this->config = $config;
+  }
+
+
+  public static function getInstance(config $config)
+  {
+    return new self($config);
   }
 
   public function getModules()
@@ -52,13 +59,22 @@ class bootstrap
 
   public function getPlugins()
   {
-    $this->plugins = array("context");
+    //$this->plugins = array("context");
     /*
-     * //Auto discovery $path = __dir__ . '/plugins'; foreach (new
-     * DirectoryIterator($path) as $plugin) { if ($plugin->isDot()) { continue;
-     * } $dir = $path . "/" . $plugin->getFilename(); if (is_dir($dir)) {
-     * $this->plugins[] = $plugin->getFilename(); } }
+     * //Auto discovery
+     *
      */
+
+     $path = $this->config->application . '/plugins'; foreach (new DirectoryIterator($path) as $plugin) {
+       if ($plugin->isDot()) {
+         continue;
+      }
+      $dir = $path . "/" . $plugin->getFilename();
+      if (is_dir($dir)) {
+        $this->plugins[] = $plugin->getFilename();
+      }
+     }
+
     return $this->plugins;
 
   }
