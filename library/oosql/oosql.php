@@ -135,7 +135,7 @@ class oosql extends \PDO
         $this->oosql_sql .= $arg_list[$i];
       }
     }else{
-      $this->oosql_sql .= ' '.$this->oosql_table.'.* ';
+      $this->oosql_sql .= $this->oosql_table.'.* ';
     }
 
     $this->oosql_fromFlag = true;
