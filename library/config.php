@@ -3,17 +3,17 @@
 /**
  * Configuration class.
  * @version 	1.0
- * @author 	Hussein Guettaf <ghussein@coda-dz.com>
+ * @author 	Hussein Guettaf <ghoucine@gmail.com>
  * @package 	Phiber
  */
 
 class config
 {
-
+  private static $instance = null;
   /*
    * DB configuration properties
   */
-  public static $PHIBER_DB_DSN = 'mysql:host=127.0.0.1;dbname=codup';
+  public static $PHIBER_DB_DSN = 'mysql:host=127.0.0.1;dbname=phiber';
 
   public static $PHIBER_DB_PASS = "password";
 
@@ -73,7 +73,7 @@ class config
    * 'info';
    * 'debug';
    */
-  public $logLevel = 'debug';
+  public $logLevel = 'info';
 
   public static $STOP_ON_WARNINGS = true;
 
@@ -81,10 +81,10 @@ class config
   /**
    * Path to the library relative to this file (set in the construct)
    */
-  protected $library = null;
+  protected $library = 'library';
 
 
-  protected $application = null;
+  protected $application = 'application';
 
 
   /**
@@ -93,7 +93,7 @@ class config
    */
   protected $layoutEnabled = true;
 
-  protected function __construct()
+  private function __construct()
   {
     if(null === $this->library){
       $this->library = __dir__;
@@ -108,7 +108,10 @@ class config
 
   public static function getInstance()
   {
-    return new self();
+    if(null !== self::$instance){
+      return self::$instance;
+    }
+    return self::$instance = new self;
   }
 
   public function __get($var)

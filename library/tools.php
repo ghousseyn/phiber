@@ -58,6 +58,7 @@ class tools
       $trace = $var->getTrace();
       $first = array_shift($trace);
       $text .= PHP_EOL.'Vars:'.PHP_EOL.PHP_EOL;
+      if(isset($first['args'][4])){
       foreach($first['args'][4] as $var => $value){
         if(is_object($value)){
 
@@ -68,6 +69,7 @@ class tools
 
         $text .= " $$var = $value".PHP_EOL;
 
+      }
       }
       $text .= PHP_EOL.'Trace:'.PHP_EOL;
       foreach($trace as $step => $data){

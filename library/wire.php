@@ -9,10 +9,12 @@ abstract class wire
 
   protected $vars = array();
   protected $keyHashes;
+  protected $confFile;
 
   protected function __construct()
   {
     $this->keyHashes = array('view'=>md5('Phiber.View'));
+
   }
   public static function getInstance()
   {
@@ -177,9 +179,10 @@ abstract class wire
   protected function autoload($class)
   {
 
-    $path = $this->config->library . '/';
+
 
     if('config' === $class && null !== $this->confFile){
+
       if(stream_resolve_include_path($this->confFile)){
         require_once $this->confFile;
         return;
@@ -188,6 +191,7 @@ abstract class wire
       }
 
     }
+    $path = $this->config->library . '/';
     if(! strstr($class, '\\')){
 
       if(stream_resolve_include_path($path . $class . '.php')){
@@ -243,7 +247,14 @@ abstract class wire
       $newpath = __DIR__ . '/';
     }
     $incpath = $newpath . $class . '.php';
+    if('config' === $class && null !== $this->confFile){
 
+     if(stream_resolve_include_path($this->confFile)){
+      require_once $this->confFile;
+
+      return \config::getInstance();
+    }
+    }
 
     if(in_array($class, array('view'))){
 
@@ -258,7 +269,7 @@ abstract class wire
     if(! stream_resolve_include_path($incpath)){
       return false;
     }
-    require_once ($incpath);
+    include_once ($incpath);
 
     if(false === $inst){
       return $class;
@@ -310,7 +321,7 @@ abstract class wire
 
       case 'config':
 
-        return $this->load('config');
+        return \config::getInstance();
 
     }
     if(key_exists($var, $this->vars)){
