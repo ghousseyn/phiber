@@ -1,6 +1,6 @@
 <?php
 namespace Phiber;
-class controller extends phiber
+class controller extends wire
 {
 
   protected function sendJSON($data, $options = 0 , $depth = 512)
@@ -9,7 +9,7 @@ class controller extends phiber
     header('Expires: Mon, 16 Jul 1997 02:00:00 GMT');
     header('Content-type: application/json; charset=utf-8');
     echo json_encode($data);
-    return true;
+    exit(0);
   }
 
   protected function disableLayout()
