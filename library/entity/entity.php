@@ -32,7 +32,7 @@ abstract class entity
     return oosql::getInstance($tablename, $class);
   }
 
-  public function save($obj)
+  public function saveP($obj)
   {
 
     if(self::$oosql_model_extra){
@@ -53,7 +53,7 @@ abstract class entity
 
   }
 
-  public function load($obj)
+  public function loadP($obj)
   {
 
     $primary = $obj->getPrimary();

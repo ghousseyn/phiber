@@ -32,7 +32,7 @@ class oosqlTest extends PhiberTests
     $sql = $this->getProperty($this->oosql, 'oosql_sql');
     $flag = $this->getProperty($this->oosql, 'oosql_fromFlag');
     $select = $this->getProperty($this->oosql, 'oosql_select');
-    $this->assertEquals('SELECT table.column1, table.column2', $sql);
+    $this->assertEquals('SELECT column1,column2', $sql);
     $this->assertTrue($flag);
     $this->assertInstanceOf('Phiber\\oosql\\oosql', $select);
     $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
@@ -151,7 +151,7 @@ class oosqlTest extends PhiberTests
   }
   /**
    * @expectedException Exception
-   * @expectedExceptionCode 9805
+   * @expectedExceptionCode 9807
    */
   public function testValuesNoArgs()
   {
@@ -160,7 +160,7 @@ class oosqlTest extends PhiberTests
 
   /**
    * @expectedException Exception
-   * @expectedExceptionCode 9805
+   * @expectedExceptionCode 9807
    */
   public function testValuesArgsNotMatching()
   {
@@ -183,7 +183,7 @@ class oosqlTest extends PhiberTests
   }
   /**
    * @expectedException Exception
-   * @expectedExceptionCode 9805
+   * @expectedExceptionCode 9807
    */
   public function testFromArgsNotMatching()
   {
@@ -216,7 +216,7 @@ class oosqlTest extends PhiberTests
     $return = $this->invokeMethod($this->oosql, 'join',$params);
 
     $sql = $this->getProperty($this->oosql, 'oosql_join');
-    $this->assertEquals(' JOIN table1 ON table.fk_id = table1.id', $sql);
+    $this->assertEquals('  JOIN table1 ON table.fk_id = table1.id', $sql);
     $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testJoinLeft()
@@ -225,7 +225,7 @@ class oosqlTest extends PhiberTests
     $return = $this->invokeMethod($this->oosql, 'joinLeft',$params);
 
     $sql = $this->getProperty($this->oosql, 'oosql_join');
-    $this->assertEquals('LEFT JOIN table1 ON table.fk_id = table1.id', $sql);
+    $this->assertEquals(' LEFT JOIN table1 ON table.fk_id = table1.id', $sql);
     $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testJoinRight()
@@ -234,7 +234,7 @@ class oosqlTest extends PhiberTests
     $return = $this->invokeMethod($this->oosql, 'joinRight',$params);
 
     $sql = $this->getProperty($this->oosql, 'oosql_join');
-    $this->assertEquals('RIGHT JOIN table1 ON table.fk_id = table1.id', $sql);
+    $this->assertEquals(' RIGHT JOIN table1 ON table.fk_id = table1.id', $sql);
     $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testJoinFull()
@@ -243,7 +243,7 @@ class oosqlTest extends PhiberTests
     $return = $this->invokeMethod($this->oosql, 'joinFull',$params);
 
     $sql = $this->getProperty($this->oosql, 'oosql_join');
-    $this->assertEquals('FULL OUTER JOIN table1 ON table.fk_id = table1.id', $sql);
+    $this->assertEquals(' FULL OUTER JOIN table1 ON table.fk_id = table1.id', $sql);
     $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testWhere()
@@ -292,7 +292,7 @@ class oosqlTest extends PhiberTests
   }
   /**
    * @expectedException InvalidArgumentException
-   * @expectedExceptionCode 9805
+   * @expectedExceptionCode 9808
    */
   public function testFetchWrongArgs()
   {
@@ -300,7 +300,7 @@ class oosqlTest extends PhiberTests
   }
   /**
    * @expectedException Exception
-   * @expectedExceptionCode 9805
+   * @expectedExceptionCode 9809
    */
   public function testFetchNoResults()
   {

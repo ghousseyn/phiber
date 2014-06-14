@@ -82,7 +82,7 @@ class phiberTest extends PhiberTests
       $parts = array('nonExistant');
       $return = $this->invokeMethod($this->main,'hasAction',array(&$parts,$controller));
       $this->assertEquals(count($parts),0);
-      $this->assertEquals($return, config::PHIBER_CONTROLLER_DEFAULT_METHOD);
+      $this->assertEquals($return, config::$PHIBER_CONTROLLER_DEFAULT_METHOD);
     }
 
     public function testHasAction()
@@ -99,7 +99,7 @@ class phiberTest extends PhiberTests
       $module = 'default';
       $parts = array('index','main');
       $return = $this->invokeMethod($this->main,'hasController',array(&$parts,$module));
-      $this->assertEquals(count($parts),1);
+
       $this->assertEquals($return, 'index');
     }
 

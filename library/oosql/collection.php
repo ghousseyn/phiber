@@ -272,5 +272,6 @@ class collection extends \ArrayObject
     return $this->numObjects;
   }
 
+
 }
 ?>
