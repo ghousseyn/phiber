@@ -3,7 +3,7 @@
 /**
  * Configuration class.
  * @version 	1.0
- * @author 	Hussein Guettaf <ghussein@coda-dz.com>
+ * @author 	Hussein Guettaf <ghoucine@gmail.com>
  * @package 	Phiber
  */
 
@@ -13,7 +13,7 @@ class config
   /*
    * DB configuration properties
   */
-  public static $PHIBER_DB_DSN = 'mysql:host=127.0.0.1;dbname=codup';
+  public static $PHIBER_DB_DSN = 'mysql:host=127.0.0.1;dbname=phiber';
 
   public static $PHIBER_DB_PASS = "password";
 
@@ -108,7 +108,7 @@ class config
 
   public static function getInstance()
   {
-    return  new self;
+    return new self;
   }
 
   public function __get($var)
