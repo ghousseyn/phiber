@@ -17,7 +17,7 @@ class error
     register_shutdown_function('Phiber\error::fatal_error_handler');
 
     error_reporting(E_ALL);
-    ini_set('display_errors', true);
+    ini_set('display_errors', false);
     if(! ini_get('log_errors') && \config::$PHIBER_LOG){
       ini_set('log_errors', true);
     }

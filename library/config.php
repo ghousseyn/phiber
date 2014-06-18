@@ -108,10 +108,7 @@ class config
 
   public static function getInstance()
   {
-    if(null !== self::$instance){
-      return self::$instance;
-    }
-    return self::$instance = new self;
+    return new self;
   }
 
   public function __get($var)
