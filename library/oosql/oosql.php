@@ -62,6 +62,9 @@ class oosql extends \PDO
 
   private $oosql_select;
 
+  private $oosql_distinct = false;
+
+  private $oosql_insert = false;
 
   /**
    * __construct()
@@ -72,7 +75,7 @@ class oosql extends \PDO
   function __construct($oosql_table = null, $oosql_class = null)
   {
     if($oosql_class === null || $oosql_table === null){
-      throw new \Exception('Class or Table name not provided!',9805,null);
+      throw new \Exception('Class or Table name not provided!',9801,null);
     }
     $this->oosql_class = $oosql_class;
     $this->oosql_table = $oosql_table;
@@ -118,6 +121,9 @@ class oosql extends \PDO
   public function select()
   {
     $this->oosql_sql = 'SELECT ';
+    if($this->oosql_distinct ){
+      $this->oosql_sql .= 'DISTINCT ';
+    }
     $numargs = func_num_args();
 
     if($numargs > 0){
@@ -153,7 +159,7 @@ class oosql extends \PDO
 
       $this->oosql_sql .= ')';
     }
-
+    $this->oosql_insert = true;
     return $this;
   }
 
@@ -331,8 +337,8 @@ class oosql extends \PDO
     $numargs = func_num_args();
 
     if(($this->oosql_numargs !== 0 && $numargs !== $this->oosql_numargs) || $numargs === 0){
-      $msg = 'Columns and passed data do not match! ' . $this->oosql_sql;
-      throw new \Exception($msg,9805,null);
+      $msg = 'Insert numargs: '.$this->oosql_numargs.' | values numargs = '.$numargs.', Columns and passed data do not match! ' . $this->oosql_sql;
+      throw new \Exception($msg,9807,null);
     }
 
     $this->oosql_sql .= ' VALUES (';
@@ -365,7 +371,7 @@ class oosql extends \PDO
 
       if($numargs < $this->oosql_del_numargs){
         $msg = 'Columns and passed data do not match! ' . $this->oosql_sql;
-        throw new \PDOException($msg,9805,null);
+        throw new \PDOException($msg,9807,null);
       }
 
 
@@ -410,7 +416,7 @@ class oosql extends \PDO
     return $this->join($table, $criteria, $type = 'FULL OUTER');
   }
 
-  public function where($condition, $value, $type = null)
+  public function where($condition, $value=null, $type = null)
   {
 
     switch($type){
@@ -433,7 +439,7 @@ class oosql extends \PDO
     return $this;
   }
 
-  public function andWhere($condition, $value)
+  public function andWhere($condition, $value=null)
   {
     $this->where($condition, $value, 'and');
     return $this;
@@ -450,7 +456,7 @@ class oosql extends \PDO
     return ctype_digit(strval($val));
   }
 
-  public function exe()
+  public function exe($lastID = 'id')
   {
     if($this->oosql_fromFlag){
       $this->from();
@@ -483,13 +489,21 @@ class oosql extends \PDO
         }
         $ord++;
       }
+      $this->oosql_conValues = array();
 
-      $this->oosql_stmt->execute();
+      $return = $this->oosql_stmt->execute();
+      if($return === false){
+        $msg = 'Execution failed! ' . $this->oosql_sql;
+        throw new \Exception($msg,9812,null);
+      }
 
     }else{
 
       $this->oosql_stmt = $this->query($this->oosql_sql);
 
+    }
+    if($this->oosql_insert){
+      return $this->lastInsertId($lastID);
     }
     /*
      * $str = $this->oosql_sql." | "; $str .= implode(',
@@ -521,7 +535,7 @@ class oosql extends \PDO
           $this->limit($argumants[0], $argumants[1]);
           break;
         default:
-          throw new \InvalidArgumentException('Fetch expects zero, one or two arguments as a query result limit',9805,null);
+          throw new \InvalidArgumentException('Fetch expects zero, one or two arguments as a query result limit',9808,null);
       }
     }
 
@@ -529,14 +543,14 @@ class oosql extends \PDO
       $this->oosql_select->exe();
     }else{
       $msg = 'Query returned no results! You need to select first! ' . $this->oosql_sql;
-      throw new \Exception($msg,9805,null);
+      throw new \Exception($msg,9809,null);
     }
 
 
     if(! $this->oosql_stmt){
 
       $msg = 'Query returned no results! ' . $this->oosql_sql;
-      throw new \Exception($msg,9805,null);
+      throw new \Exception($msg,9810,null);
     }
 
     $result = $this->oosql_stmt->fetchAll();
@@ -652,6 +666,8 @@ class oosql extends \PDO
   public function union(){
   }
   public function distinct(){
+    $this->oosql_distinct = true;
+    return $this;
   }
   public function __set($var, $val)
   {
