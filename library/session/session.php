@@ -16,30 +16,30 @@ class session extends eventfull
   {
     session_start();
 
-    if(!isset( $_SESSION['user']['name'])){
-      $_SESSION['user']['name'] = 'guest';
+    if(!isset( $_SESSION[self::$namespace]['user']['name'])){
+      $_SESSION[self::$namespace]['user']['name'] = 'guest';
       self::regenerate();
     }
-    if(!isset( $_SESSION['user']['created'])){
-      $_SESSION['user']['created'] = time();
+    if(!isset( $_SESSION[self::$namespace]['user']['created'])){
+      $_SESSION[self::$namespace]['user']['created'] = time();
 
     }
-    $_SESSION['user']['activity'] = time();
+    $_SESSION[self::$namespace]['user']['activity'] = time();
 
   }
   public static function checkSession()
   {
 
-      if(isset($_SESSION['user']['activity']) && (time() - $_SESSION['user']['activity'] > \tools::orDefault((int) \config::$PHIBER_SESSION_INACTIVE, 1800))){
+      if(isset($_SESSION[self::$namespace]['user']['activity']) && (time() - $_SESSION[self::$namespace]['user']['activity'] > \tools::orDefault((int) \config::$PHIBER_SESSION_INACTIVE, 1800))){
 
-        self::destroy();
+        //self::destroy();
 
       }
 
 
-      if(isset($_SESSION['user']['created']) && (time() - $_SESSION['user']['created'] > \tools::orDefault((int) \config::$PHIBER_SESSION_REGENERATE, 1800))){
+      if(isset($_SESSION[self::$namespace]['user']['created']) && (time() - $_SESSION[self::$namespace]['user']['created'] > \tools::orDefault((int) \config::$PHIBER_SESSION_REGENERATE, 1800))){
 
-        self::regenerate();
+       // self::regenerate();
 
       }
 
