@@ -12,7 +12,7 @@ class cogen extends \PDO
   protected $time;
   protected $mem;
 
-  public $path = 'g:/models/';
+  public $path = './';
 
   function __construct($host, $dbname, $user, $password)
   {
@@ -192,9 +192,9 @@ class cogen extends \PDO
       }
       $text .= ');' . PHP_EOL . '  }' . PHP_EOL;
 
-      $text .= '  public function save()' . PHP_EOL . '  {' . PHP_EOL . '    parent::save($this);' . PHP_EOL . '  }' . PHP_EOL;
+      $text .= '  public function save()' . PHP_EOL . '  {' . PHP_EOL . '    parent::saveP($this);' . PHP_EOL . '  }' . PHP_EOL;
 
-      $text .= '  public function load()' . PHP_EOL . '  {' . PHP_EOL . '    return parent::load($this);' . PHP_EOL . '  }' . PHP_EOL;
+      $text .= '  public function load()' . PHP_EOL . '  {' . PHP_EOL . '    return parent::loadP($this);' . PHP_EOL . '  }' . PHP_EOL;
       $text .= '}' . PHP_EOL;
 
       $filename = $this->path . $cname . ".php";
