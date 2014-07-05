@@ -18,7 +18,7 @@ class error
 
     error_reporting(E_ALL);
     ini_set('display_errors', false);
-    if(! ini_get('log_errors') && \config::$PHIBER_LOG){
+    if(! ini_get('log_errors') && \config::getInstance()->PHIBER_LOG){
       ini_set('log_errors', true);
     }
   }
@@ -59,14 +59,14 @@ class error
         case E_USER_WARNING:
           $type = 'User Warning';
           $sevirity = 9805;//warning
-          self::$stop = \config::$STOP_ON_USER_WARNINGS;
+          self::$stop = \config::getInstance()->STOP_ON_USER_WARNINGS;
           break;
         case E_COMPILE_WARNING:
         case E_CORE_WARNING:
         case E_WARNING:
           $type = 'Warning';
           $sevirity = 9803;//critical
-          self::$stop = \config::$STOP_ON_WARNINGS;
+          self::$stop = \config::getInstance()->STOP_ON_WARNINGS;
           break;
         case E_USER_NOTICE:
         case E_NOTICE:

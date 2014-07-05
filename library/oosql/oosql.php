@@ -80,7 +80,7 @@ class oosql extends \PDO
     $this->oosql_class = $oosql_class;
     $this->oosql_table = $oosql_table;
 
-    parent::__construct(\config::$PHIBER_DB_DSN, \config::$PHIBER_DB_USER, \config::$PHIBER_DB_PASS);
+    parent::__construct(\config::getInstance()->PHIBER_DB_DSN, \config::getInstance()->PHIBER_DB_USER, \config::getInstance()->PHIBER_DB_PASS);
     $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     $this->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
 
