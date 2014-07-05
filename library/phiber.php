@@ -18,7 +18,6 @@ class phiber extends wire
 
   private $path;
   private $uri;
-  private $phiber_flags;
 
   private $phiber_bootstrap;
   private $_requestVars = array();
@@ -33,6 +32,9 @@ class phiber extends wire
 
     }
 
+    if(null == Session\session::get('phiber_flags')){
+      Session\session::set('phiber_flags', 0);
+    }
     $this->phiber_bootstrap = \bootstrap::getInstance($this->config);
 
 
@@ -40,7 +42,7 @@ class phiber extends wire
 
     Session\session::checkSession();
 
-    if(\config::$PHIBER_LOG){
+    if($this->config->PHIBER_LOG){
 
       error::initiate($this->logger());
 
@@ -201,7 +203,7 @@ class phiber extends wire
 
     }
 
-    return \config::$PHIBER_CONTROLLER_DEFAULT;
+    return $this->config->PHIBER_CONTROLLER_DEFAULT;
 
   }
 
@@ -215,7 +217,7 @@ class phiber extends wire
     }
 
     array_shift($parts);
-    return \config::$PHIBER_CONTROLLER_DEFAULT_METHOD;
+    return $this->config->PHIBER_CONTROLLER_DEFAULT_METHOD;
 
   }
 
@@ -233,7 +235,7 @@ class phiber extends wire
       $instance->{$action}();
     }else{
 
-      $instance->{\config::$PHIBER_CONTROLLER_DEFAULT_METHOD}();
+      $instance->{$this->config->PHIBER_CONTROLLER_DEFAULT_METHOD}();
 
     }
 
