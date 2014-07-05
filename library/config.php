@@ -13,47 +13,47 @@ class config
   /*
    * DB configuration properties
   */
-  public static $PHIBER_DB_DSN = 'mysql:host=127.0.0.1;dbname=phiber';
+  public $PHIBER_DB_DSN = 'mysql:host=127.0.0.1;dbname=phiber';
 
-  public static $PHIBER_DB_PASS = "password";
+  public $PHIBER_DB_PASS = "password";
 
-  public static $PHIBER_DB_USER = "root";
+  public $PHIBER_DB_USER = "root";
   /**
    * Enable/Disable logging
    * @var boolean
    */
-  public static $PHIBER_LOG = true;
+  public $PHIBER_LOG = true;
   /**
    * Default logging handler
    * @var string
    */
-  public static $PHIBER_LOG_DEFAULT_HANDLER = 'file';
+  public $PHIBER_LOG_DEFAULT_HANDLER = 'file';
   /**
    * Log filename
    * @var string A valid filename
    */
-  public static $PHIBER_LOG_DEFAULT_FILE = 'logfile.log';
+  public $PHIBER_LOG_DEFAULT_FILE = 'logfile.log';
   /**
    * Session will be destroyed after 1800 seconds (30
    * minutes) of inactivity Alternatively set the value that you like in seconds
   */
-  public static $PHIBER_SESSION_INACTIVE = 1800;
+  public $PHIBER_SESSION_INACTIVE = 1800;
   /**
    * The session will be destroyed after 1800 seconds (30
    * minutes) of inactivity Alternatively set the value that you like in seconds
   */
-  public static $PHIBER_SESSION_REGENERATE = 60;
+  public $PHIBER_SESSION_REGENERATE = 60;
   /**
    * The action method that should be called from your controller in case a
    * none-existant action is called (or none specified)
    */
-  public static $PHIBER_CONTROLLER_DEFAULT_METHOD = 'main';
+  public $PHIBER_CONTROLLER_DEFAULT_METHOD = 'main';
   /**
    *
    * @var unknown_type
    */
 
-  public static $PHIBER_CONTROLLER_DEFAULT = 'index';
+  public $PHIBER_CONTROLLER_DEFAULT = 'index';
   /**
    * Directory of the logs please set an absolute path. Must be writable by the server
    * @var string A Valid absolute path (directories will not be created for you)
@@ -75,9 +75,9 @@ class config
    */
   public $logLevel = 'info';
 
-  public static $STOP_ON_WARNINGS = true;
+  public $STOP_ON_WARNINGS = true;
 
-  public static $STOP_ON_USER_WARNINGS = true;
+  public $STOP_ON_USER_WARNINGS = true;
   /**
    * Path to the library relative to this file (set in the construct)
    */

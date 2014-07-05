@@ -137,16 +137,18 @@ abstract class wire
 
   protected function setFlag($flag, $value)
   {
-    \Phiber\Flag\flag::_set($flag, $value, Session\session::get('phiber_flags'));
+    $flags = Session\session::get('phiber_flags');
+    \Phiber\Flag\flag::_set($flag, $value, $flags);
+    Session\session::set('phiber_flags', $flags);
   }
 
   protected function setLog($logger = null,$params = null,$name = null)
   {
     if(null === $logger || !stream_resolve_include_path($this->config->library.'/logger/'.$logger.'.php')){
-      $logger = \config::$PHIBER_LOG_DEFAULT_HANDLER;
+      $logger = $this->config->PHIBER_LOG_DEFAULT_HANDLER;
     }
     if(null === $params){
-      $params = array('default',$this->config->logDir.'/'.\config::$PHIBER_LOG_DEFAULT_FILE);
+      $params = array('default',$this->config->logDir.'/'.$this->config->PHIBER_LOG_DEFAULT_FILE);
     }
     if(!is_array($params)){
       $params = array($params,$this->config->logDir.'/'.$params.'.log');
