@@ -1,18 +1,20 @@
 <?php
-namespace oosql;
+namespace Phiber\oosql;
 require 'collection.php';
 
-class cogen extends \PDO
+class oogen extends \PDO
 {
 
-  protected $queries = array('tables' => 'SHOW TABLES', 'columns' => 'SHOW COLUMNS FROM', 'create' => 'show create table');
+  protected $queries = array('tables' => 'SHOW TABLES',
+                             'columns' => 'SHOW COLUMNS FROM',
+                             'create' => 'show create table');
 
   protected $except = array();
   protected $errors = array();
   protected $time;
   protected $mem;
 
-  public $path = './';
+  public $path = './entities/';
 
   function __construct($host, $dbname, $user, $password)
   {
@@ -70,7 +72,7 @@ class cogen extends \PDO
 
       print "Analyzing $table physical columns ..." . PHP_EOL;
 
-      $query = $this->queries['columns'] . ' ' . $table . '';
+      $query = $this->queries['columns'] . ' ' . $table;
 
       $collection = $this->getCollection($query);
 
@@ -108,20 +110,20 @@ class cogen extends \PDO
       $kcount = count($keys);
       while(substr(trim($keys[$kcount - 1]), 0, 10) === 'CONSTRAINT'){
         // @Todo Composite key constraints are not handled correctly
-
         $key = array_pop($keys);
         $parts = explode(' ', trim($key));
         $constraint = trim($parts[1], '`');
-        $fkey = trim($parts[4], '(,),`');
+        $fkey = trim($parts[4], '()`');
         $reftable = trim($parts[6], '`');
-        $reffield = trim($parts[7], '(,),`');
+        $reffield = trim($parts[7], '()`');
         print "Found constraint $constraint ..." . PHP_EOL;
         $fields[$table][]['constraints'][$fkey] = array($reffield, $reftable);
-
+        unset($keys[$kcount - 1]);
+        $kcount--;
       }
     }
 
-    // $test = array_pop($fields);
+
     $h = 1;
     foreach($fields as $tname => $cols){
 
@@ -135,14 +137,13 @@ class cogen extends \PDO
       $foreign = array();
       $primary = array();
       foreach($cols as $col){
-        // var_dump($fields);
 
         if(isset($col['constraints'])){
-          // print_r($fields[$tname]);
+
           $cnt = count($fields[$tname]);
           for($i = 0; $i < $cnt; $i++){
             foreach($fields[$tname][$i] as $key => $val){
-              // print_r($col['constraints'][$val]);
+
               if(isset($col['constraints'][$val])){
                 $foreign[$val] = $col['constraints'][$val];
               }
@@ -167,7 +168,7 @@ class cogen extends \PDO
         $text .= '  public function getPrimary()' . PHP_EOL . '  {' . PHP_EOL . '    return array("' . implode('","', $primary) . '");' . PHP_EOL . '  }' . PHP_EOL;
 
         if($primaryCount > 1){
-          $text .= '  public function getPrimaryValue(array $key = null)' . PHP_EOL . '  {' . PHP_EOL . '    if(null === $key){' . PHP_EOL . '      return $this->getCompositeValue();' . PHP_EOL . '    }' . PHP_EOL . '    $pri = $this->getPrimary();' . PHP_EOL . '    if(in_array($key,$pri)){' . PHP_EOL . '      return $this->{$pri[$key]};' . PHP_EOL . '    }' . PHP_EOL . '  }' . PHP_EOL;
+          $text .= '  public function getPrimaryValue($key = null)' . PHP_EOL . '  {' . PHP_EOL . '    if(null === $key){' . PHP_EOL . '      return $this->getCompositeValue();' . PHP_EOL . '    }' . PHP_EOL . '    $pri = $this->getPrimary();' . PHP_EOL . '    if(in_array($key,$pri)){' . PHP_EOL . '      return $this->{$pri[$key]};' . PHP_EOL . '    }' . PHP_EOL . '  }' . PHP_EOL;
           $text .= '  public function getCompositeValue()' . PHP_EOL . '  {' . PHP_EOL . '    return array(' . PHP_EOL;
           foreach($primary as $pkey){
             $text .= '            "' . $pkey . '" => $this->' . $pkey . ',' . PHP_EOL;
@@ -197,7 +198,7 @@ class cogen extends \PDO
       $text .= '  public function load()' . PHP_EOL . '  {' . PHP_EOL . '    return parent::loadP($this);' . PHP_EOL . '  }' . PHP_EOL;
       $text .= '}' . PHP_EOL;
 
-      $filename = $this->path . $cname . ".php";
+      $filename = rtrim($this->path,'/,\\').DIRECTORY_SEPARATOR . $cname . ".php";
 
       $f = fopen($filename, "w+");
       fwrite($f, $text);
