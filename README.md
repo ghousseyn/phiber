@@ -9,7 +9,8 @@ Phiber
 
 Phiber is a lightweight MVC PhP framework featuring:
 
-- A comprehensive router with zero configuration required
+- A comprehensive router with zero configuration required 
+  Routes can be Simple or RegEx enabled with named parameters
 
 ```
 # for this url for exmaple
@@ -31,6 +32,24 @@ Array
         )
 
 )
+
+	$phiber->addRoutes(array('~/info/(\d+)/(\d+)~'=>'/myo/index/main/:cat/:id')));
+
+	will match /info/78/44 and turn it to /myo/index/main/cat/78/id/44
+
+
+	You can also create a file <filename>.php and store your routes there 
+	<?php
+	return array(
+             array('~/info/(\d+)/(\d+)~'=>'/myo/index/main/:cat/:id'),
+             array('/login'=>'/auth/local/main'),
+             array('~/عربي/(\d+)/(\d+)~'=>'/module/index/main/:cat/:id')
+       );
+       
+    
+    The file can then be fed into Phiber:
+    
+    $phiber->addRoutesFile('path/to/<filename>.php');
 
 ```
 
