@@ -18,7 +18,7 @@ class phiber extends wire
 
   private $path;
   private $uri;
-
+  private $routes = array();
   private $phiber_bootstrap;
   private $_requestVars = array();
   private $method;
@@ -32,9 +32,6 @@ class phiber extends wire
 
     }
 
-    if(null == Session\session::get('phiber_flags')){
-      Session\session::set('phiber_flags', 0);
-    }
     $this->phiber_bootstrap = \bootstrap::getInstance($this->config);
 
 
@@ -52,7 +49,7 @@ class phiber extends wire
     $this->register('layoutEnabled', $this->config->layoutEnabled);
     $this->register('ajax', false);
 
-    $this->router(array('~/info/(\d+)/(\d+)~'=>'/flags'));
+    $this->router($this->getRoutes());
 
     $this->plugins();
     $this->dispatch();
@@ -60,7 +57,32 @@ class phiber extends wire
     $this->view->showTime();
 
   }
+  private function getRoutes()
+  {
+    return (count($this->routes))?$this->routes:null;
+  }
+  public function addRoutes(array $routes)
+  {
+    if(count($routes)){
+      foreach($routes as $rule => $path){
+        $this->routes[$rule] = $path;
+      }
 
+    }
+  }
+  public function addRoutesFile($path)
+  {
+    if(stream_resolve_include_path($path)){
+      $routes = include $path;
+      if(is_array($routes)){
+        foreach($routes as $route){
+          $this->addRoutes($route);
+        }
+      }
+
+    }
+
+  }
   private function plugins()
   {
 
@@ -68,10 +90,6 @@ class phiber extends wire
       $this->load($plugin, null, $this->config->application . '/plugins/' . $plugin . '/')->run();
     }
   }
-
-  /**
-   * @todo move path def to config
-   */
 
   private function router(array $routes = null)
   {
@@ -105,6 +123,7 @@ class phiber extends wire
 
       }
       if(count($parts)){
+
         $this->setVars($parts);
       }
 
@@ -112,7 +131,7 @@ class phiber extends wire
         $this->_requestVars = $_POST;
       }
 
-      $route = array('module' => $module, 'controller' => $controller, 'action' => $action, 'vars' => $this->get('_request'));
+      $route = array('module' => $module, 'controller' => $controller, 'action' => $action, 'vars' => $this->_requestVars);
     }else{
       $route = array('module' => 'default', 'controller' => 'index', 'action' => \config::PHIBER_CONTROLLER_DEFAULT_METHOD);
       $this->path = $this->config->application . '/modules/default/';
@@ -128,6 +147,9 @@ class phiber extends wire
 
   private function routeMatchSimple($routes, $current)
   {
+    if(strpos($current,'~') !== false){
+      return;
+    }
     if(isset($routes[$current])){
 
       if(is_array($routes[$current])){
@@ -139,6 +161,7 @@ class phiber extends wire
         $this->router();
 
       }
+
       return true;
     }
     return false;
@@ -147,15 +170,49 @@ class phiber extends wire
   {
 
     foreach ($routes as $def => $route){
+       if(strpos($def,'~') === false){
+         continue;
+       }
        if(preg_match_all($def, $current, $matches)){
-
+         array_shift($matches);
          if(is_array($route)){
+           if(isset($route['vars']) && is_array($route['vars'] )){
+
+             foreach($route['vars'] as $key => $var){
+               if(strpos($var, ':') !== false){
+                 $route['vars'][ltrim($var,':')]= $matches[$key][0];
+                 unset($route['vars'][$key]);
+               }
+             }
+           }
            $this->route = $route;
+         }elseif(strpos($route, ':') !== false){
+           $route = trim($route,'/');
+           $parts = explode('/',$route);
+           $url = '';
+           $pos = 0;
+           foreach($parts as $k => $part){
+             if(strpos($part, ':') !== false){
+
+               $url .= ltrim($part,':').'/'.$matches[$pos][0].'/';
+               $pos++;
+             }else{
+               $url .= $part.'/';
+             }
+           }
+           $url = '/'.rtrim($url,'/');
+           if($this->isValidURI($url)){
+             $_SERVER['REQUEST_URI'] = $url;
+             $this->router();
+           }
+
          }elseif($this->isValidURI($route)){
+
            $_SERVER['REQUEST_URI'] = $route;
            $this->router();
+
          }
-         //\tools::wtf($matches);
+
          return true;
        }
 
