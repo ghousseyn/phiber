@@ -16,9 +16,9 @@ class oogen extends \PDO
 
   public $path = './entities/';
 
-  function __construct($host, $dbname, $user, $password)
+  function __construct($dsn, $user, $password)
   {
-    parent::__construct('mysql:host=' . $host . ';dbname=' . $dbname, $user, $password);
+    parent::__construct($dsn, $user, $password);
     $this->time = microtime(true);
     $this->mem = memory_get_usage();
 
@@ -124,7 +124,8 @@ class oogen extends \PDO
     }
 
 
-    $h = 1;
+    $h = 0;
+    $text  = '';
     foreach($fields as $tname => $cols){
 
       $cname = $tname;
@@ -144,18 +145,18 @@ class oogen extends \PDO
           for($i = 0; $i < $cnt; $i++){
             foreach($fields[$tname][$i] as $key => $val){
 
-              if(isset($col['constraints'][$val])){
+              if(!empty($val) && isset($col['constraints'][$val])){
                 $foreign[$val] = $col['constraints'][$val];
               }
             }
           }
         }
 
-        if($col['Key'] == 'PRI'){
+        if(isset($col['Key']) && $col['Key'] == 'PRI'){
           $primary[] = $col['Field'];
         }
 
-        if($col['Field'] == ''){
+        if(isset($col['Field']) && $col['Field'] == ''){
           continue;
         }
         $text .= '  public $' . $col['Field'] . ';' . PHP_EOL;
