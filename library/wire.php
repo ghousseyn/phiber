@@ -89,7 +89,7 @@ abstract class wire
   }
   protected function isAjax()
   {
-    return Session\session::get('ajax');
+    return $this->session->get('ajax');
   }
 
 
@@ -122,13 +122,13 @@ abstract class wire
   protected function register($name, $value)
   {
 
-    Session\session::set($name, $value);
+    $this->session->set($name, $value);
 
   }
 
   protected function get($index)
   {
-    return Session\session::get($index);
+    return $this->session->get($index);
   }
   protected function isFlagSet($flag)
   {
@@ -137,9 +137,9 @@ abstract class wire
 
   protected function setFlag($flag, $value)
   {
-    $flags = Session\session::get('phiber_flags');
+    $flags = $this->session->get('phiber_flags');
     \Phiber\Flag\flag::_set($flag, $value, $flags);
-    Session\session::set('phiber_flags', $flags);
+    $this->session->set('phiber_flags', $flags);
   }
 
   protected function setLog($logger = null,$params = null,$name = null)
@@ -165,7 +165,7 @@ abstract class wire
   protected function logger($name = 'log')
   {
     $name = sha1($name);
-    if(Session\session::exists($name)){
+    if($this->session->exists($name)){
       $log = $this->get($name);
       $class = "Phiber\\Logger\\$log[0]";
       if(stream_resolve_include_path($this->config->library.'/logger/'.$log[0].'.php')){
@@ -188,8 +188,6 @@ abstract class wire
   protected function autoload($class)
   {
 
-
-
     if('config' === $class && null !== $this->confFile){
 
       if(stream_resolve_include_path($this->confFile)){
@@ -200,7 +198,7 @@ abstract class wire
       }
 
     }
-    $path = $this->config->library . '/';
+    $path = $this->config->library . DIRECTORY_SEPARATOR;
     if(! strstr($class, '\\')){
 
       if(stream_resolve_include_path($path . $class . '.php')){
@@ -209,7 +207,7 @@ abstract class wire
         return;
       }
 
-      $module = $this->config->application.'/modules/'.$this->route['module'].'/';
+      $module = $this->config->application.'/modules/'.$this->route['module']. DIRECTORY_SEPARATOR;
 
       if(stream_resolve_include_path($module . $class . '.php')){
 
@@ -225,7 +223,7 @@ abstract class wire
     $count = count($parts);
     if($parts[0] !== 'Phiber'){
 
-      $path = $this->config->application . '/';
+      $path = $this->config->application .  DIRECTORY_SEPARATOR;
     }
     for($i=0; $i < $count; $i++){
       if($parts[$i] === 'Phiber'){
@@ -235,7 +233,7 @@ abstract class wire
         $path .= $parts[$i] . '.php';
         break;
       }
-      $path .=  strtolower($parts[$i]) . '/';
+      $path .=  strtolower($parts[$i]) . DIRECTORY_SEPARATOR;
 
     }
 
@@ -256,20 +254,12 @@ abstract class wire
       $newpath = __DIR__ . '/';
     }
     $incpath = $newpath . $class . '.php';
-    if('config' === $class && null !== $this->confFile){
-
-     if(stream_resolve_include_path($this->confFile)){
-      require_once $this->confFile;
-
-      return \config::getInstance();
-    }
-    }
 
     if(in_array($class, array('view'))){
 
       $hash = $this->keyHashes[$class];
 
-      if(Session\session::exists($hash) && false !== $inst){
+      if($this->session->exists($hash) && false !== $inst){
 
         return $this->get($hash);
       }
@@ -319,19 +309,19 @@ abstract class wire
       case 'view':
 
         return $this->load('view');
-
+        break;
       case 'route':
-
         return $this->get('route');
-
+        break;
       case 'content':
-
         return $this->viewPath;
-
+        break;
       case 'config':
-
         return \config::getInstance();
-
+        break;
+      case 'session':
+        return new Session\session();
+        break;
     }
     if(key_exists($var, $this->vars)){
       return $this->vars[$var];
