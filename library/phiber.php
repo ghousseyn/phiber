@@ -35,9 +35,9 @@ class phiber extends wire
     $this->phiber_bootstrap = \bootstrap::getInstance($this->config);
 
 
-    Session\session::start();
+    $this->session->start();
 
-    Session\session::checkSession();
+    $this->session->checkSession();
 
     if($this->config->PHIBER_LOG){
 
