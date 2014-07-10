@@ -33,9 +33,9 @@ Array
 
 )
 
-	$phiber->addRoutes(array('~/info/(\d+)/(\d+)~'=>'/myo/index/main/:cat/:id')));
+	$phiber->addRoutes(array('~/info/(\d+)/(\d+)~'=>'/modules/index/main/:cat/:id')));
 
-	will match /info/78/44 and turn it to /myo/index/main/cat/78/id/44
+	will match /info/78/44 and turn it to /module/index/main/cat/78/id/44
 
 
 	You can also create a file <filename>.php and store your routes there 
