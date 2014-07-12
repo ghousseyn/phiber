@@ -185,7 +185,7 @@ abstract class wire
     exit(0);
   }
 
-  protected function autoload($class)
+  public function autoload($class)
   {
 
     if('config' === $class && null !== $this->confFile){

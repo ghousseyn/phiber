@@ -10,6 +10,8 @@ class phiberTest extends PhiberTests
     public function setUp(){
 
       $this->main = \Phiber\phiber::getInstance();
+      spl_autoload_register(array($this->main, 'autoload'),true,true);
+      $this->setProperty($this->main, 'confFile', 'config.php');
     }
 
 
@@ -35,6 +37,35 @@ class phiberTest extends PhiberTests
       $return = $this->invokeMethod($this->main,'isValidURI',array(&$uri));
       $this->assertFalse($return);
     }
+
+    public function testGetView(){
+
+      $route = array('module' => 'default', 'controller' => 'index', 'action' => 'main');
+      $this->invokeMethod($this->main,'register',array('route',$route));
+      $this->invokeMethod($this->main,'getView');
+      $this->assertEquals('application/modules/default/views/index/main.php',$this->main->view->viewPath);
+    }
+    public function testGet()
+    {
+      $value = 'test';
+      $index = 'index';
+      $this->invokeMethod($this->main,'register',array($index,$value));
+      $return = $this->invokeMethod($this->main,'get',array($index));
+      $this->assertEquals($return, $value);
+    }
+    public function test_request()
+    {
+      $this->invokeMethod($this->main,'register',array('_request',array('var1'=>'val1','var2'=>'val2')));
+      $return = $this->invokeMethod($this->main,'_requestParam',array('var1'));
+      $this->assertEquals($return, 'val1');
+    }
+    public function test_requestDefault()
+    {
+      $this->invokeMethod($this->main,'register',array('_request',array('var1'=>'val1','var2'=>'val2')));
+      $return = $this->invokeMethod($this->main,'_requestParam',array('var3','val3'));
+      $this->assertEquals($return, 'val3');
+    }
+
 
     public function testLoad()
     {
@@ -81,8 +112,8 @@ class phiberTest extends PhiberTests
       $controller = 'index';
       $parts = array('nonExistant');
       $return = $this->invokeMethod($this->main,'hasAction',array(&$parts,$controller));
-      $this->assertEquals(count($parts),0);
-      $this->assertEquals($return, \config::getInstance()->PHIBER_CONTROLLER_DEFAULT_METHOD);
+      $this->assertEquals(0,count($parts));
+      $this->assertEquals(\config::getInstance()->PHIBER_CONTROLLER_DEFAULT_METHOD,$return);
     }
 
     public function testHasAction()
@@ -91,7 +122,7 @@ class phiberTest extends PhiberTests
       $parts = array('main');
       $return = $this->invokeMethod($this->main,'hasAction',array(&$parts,$controller));
       $this->assertEquals(count($parts),0);
-      $this->assertEquals($return, 'main');
+      $this->assertEquals('main',$return);
     }
 
     public function testHasController()
@@ -100,7 +131,7 @@ class phiberTest extends PhiberTests
       $parts = array('index','main');
       $return = $this->invokeMethod($this->main,'hasController',array(&$parts,$module));
 
-      $this->assertEquals($return, 'index');
+      $this->assertEquals('index',$return);
     }
 
     public function testHasControllerDefault()
@@ -108,8 +139,8 @@ class phiberTest extends PhiberTests
       $module = 'default';
       $parts = array('nonExistant','main');
       $return = $this->invokeMethod($this->main,'hasController',array(&$parts,$module));
-      $this->assertEquals(count($parts),2);
-      $this->assertEquals($return, 'index');
+      $this->assertEquals(2,count($parts));
+      $this->assertEquals('index',$return);
     }
 
     public function testSetVars()
@@ -117,9 +148,16 @@ class phiberTest extends PhiberTests
       $expected = array('var1'=>'val1','var2'=>'val2');
       $parts = array('var1', 'val1', 'var2', 'val2');
       $this->invokeMethod($this->main,'setVars',array($parts));
-      $this->assertEquals($this->getProperty($this->main,'_requestVars'), $expected);
+      $this->assertEquals($expected,$this->getProperty($this->main,'_requestVars'));
     }
 
+   public function testAddRoute()
+   {
+     $route = array('/route'=>'to/something');
+     $this->invokeMethod($this->main,'addRoute',array($route));
+     $routes = $this->getProperty($this->main,'routes');
+     $this->assertEquals(1,count($routes));
+   }
 
     public function providerURI()
     {
@@ -137,7 +175,7 @@ class phiberTest extends PhiberTests
     public function providerNotURI()
     {
       return array(
-          //special characters not allowed: ; [ ] " < > # % { } | \ ^ ~ [ ] `
+          //special characters not allowed: ; [ ] " < > # % { } | \ ^ ~ `
           array('/module/controller/action/?val=var\0'),
           array('/module/controller/action?val=var"'),
           array('/module/controller/action/val=var&var2=val2<'),
