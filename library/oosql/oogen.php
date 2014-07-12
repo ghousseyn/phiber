@@ -69,7 +69,7 @@ class oogen extends \PDO
     foreach($tables as $tble){
       $tbls[] = (array) $tble;
     }
-    $fields = $this->analyse($tbls);
+    $fields = $this->analyze($tbls);
 
     if($fields !== false){
       $this->createClasses($fields);
@@ -86,7 +86,7 @@ class oogen extends \PDO
         for($i = 0; $i < $cnt; $i++){
           foreach($fields[$tname][$i] as $key => $val){
 
-            if(! empty($val) && isset($col['constraints'][$val])){
+            if(! empty($val) && is_string($val) && isset($col['constraints'][$val])){
               $this->foreign[$val] = $col['constraints'][$val];
             }
           }
@@ -149,7 +149,7 @@ class oogen extends \PDO
   {
 
     $h = 0;
-    $text = '';
+    $this->text = '';
     foreach($fields as $tname => $cols){
 
       $cname = $tname;
