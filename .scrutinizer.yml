@@ -50,4 +50,3 @@ tools:
     sensiolabs_security_checker: true
     php_cpd: true
     external_code_coverage: true
-        timeout: 600 
