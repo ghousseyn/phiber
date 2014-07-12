@@ -13,6 +13,9 @@ class oogen extends \PDO
   protected $errors = array();
   protected $time;
   protected $mem;
+  protected $primary;
+  protected $foreign;
+  protected $text;
 
   public $path = './entity/';
 
@@ -72,93 +75,105 @@ class oogen extends \PDO
       $this->createClasses($fields);
     }
   }
+  private function createProps($fields,$tname,$cols)
+  {
+    $count = 0;
+    foreach($cols as $col){
+
+      if(isset($col['constraints'])){
+
+        $cnt = count($fields[$tname]);
+        for($i = 0; $i < $cnt; $i++){
+          foreach($fields[$tname][$i] as $key => $val){
+
+            if(! empty($val) && isset($col['constraints'][$val])){
+              $this->foreign[$val] = $col['constraints'][$val];
+            }
+          }
+        }
+      }
+
+      if(isset($col['Key']) && $col['Key'] == 'PRI'){
+        $this->primary[] = $col['Field'];
+      }
+
+      if(! isset($col['Field']) || strlen($col['Field']) == 0){
+        continue;
+      }else{
+        $this->text .= '  public $' . $col['Field'] . ';' . PHP_EOL;
+      }
+      $count++;
+    }
+  }
+  private function createBody()
+  {
+    $primaryCount = count($this->primary);
+
+    if($primaryCount !== 0){
+
+      $this->text .= '  public function getPrimary()' . PHP_EOL . '  {' . PHP_EOL . '    return array("' . implode('","', $this->primary) . '");' . PHP_EOL . '  }' . PHP_EOL;
+
+      if($primaryCount > 1){
+        $this->text .= '  public function getPrimaryValue($key = null)' . PHP_EOL . '  {' . PHP_EOL . '    if(null === $key){' . PHP_EOL . '      return $this->getCompositeValue();' . PHP_EOL . '    }' . PHP_EOL . '    $pri = $this->getPrimary();' . PHP_EOL . '    if(in_array($key,$pri)){' . PHP_EOL . '      return $this->{$pri[$key]};' . PHP_EOL . '    }' . PHP_EOL . '  }' . PHP_EOL;
+        $this->text .= '  public function getCompositeValue()' . PHP_EOL . '  {' . PHP_EOL . '    return array(' . PHP_EOL;
+        foreach($this->primary as $pkey){
+          $this->text .= '            "' . $pkey . '" => $this->' . $pkey . ',' . PHP_EOL;
+        }
+        $this->text .= '        );' . PHP_EOL . '  }' . PHP_EOL;
+      }else{
+        $this->text .= '  public function getPrimaryValue($key=null)' . PHP_EOL . '  {' . PHP_EOL . '    if(null === $key){' . PHP_EOL . '      return array("' . implode("", $this->primary) . '" => $this->' . implode("", $this->primary) . ');' . PHP_EOL . '    }' . PHP_EOL . '    $pri = $this->getPrimary();' . PHP_EOL . '    if(in_array($key,$pri)){' . PHP_EOL . '      return $this->{$pri[$key]};' . PHP_EOL . '    }' . PHP_EOL . '  }' . PHP_EOL;
+        $this->text .= '  public function getCompositeValue()' . PHP_EOL . '  {' . PHP_EOL . '    return false;' . PHP_EOL . '  }' . PHP_EOL;
+      }
+      // unset($primary);
+    }else{
+      $this->text .= '  public function getPrimary()' . PHP_EOL . '  {' . PHP_EOL . '    return false;' . PHP_EOL . '  }' . PHP_EOL;
+      $this->text .= '  public function getPrimaryValue()' . PHP_EOL . '  {' . PHP_EOL . '    return false;' . PHP_EOL . '  }' . PHP_EOL;
+      $this->text .= '  public function getCompositeValue()' . PHP_EOL . '  {' . PHP_EOL . '    return false;' . PHP_EOL . '  }' . PHP_EOL;
+    }
+
+    $this->text .= '  public function getRelations()' . PHP_EOL . '  {' . PHP_EOL . '    return array(';
+    if(count($this->foreign)){
+      foreach($this->foreign as $member => $content){
+        $this->text .= "'" . $member . "'=>'" . $content[1] . "." . str_replace('`)', '', $content[0]) . "',";
+      }
+    }
+    $this->text .= ');' . PHP_EOL . '  }' . PHP_EOL;
+
+    $this->text .= '  public function save()' . PHP_EOL . '  {' . PHP_EOL . '    parent::saveP($this);' . PHP_EOL . '  }' . PHP_EOL;
+
+    $this->text .= '  public function load()' . PHP_EOL . '  {' . PHP_EOL . '    return parent::loadP($this);' . PHP_EOL . '  }' . PHP_EOL;
+    $this->text .= '}' . PHP_EOL;
+
+  }
   private function createClasses($fields)
   {
 
     $h = 0;
-    $text  = '';
+    $text = '';
     foreach($fields as $tname => $cols){
 
       $cname = $tname;
 
       print "Generating class $cname ...";
 
-      $text .= '<?php' . PHP_EOL . 'namespace entity;' . PHP_EOL . 'use Phiber;';
-      $text .= PHP_EOL . "class $cname extends Phiber\entity\entity  " . PHP_EOL . "{" . PHP_EOL;
-      $count = 0;
-      $foreign = array();
-      $primary = array();
-      foreach($cols as $col){
+      $this->text .= '<?php' . PHP_EOL . 'namespace entity;' . PHP_EOL . 'use Phiber;';
+      $this->text .= PHP_EOL . "class $cname extends Phiber\entity\entity  " . PHP_EOL . "{" . PHP_EOL;
 
-      if(isset($col['constraints'])){
+      $this->foreign = array();
+      $this->primary = array();
 
-        $cnt = count($fields[$tname]);
-          for($i = 0; $i < $cnt; $i++){
-          foreach($fields[$tname][$i] as $key => $val){
+      $this->createProps($fields,$tname,$cols);
 
-            if(!empty($val) && isset($col['constraints'][$val])){
-            $foreign[$val] = $col['constraints'][$val];
-            }
-            }
-            }
-            }
+      $this->createBody();
 
-            if(isset($col['Key']) && $col['Key'] == 'PRI'){
-            $primary[] = $col['Field'];
-    }
+      $filename = rtrim($this->path, '/,\\') . DIRECTORY_SEPARATOR . $cname . ".php";
 
-    if(!isset($col['Field']) || strlen($col['Field']) == 0){
-    continue;
-    }else{
-    $text .= '  public $' . $col['Field'] . ';' . PHP_EOL;
-    }
-    $count++;
-    }
-    $primaryCount = count($primary);
-
-    if($primaryCount !== 0){
-
-    $text .= '  public function getPrimary()' . PHP_EOL . '  {' . PHP_EOL . '    return array("' . implode('","', $primary) . '");' . PHP_EOL . '  }' . PHP_EOL;
-
-    if($primaryCount > 1){
-    $text .= '  public function getPrimaryValue($key = null)' . PHP_EOL . '  {' . PHP_EOL . '    if(null === $key){' . PHP_EOL . '      return $this->getCompositeValue();' . PHP_EOL . '    }' . PHP_EOL . '    $pri = $this->getPrimary();' . PHP_EOL . '    if(in_array($key,$pri)){' . PHP_EOL . '      return $this->{$pri[$key]};' . PHP_EOL . '    }' . PHP_EOL . '  }' . PHP_EOL;
-    $text .= '  public function getCompositeValue()' . PHP_EOL . '  {' . PHP_EOL . '    return array(' . PHP_EOL;
-    foreach($primary as $pkey){
-    $text .= '            "' . $pkey . '" => $this->' . $pkey . ',' . PHP_EOL;
-    }
-    $text .= '        );' . PHP_EOL . '  }' . PHP_EOL;
-    }else{
-    $text .= '  public function getPrimaryValue($key=null)' . PHP_EOL . '  {' . PHP_EOL . '    if(null === $key){' . PHP_EOL . '      return array("' . implode("", $primary) . '" => $this->' . implode("", $primary) . ');' . PHP_EOL . '    }' . PHP_EOL . '    $pri = $this->getPrimary();' . PHP_EOL . '    if(in_array($key,$pri)){' . PHP_EOL . '      return $this->{$pri[$key]};' . PHP_EOL . '    }' . PHP_EOL . '  }' . PHP_EOL;
-        $text .= '  public function getCompositeValue()' . PHP_EOL . '  {' . PHP_EOL . '    return false;' . PHP_EOL . '  }' . PHP_EOL;
-    }
-        // unset($primary);
-    }else{
-        $text .= '  public function getPrimary()' . PHP_EOL . '  {' . PHP_EOL . '    return false;' . PHP_EOL . '  }' . PHP_EOL;
-        $text .= '  public function getPrimaryValue()' . PHP_EOL . '  {' . PHP_EOL . '    return false;' . PHP_EOL . '  }' . PHP_EOL;
-        $text .= '  public function getCompositeValue()' . PHP_EOL . '  {' . PHP_EOL . '    return false;' . PHP_EOL . '  }' . PHP_EOL;
-    }
-
-    $text .= '  public function getRelations()' . PHP_EOL . '  {' . PHP_EOL . '    return array(';
-        if(count($foreign)){
-        foreach($foreign as $member => $content){
-            $text .= "'" . $member . "'=>'" . $content[1] . "." . str_replace('`)', '', $content[0]) . "',";
-    }
-    }
-            $text .= ');' . PHP_EOL . '  }' . PHP_EOL;
-
-            $text .= '  public function save()' . PHP_EOL . '  {' . PHP_EOL . '    parent::saveP($this);' . PHP_EOL . '  }' . PHP_EOL;
-
-            $text .= '  public function load()' . PHP_EOL . '  {' . PHP_EOL . '    return parent::loadP($this);' . PHP_EOL . '  }' . PHP_EOL;
-            $text .= '}' . PHP_EOL;
-
-            $filename = rtrim($this->path,'/,\\').DIRECTORY_SEPARATOR . $cname . ".php";
-
-            $f = fopen($filename, "w+");
-            fwrite($f, $text);
-            fclose($f);
-                unset($text);
-                    print " Done" . PHP_EOL;
-                    $h++;
+      $f = fopen($filename, "w+");
+      fwrite($f, $this->text);
+      fclose($f);
+      $this->text = '';
+      print " Done" . PHP_EOL;
+      $h++;
     }
     print "Generated " . $h . " classes in " . number_format((microtime(true) - $this->time), 4) . " ms | Memory: " . number_format((memory_get_usage() - $this->mem) / 1024, 4) . "kb";
   }
