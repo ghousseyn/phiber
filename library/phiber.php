@@ -61,7 +61,7 @@ class phiber extends wire
   {
     return (count($this->routes))?$this->routes:null;
   }
-  public function addRoutes(array $routes)
+  public function addRoute(array $routes)
   {
     if(count($routes)){
       foreach($routes as $rule => $path){
@@ -76,7 +76,7 @@ class phiber extends wire
       $routes = include $path;
       if(is_array($routes)){
         foreach($routes as $route){
-          $this->addRoutes($route);
+          $this->addRoute($route);
         }
       }
 

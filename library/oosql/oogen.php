@@ -14,7 +14,7 @@ class oogen extends \PDO
   protected $time;
   protected $mem;
 
-  public $path = './entities/';
+  public $path = './entity/';
 
   function __construct($dsn, $user, $password)
   {
