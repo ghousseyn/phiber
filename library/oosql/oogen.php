@@ -14,7 +14,7 @@ class oogen extends \PDO
   protected $time;
   protected $mem;
 
-  public $path = './entities/';
+  public $path = './entity/';
 
   function __construct($dsn, $user, $password)
   {
@@ -156,10 +156,11 @@ class oogen extends \PDO
           $primary[] = $col['Field'];
         }
 
-        if(isset($col['Field']) && $col['Field'] == ''){
+        if(!isset($col['Field']) || strlen($col['Field']) == 0){
           continue;
+        }else{
+          $text .= '  public $' . $col['Field'] . ';' . PHP_EOL;
         }
-        $text .= '  public $' . $col['Field'] . ';' . PHP_EOL;
         $count++;
       }
       $primaryCount = count($primary);
