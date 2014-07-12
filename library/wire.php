@@ -185,7 +185,7 @@ abstract class wire
     exit(0);
   }
 
-  protected function autoload($class)
+  public function autoload($class)
   {
 
     if('config' === $class && null !== $this->confFile){
@@ -309,19 +309,19 @@ abstract class wire
       case 'view':
 
         return $this->load('view');
-        break;
+
       case 'route':
         return $this->get('route');
-        break;
+
       case 'content':
         return $this->viewPath;
-        break;
+
       case 'config':
         return \config::getInstance();
-        break;
+
       case 'session':
         return new Session\session();
-        break;
+
     }
     if(key_exists($var, $this->vars)){
       return $this->vars[$var];

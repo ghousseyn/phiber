@@ -1,7 +1,11 @@
+checks:
+    php:
+        code_rating: true
 filter:
     excluded_paths:
         - Tests
 tools:
+    external_code_coverage: true
     php_mess_detector:
         config:
             design_rules: { number_of_class_children: true, depth_of_inheritance: true, coupling_between_objects: true }
@@ -45,5 +49,3 @@ tools:
         config:
             sniffs: { psr1: { files: { side_effects_sniff: false } }, generic: { code_analysis: { useless_overriding_method_sniff: false }, white_space: { disallow_tab_indent_sniff: true }, php: { disallow_short_open_tag_sniff: true, no_silenced_errors_sniff: true, lower_case_constant_sniff: true, lower_case_keyword_sniff: true }, files: { one_interface_per_file_sniff: true, byte_order_mark_sniff: true, one_class_per_file_sniff: true, line_endings_sniff: true }, control_structures: { inline_control_structure_sniff: true } }, zend: { debug: { code_analyzer_sniff: true } }, squiz: { classes: { class_file_name_sniff: true }, php: { disallow_size_functions_in_loops_sniff: true, inner_functions_sniff: true, eval_sniff: true, lowercase_p_h_p_functions_sniff: true, global_keyword_sniff: true }, functions: { global_function_sniff: true } } }
     sensiolabs_security_checker: true
-    php_cpd: true
-    external_code_coverage: true

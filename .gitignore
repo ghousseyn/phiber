@@ -1,12 +1,19 @@
-/ocular.phar/.buildpath
+/ocular.phar
+/.buildpath
+
 /.project
+
 /.settings
-/.gitignore
 
 /test.db
 
+
 /vendor/
+
 /coverage.clover
+
 /ocular.phar
+
 /command.txt
+
 /library.zip

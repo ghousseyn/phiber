@@ -16,7 +16,7 @@ class oogen extends \PDO
 
   public $path = './entity/';
 
-  function __construct($dsn, $user, $password)
+  public function __construct($dsn, $user, $password)
   {
     parent::__construct($dsn, $user, $password);
     $this->time = microtime(true);
@@ -24,7 +24,7 @@ class oogen extends \PDO
 
   }
 
-  function getErrors()
+  public function getErrors()
   {
     return $this->errors;
   }
@@ -51,7 +51,7 @@ class oogen extends \PDO
     return $collection;
   }
 
-  function generate()
+  public function generate()
   {
 
     print "Attempting tables discovery..." . PHP_EOL;
