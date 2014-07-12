@@ -1,3 +1,6 @@
+checks:
+    php:
+        code_rating: true
 filter:
     excluded_paths:
         - Tests
@@ -47,3 +50,4 @@ tools:
     sensiolabs_security_checker: true
     php_cpd: true
     external_code_coverage: true
+        timeout: 600 
