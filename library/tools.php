@@ -42,6 +42,12 @@ class tools
     }
     return $default;
   }
+  public static function transcribe(array $array)
+  {
+    $json = json_decode($array);
+    $text = 'array';
+    return $json;
+  }
   /*
    * Thanks to Aaron Fisher http://www.aaron-fisher.com/articles/web/php/wtf/
    */
