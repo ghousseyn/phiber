@@ -29,21 +29,35 @@ class bootstrap
   public function getModules()
   {
 
+    $path = $this->config->application. '/modules';
+    $modules = $path.DIRECTORY_SEPARATOR.'modules.php';
+    if(stream_resolve_include_path($modules)){
+      $modList = include $modules;
+    }else{
+      $modList['g5475ff2f44a9102d8b7'] = 'phiber';
+    }
+    if($this->config->PHIBER_MODE === 'production' && stream_resolve_include_path($modules) && is_array($modList)){
+      $this->modules = $modList;
+      return $this;
+    }
     // Auto discovery
-    foreach(new DirectoryIterator(config::getInstance()->application. '/modules') as $mods){
+    foreach(new DirectoryIterator($path) as $mods){
       if($mods->isDot()){
         continue;
       }
 
-      if(is_dir(config::getInstance()->application. "/modules/" . $mods->getFilename())){
+      if(is_dir($this->config->application. "/modules/" . $mods->getFilename())){
 
         $dir = $mods->getFilename();
-        $settings = __dir__ . "/modules/" . $dir . "/settings.xml";
-        if(file_exists($settings)){
-          $this->modules[$mods->getFilename()]['settings_path'] = $settings;
-        }
+
         $this->modules[$dir] = $dir;
+
       }
+    }
+
+    if(count(array_diff($modList,$this->modules)) !== 0 || count(array_diff($this->modules,$modList)) !== 0 || isset($modList['g5475ff2f44a9102d8b7'])){
+      $code = '<?php return '.tools::transcribe($this->modules).'; ?>';
+      file_put_contents($modules, $code);
     }
     return $this;
 
@@ -51,7 +65,7 @@ class bootstrap
 
   public function isModule($mod)
   {
-    if(array_key_exists($mod, $this->modules)){
+    if(isset($this->modules[$mod])){
       return true;
     }
     return false;
@@ -64,8 +78,23 @@ class bootstrap
      * //Auto discovery
      *
      */
+    $path = $this->config->application . DIRECTORY_SEPARATOR.'plugins';
+    $plugins = $path.DIRECTORY_SEPARATOR.'plugins.php';
 
-     $path = $this->config->application . '/plugins'; foreach (new DirectoryIterator($path) as $plugin) {
+    if(stream_resolve_include_path($plugins)){
+      $pluginsList = include $plugins;
+    }else{
+      $pluginsList['g5475ff2f44a9102d8b7'] = 'phiber';
+    }
+
+    if($this->config->PHIBER_MODE === 'production' && stream_resolve_include_path($plugins) && is_array($pluginsList)){
+      return $this->plugins = $pluginsList;
+    }
+
+
+
+
+      foreach (new DirectoryIterator($path) as $plugin) {
        if ($plugin->isDot()) {
          continue;
       }
@@ -75,6 +104,10 @@ class bootstrap
       }
      }
 
+     if(count(array_diff($pluginsList,$this->plugins)) !== 0 || count(array_diff($this->plugins,$pluginsList)) !== 0 || isset($pluginsList['g5475ff2f44a9102d8b7'])){
+       $code = '<?php return '.tools::transcribe($this->plugins).'; ?>';
+       file_put_contents($plugins, $code);
+     }
     return $this->plugins;
 
   }
