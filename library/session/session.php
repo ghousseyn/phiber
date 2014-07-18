@@ -32,14 +32,14 @@ class session extends eventfull
 
       if(isset($_SESSION[self::$namespace]['user']['activity']) && (time() - $_SESSION[self::$namespace]['user']['activity'] > \tools::orDefault((int) \config::getInstance()->PHIBER_SESSION_INACTIVE, 1800))){
 
-        //self::destroy();
+        self::destroy();
 
       }
 
 
       if(isset($_SESSION[self::$namespace]['user']['created']) && (time() - $_SESSION[self::$namespace]['user']['created'] > \tools::orDefault((int) \config::getInstance()->PHIBER_SESSION_REGENERATE, 1800))){
 
-       // self::regenerate();
+       self::regenerate();
 
       }
 
@@ -95,7 +95,7 @@ class session extends eventfull
   }
   public static function setNS($namespace,$value)
   {
-    $_SESSION[$namespace] = $value;
+    self::$namespace = $namespace;
   }
   public static function set($index, $value, $namespace = null)
   {

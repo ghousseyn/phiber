@@ -34,6 +34,13 @@ class tools
     $unit = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
     return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
   }
+  public static function transcribe(array $array)
+  {
+    $json = json_encode($array);
+    $text = '';
+    $text .= str_replace(array('[',']','{','}',':'),array('array(',')','array(',')','=>'),$json);
+    return $text;
+  }
 
   public static function orDefault($value, $default)
   {
@@ -42,11 +49,9 @@ class tools
     }
     return $default;
   }
-  public static function transcribe(array $array)
+  public static function getIp()
   {
-    $json = json_decode($array);
-    $text = 'array';
-    return $json;
+    return $_SERVER['REMOTE_ADDR'];
   }
   /*
    * Thanks to Aaron Fisher http://www.aaron-fisher.com/articles/web/php/wtf/
