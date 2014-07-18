@@ -11,7 +11,6 @@ require 'wire.php';
 class phiber extends wire
 {
 
-
   const PHIBER_ROUTE_FILE_PHP = 90;
   const PHIBER_ROUTE_FILE_YAML = 91;
   const PHIBER_ROUTE_FILE_XML = 92;
@@ -25,6 +24,7 @@ class phiber extends wire
 
   public function run($confFile = null)
   {
+
     spl_autoload_register(array($this, 'autoload'),true,true);
 
     if(null !== $confFile){
@@ -32,18 +32,17 @@ class phiber extends wire
 
     }
 
-    $this->phiber_bootstrap = \bootstrap::getInstance($this->config);
+    error::initiate($this->logger(),$this->config);
 
+    date_default_timezone_set($this->config->PHIBER_TIMEZONE);
+
+    $this->phiber_bootstrap = \bootstrap::getInstance($this->config);
 
     $this->session->start();
 
     $this->session->checkSession();
 
-    if($this->config->PHIBER_LOG){
 
-      error::initiate($this->logger());
-
-    }
 
     $this->register('context', null);
     $this->register('layoutEnabled', $this->config->layoutEnabled);
@@ -87,7 +86,7 @@ class phiber extends wire
   {
 
     foreach($this->phiber_bootstrap->getPlugins() as $plugin){
-      $this->load($plugin, null, $this->config->application . '/plugins/' . $plugin . '/')->run();
+      $this->load($plugin, null, $this->config->application.DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.$plugin .DIRECTORY_SEPARATOR)->run();
     }
   }
 
@@ -105,10 +104,10 @@ class phiber extends wire
 
     $this->register('http_method', $this->method);
     if($this->isValidURI($this->uri)){
-
+      $bootstrap = $this->phiber_bootstrap->getModules();
       $parts = explode("/", trim($this->uri));
       array_shift($parts);
-      if(! empty($parts[0]) && $this->phiber_bootstrap->getModules()->isModule($parts[0])){
+      if(! empty($parts[0]) && $bootstrap->isModule($parts[0])){
 
         $module = array_shift($parts);
         $controller = $this->hasController($parts, $module);
@@ -133,8 +132,8 @@ class phiber extends wire
 
       $route = array('module' => $module, 'controller' => $controller, 'action' => $action, 'vars' => $this->_requestVars);
     }else{
-      $route = array('module' => 'default', 'controller' => 'index', 'action' => \config::PHIBER_CONTROLLER_DEFAULT_METHOD);
-      $this->path = $this->config->application . '/modules/default/';
+      $route = array('module' => 'default', 'controller' => 'index', 'action' => $this->config->PHIBER_CONTROLLER_DEFAULT_METHOD);
+      $this->path = $this->config->application.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.'default'.DIRECTORY_SEPARATOR;
 
     }
 
@@ -251,7 +250,7 @@ class phiber extends wire
   private function hasController(&$parts, $module)
   {
 
-      $this->path = $this->config->application . '/modules/' . $module . '/';
+      $this->path = $this->config->application.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.$module.DIRECTORY_SEPARATOR;
 
 
     if(! empty($parts[0]) && stream_resolve_include_path($this->path . $parts[0] . '.php')){

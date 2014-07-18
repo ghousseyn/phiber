@@ -9,23 +9,27 @@ class error
   public static $instance;
 
   private $writer = null;
+  private static $config;
 
-  protected function __construct()
+  protected function __construct($config)
   {
     set_error_handler('Phiber\error::error_handler');
     set_exception_handler('Phiber\error::exception_handler');
     register_shutdown_function('Phiber\error::fatal_error_handler');
 
+    self::$config = $config;
     error_reporting(E_ALL);
     ini_set('display_errors', false);
-    if(! ini_get('log_errors') && \config::getInstance()->PHIBER_LOG){
+    if(! ini_get('log_errors') && self::$config->PHIBER_LOG){
       ini_set('log_errors', true);
     }
+
   }
-  public static function initiate(Logger\logger $writer)
+  public static function initiate(Logger\logger $writer,\config $config)
   {
-    self::$instance = new self();
+    self::$instance = new self($config);
     self::$instance->setWriter($writer);
+
     return self::$instance;
   }
 
@@ -36,7 +40,7 @@ class error
 
   public function write(\ErrorException $exception, $context = array())
   {
-    $this->writer->handle($exception, $context);
+    $this->writer->handle($exception, $context,self::$config);
   }
 
   public static function error_handler($errno, $errstr, $errfile, $errline, $errcontext)
@@ -54,19 +58,19 @@ class error
         case E_USER_ERROR:
           $type = 'Fatal Error';
           $sevirity = 9801;//emergency
-          self::$stop = true;
+          self::$stop = (self::$config->logLevel == 'debug')?false:true;
           break;
         case E_USER_WARNING:
           $type = 'User Warning';
           $sevirity = 9805;//warning
-          self::$stop = \config::getInstance()->STOP_ON_USER_WARNINGS;
+          self::$stop = self::$config->STOP_ON_USER_WARNINGS;
           break;
         case E_COMPILE_WARNING:
         case E_CORE_WARNING:
         case E_WARNING:
           $type = 'Warning';
           $sevirity = 9803;//critical
-          self::$stop = \config::getInstance()->STOP_ON_WARNINGS;
+          self::$stop = self::$config->STOP_ON_WARNINGS;
           break;
         case E_USER_NOTICE:
         case E_NOTICE:
