@@ -11,6 +11,7 @@ abstract class wire
   protected $keyHashes;
   protected $confFile;
 
+
   protected function __construct()
   {
     $this->keyHashes = array('view'=>md5('Phiber.View'));
@@ -26,13 +27,25 @@ abstract class wire
   {
     header("Location: $url", $replace, $code);
   }
-
+  protected function addLib($name,$src = null)
+  {
+    if(null === $src){
+      $src = $name;
+    }
+    if($this->session->exists($name)){
+      $libs = $this->session->get('libs');
+    }else{
+      $libs =array();
+    }
+    $libs[$name] = $src;
+    $this->session->set('libs', $libs);
+  }
   protected function getView()
   {
 
     $path = array_slice($this->route, 0,3,true);
 
-    $path = $this->config->application . '/modules/' . array_shift($path) . '/views/' . implode('/', $path) . '.php';
+    $path = $this->config->application.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.array_shift($path).DIRECTORY_SEPARATOR.'views'.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $path) . '.php';
 
     $this->view->viewPath = $path;
 
@@ -47,7 +60,7 @@ abstract class wire
   }
   protected function renderLayout()
   {
-    require $this->config->application . '/layouts/layout.php';
+    require $this->config->application.DIRECTORY_SEPARATOR.'layouts'.DIRECTORY_SEPARATOR.'layout.php';
   }
 
   private function isHttpMethod($method)
@@ -144,14 +157,14 @@ abstract class wire
 
   protected function setLog($logger = null,$params = null,$name = null)
   {
-    if(null === $logger || !stream_resolve_include_path($this->config->library.'/logger/'.$logger.'.php')){
+    if(null === $logger || !stream_resolve_include_path($this->config->library.DIRECTORY_SEPARATOR.'logger'.DIRECTORY_SEPARATOR.$logger.'.php')){
       $logger = $this->config->PHIBER_LOG_DEFAULT_HANDLER;
     }
     if(null === $params){
-      $params = array('default',$this->config->logDir.'/'.$this->config->PHIBER_LOG_DEFAULT_FILE);
+      $params = array('default',$this->config->logDir.DIRECTORY_SEPARATOR.$this->config->PHIBER_LOG_DEFAULT_FILE);
     }
     if(!is_array($params)){
-      $params = array($params,$this->config->logDir.'/'.$params.'.log');
+      $params = array($params,$this->config->logDir.DIRECTORY_SEPARATOR.$params.'.log');
     }
     $logWriter = "Phiber\\Logger\\$logger";
     $writer = new $logWriter($params,$this->config->logLevel);
@@ -168,7 +181,7 @@ abstract class wire
     if($this->session->exists($name)){
       $log = $this->get($name);
       $class = "Phiber\\Logger\\$log[0]";
-      if(stream_resolve_include_path($this->config->library.'/logger/'.$log[0].'.php')){
+      if(stream_resolve_include_path($this->config->library.DIRECTORY_SEPARATOR.'logger'.DIRECTORY_SEPARATOR.$log[0].'.php')){
         $logObject = new $class($log[1],$this->config->logLevel);
         return ($logObject instanceof Logger\logger)? $logObject : $this->logger();
       }
@@ -207,7 +220,7 @@ abstract class wire
         return;
       }
 
-      $module = $this->config->application.'/modules/'.$this->route['module']. DIRECTORY_SEPARATOR;
+      $module = $this->config->application.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.$this->route['module']. DIRECTORY_SEPARATOR;
 
       if(stream_resolve_include_path($module . $class . '.php')){
 
@@ -217,16 +230,27 @@ abstract class wire
       return;
     }
 
+
     $parts = explode('\\', $class);
 
 
     $count = count($parts);
     if($parts[0] !== 'Phiber'){
 
-      $path = $this->config->application .  DIRECTORY_SEPARATOR;
+      $libs = $libs = $this->session->get('libs','PhiberLibs');
+
+      if(isset($libs[$parts[0]])){
+
+        $path = $this->config->application.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.$libs[$parts[0]].DIRECTORY_SEPARATOR;
+
+      }else{
+
+        $path = $this->config->application.DIRECTORY_SEPARATOR;
+
+      }
     }
     for($i=0; $i < $count; $i++){
-      if($parts[$i] === 'Phiber'){
+      if($parts[$i] === 'Phiber' || (isset($libs[$parts[0]]) && $i != $count - 1)){
         continue;
       }
       if($i == $count - 1){
@@ -242,16 +266,13 @@ abstract class wire
       return;
     }
 
-
-
   }
-
 
   protected function load($class, $params = null, $path = null, $inst = true)
   {
     $newpath = $path;
     if(null === $newpath){
-      $newpath = __DIR__ . '/';
+      $newpath = __DIR__ . DIRECTORY_SEPARATOR;
     }
     $incpath = $newpath . $class . '.php';
 

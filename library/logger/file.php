@@ -8,10 +8,12 @@ class file extends logger
 
   public function __construct($params = array(),$globalLevel = 'error')
   {
-    $logName = $params[0];
     $logFile = $params[1];
     $this->file = $logFile;
     $this->level = $globalLevel;
+    $date = new \DateTime($this->config->PHIBER_TIMEZONE);
+    $dateTime = (array) $date;
+    $this->prepend = $dateTime['date'].' ['.\tools::getIp().'] ['.$_SERVER['REQUEST_URI'].'] ';
   }
 
   /**
