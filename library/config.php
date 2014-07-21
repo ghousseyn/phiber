@@ -10,6 +10,10 @@
 class config
 {
   private static $instance = null;
+
+  public $PHIBER_TIMEZONE = 'Africa/Algiers';
+
+  public $PHIBER_MOD = 'dev';
   /*
    * DB configuration properties
   */
