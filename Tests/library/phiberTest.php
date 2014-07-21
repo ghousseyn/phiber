@@ -167,19 +167,7 @@ class phiberTest extends PhiberTests
     $this->assertTrue($ret);
     $this->assertEquals('/default/index/main',$_SERVER['REQUEST_URI']);
    }
-   public function testRouteMatchSimpleArray()
-   {
-     $myroute = array('module'=>'default','controller'=>'index','action'=>'main','vars'=>array('id'=>1));
-     $route = array('/info'=>$myroute);
-     $this->main->addRoute($route);
-     $_SERVER['REQUEST_METHOD'] = 'GET';
-     $_SERVER['REQUEST_URI'] = '/info';
-     $_SERVER['REMOTE_ADDR'] = '0.0.0.0';
-     $this->main->run();
-     $route = $this->getProperty($this->main,'route');
 
-     $this->assertEquals($myroute,$route);
-   }
    public function testRouteMatchRegex()
    {
      $routes = array('~/info/(\d+)/(\d+)~'=>'/default/index/main/:cat/:id');
