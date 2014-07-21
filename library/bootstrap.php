@@ -41,6 +41,10 @@ class bootstrap
       return $this;
     }
     // Auto discovery
+    if(!is_dir($path)){
+      $this->modules = array();
+      return $this;
+    }
     foreach(new DirectoryIterator($path) as $mods){
       if($mods->isDot()){
         continue;

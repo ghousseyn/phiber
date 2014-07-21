@@ -43,7 +43,7 @@ class phiberTest extends PhiberTests
       $route = array('module' => 'default', 'controller' => 'index', 'action' => 'main');
       $this->invokeMethod($this->main,'register',array('route',$route));
       $this->invokeMethod($this->main,'getView');
-      $this->assertEquals('application/modules/default/views/index/main.php',$this->main->view->viewPath);
+      $this->assertEquals('application'.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.'default'.DIRECTORY_SEPARATOR.'views'.DIRECTORY_SEPARATOR.'index'.DIRECTORY_SEPARATOR.'main.php',$this->main->view->viewPath);
     }
     public function testGet()
     {
@@ -157,6 +157,37 @@ class phiberTest extends PhiberTests
      $this->invokeMethod($this->main,'addRoute',array($route));
      $routes = $this->getProperty($this->main,'routes');
      $this->assertEquals(1,count($routes));
+   }
+   public function testRouteMatchSimple()
+   {
+    $routes = array('/info'=>'/default/index/main');
+    $this->setProperty($this->main, 'phiber_bootstrap', \bootstrap::getInstance(\config::getInstance()));
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $ret = $this->invokeMethod($this->main, 'routeMatchSimple',array($routes,'/info'));
+    $this->assertTrue($ret);
+    $this->assertEquals('/default/index/main',$_SERVER['REQUEST_URI']);
+   }
+   public function testRouteMatchSimpleArray()
+   {
+     $myroute = array('module'=>'default','controller'=>'index','action'=>'main','vars'=>array('id'=>1));
+     $route = array('/info'=>$myroute);
+     $this->main->addRoute($route);
+     $_SERVER['REQUEST_METHOD'] = 'GET';
+     $_SERVER['REQUEST_URI'] = '/info';
+     $_SERVER['REMOTE_ADDR'] = '0.0.0.0';
+     $this->main->run();
+     $route = $this->getProperty($this->main,'route');
+
+     $this->assertEquals($myroute,$route);
+   }
+   public function testRouteMatchRegex()
+   {
+     $routes = array('~/info/(\d+)/(\d+)~'=>'/default/index/main/:cat/:id');
+     $this->setProperty($this->main, 'phiber_bootstrap', \bootstrap::getInstance(\config::getInstance()));
+     $_SERVER['REQUEST_METHOD'] = 'GET';
+     $ret = $this->invokeMethod($this->main, 'routeMatchRegex',array($routes,'/info/14/13'));
+     $this->assertTrue($ret);
+     $this->assertEquals('/default/index/main/cat/14/id/13',$_SERVER['REQUEST_URI']);
    }
 
     public function providerURI()

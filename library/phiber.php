@@ -42,8 +42,6 @@ class phiber extends wire
 
     $this->session->checkSession();
 
-
-
     $this->register('context', null);
     $this->register('layoutEnabled', $this->config->layoutEnabled);
     $this->register('ajax', false);
