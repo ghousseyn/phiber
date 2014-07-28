@@ -16,12 +16,12 @@ interface phiberEventSubject
    *
    * @param \Phiber\Interfaces\phiberEventObserver $observer
    */
-  public static function attach(phiberEventObserver $observer);
+  public static function attach($observer);
   /**
    *
    * @param \Phiber\Interfaces\phiberEventObserver $observer
    */
-  public static function detach(phiberEventObserver $observer);
+  public static function detach($observer);
 
 }
 ?>
