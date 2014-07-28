@@ -6,7 +6,7 @@ use Phiber\Interfaces\phiberEventObserver;
 use Phiber\Session\session;
 use Phiber\Event\event;
 
-abstract class eventfull implements phiberEventSubject
+class eventfull implements phiberEventSubject
 {
   public static function getEvents()
   {
@@ -15,20 +15,27 @@ abstract class eventfull implements phiberEventSubject
 
   private static $event_listeners_namespace = 'phiber_event_listeners';
 
-  public static function attach(phiberEventObserver $observer, $event = null)
+
+  public static function attach($observer, $event = null)
   {
 
     if(null !== $event){
+      if(strpos($event,'.') === false){
+        foreach($event::getEvents() as $event){
+          self::attach($observer,$event);
+        }
+        return;
+      }
       $parts = explode('.',$event);
       if(!session::nsExists(self::$event_listeners_namespace)){
-        session::set(sha1($observer->__toString()), array($parts[0] => array($parts[1]=>$event)),self::$event_listeners_namespace);
-        session::set(sha1($observer->__toString()), array('object' => $observer),self::$event_listeners_namespace);
+        session::set(sha1($observer), array($parts[0] => array($parts[1]=>$event)),self::$event_listeners_namespace);
+        session::set(sha1($observer), array('object' => $observer),self::$event_listeners_namespace);
 
       }else{
-        if(!session::exists(sha1($observer->__toString()), self::$event_listeners_namespace)){
-          session::set(sha1($observer->__toString()), array('object' => $observer),self::$event_listeners_namespace);
+        if(!session::exists(sha1($observer), self::$event_listeners_namespace)){
+          session::set(sha1($observer), array('object' => $observer),self::$event_listeners_namespace);
         }
-        session::append(sha1($observer->__toString()), array($parts[0] => array($parts[1],$event)),self::$event_listeners_namespace,true);
+        session::append(sha1($observer), array($parts[0] => array($parts[1],$event)),self::$event_listeners_namespace,true);
       }
 
     }else{
@@ -38,24 +45,30 @@ abstract class eventfull implements phiberEventSubject
     }
 
   }
-  public static function detach(phiberEventObserver $observer, $event = null)
+  public static function detach($observer, $event = null)
   {
     if(null !== $event){
+      if(strpos($event,'.') === false){
+        foreach($event::getEvents() as $event){
+          self::detach($observer,$event);
+        }
+        return;
+      }
       $parts = explode('.',$event);
-      if(isset($_SESSION[self::$event_listeners_namespace][sha1($observer->__toString())][$parts[0]])){
-        $path = $_SESSION[self::$event_listeners_namespace][sha1($observer->__toString())][$parts[0]];
+      if(isset($_SESSION[self::$event_listeners_namespace][sha1($observer)][$parts[0]])){
+        $path = $_SESSION[self::$event_listeners_namespace][sha1($observer)][$parts[0]];
       }
 
       $path[$parts[1]] = null;
 
       $path = array_filter($path,'strlen');
       if(count($path)){
-        $_SESSION[self::$event_listeners_namespace][sha1($observer->__toString())][$parts[0]] = $path;
+        $_SESSION[self::$event_listeners_namespace][sha1($observer)][$parts[0]] = $path;
         return;
       }
     }
 
-    session::delete(sha1($observer->__toString()), self::$event_listeners_namespace);
+    session::delete(sha1($observer), self::$event_listeners_namespace);
 
   }
   public static function notify(event $event)
@@ -63,6 +76,8 @@ abstract class eventfull implements phiberEventSubject
 
     if(session::isStarted() && is_array(session::getNS(self::$event_listeners_namespace))){
       foreach(session::getNS(self::$event_listeners_namespace) as $observer){
+        $obs = $observer['object'];
+        $observer['object'] = new $obs;
         if(isset($observer[strstr($event->current['event'],'.',true)]) && in_array($event->current['event'], $observer[strstr($event->current['event'],'.',true)]))
         $observer['object']->update($event);
       }
