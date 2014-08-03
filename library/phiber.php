@@ -7,51 +7,68 @@
  * @package     Phiber
  */
 namespace Phiber;
-require 'wire.php';
+
+
 class phiber extends wire
 {
 
-  const PHIBER_ROUTE_FILE_PHP = 90;
-  const PHIBER_ROUTE_FILE_YAML = 91;
-  const PHIBER_ROUTE_FILE_XML = 92;
-
+  private $controller;
   private $path;
   private $uri;
   private $routes = array();
-  private $phiber_bootstrap;
   private $_requestVars = array();
-  private $method;
+  private $plugins = array();
 
-  public function run($confFile = null)
+  public $method;
+  public $libs = array();
+  public $ajax = false;
+  public $route;
+  public $request;
+  public $logger;
+
+  private static $instance;
+
+  const EVENT_BOOT = 'phiber.boot';
+
+  const EVENT_SHUTDOWN = 'phiber.shutdown';
+
+  const EVENT_DISPATCH = 'phiber.dispatch';
+
+  public static function getInstance()
   {
-
-    spl_autoload_register(array($this, 'autoload'),true,true);
-
-    if(null !== $confFile){
-      $this->confFile = $confFile;
-
+    if(null !== self::$instance){
+      return self::$instance;
     }
+
+    return self::$instance = new self;
+  }
+
+  public function run()
+  {
 
     error::initiate($this->logger(),$this->config);
 
     date_default_timezone_set($this->config->PHIBER_TIMEZONE);
 
-    $this->phiber_bootstrap = \bootstrap::getInstance($this->config);
-
     $this->session->start();
 
-    $this->session->checkSession();
+    Event\eventfull::notify(new Event\event(self::EVENT_BOOT, __class__));
 
-    $this->register('context', null);
-    $this->register('layoutEnabled', $this->config->layoutEnabled);
-    $this->register('ajax', false);
+    $this->session->checkSession();
 
     $this->router($this->getRoutes());
 
     $this->plugins();
+
     $this->dispatch();
+
+    Event\eventfull::notify(new Event\event(self::EVENT_DISPATCH, __class__));
+
     $this->getView();
+
     $this->view->showTime();
+
+    Event\eventfull::notify(new Event\event(self::EVENT_SHUTDOWN, __class__));
 
   }
   private function getRoutes()
@@ -80,12 +97,57 @@ class phiber extends wire
     }
 
   }
-  private function plugins()
+  private function getPlugins()
   {
 
-    foreach($this->phiber_bootstrap->getPlugins() as $plugin){
-      $this->load($plugin, null, $this->config->application.DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.$plugin .DIRECTORY_SEPARATOR)->run();
+
+    $path = $this->config->application . DIRECTORY_SEPARATOR.'plugins';
+    $plugins = $path.DIRECTORY_SEPARATOR.'plugins.php';
+
+    if(stream_resolve_include_path($plugins)){
+      $pluginsList = include $plugins;
+    }else{
+      $pluginsList['g5475ff2f44a9102d8b7'] = 'phiber';
     }
+
+    if($this->config->PHIBER_MODE === 'production' && stream_resolve_include_path($plugins) && is_array($pluginsList)){
+      return $pluginsList;
+    }
+
+    /*
+     * //Auto discovery
+    *
+    */
+
+    foreach (new \DirectoryIterator($path) as $plugin) {
+      if ($plugin->isDot()) {
+        continue;
+      }
+      $dir = $path . "/" . $plugin->getFilename();
+      if (is_dir($dir)) {
+        $this->plugins[] = $plugin->getFilename();
+      }
+    }
+
+    if(count(array_diff($pluginsList,$this->plugins)) !== 0 || count(array_diff($this->plugins,$pluginsList)) !== 0 || isset($pluginsList['g5475ff2f44a9102d8b7'])){
+      $code = '<?php return '.\tools::transcribe($this->plugins).'; ?>';
+      file_put_contents($plugins, $code);
+
+    }
+
+    return $this->plugins;
+
+  }
+  private function plugins()
+  {
+    $plugins = $this->getPlugins();
+    if(count($plugins)){
+      foreach($plugins as $plugin){
+        include $this->config->application.DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.$plugin .DIRECTORY_SEPARATOR.$plugin.'.php';
+        $plugin::getInstance()->run();
+      }
+    }
+
   }
 
   private function router(array $routes = null)
@@ -100,12 +162,11 @@ class phiber extends wire
     }
     $this->method = $_SERVER['REQUEST_METHOD'];
 
-    $this->register('http_method', $this->method);
     if($this->isValidURI($this->uri)){
-      $bootstrap = $this->phiber_bootstrap->getModules();
+
       $parts = explode("/", trim($this->uri));
-      array_shift($parts);
-      if(! empty($parts[0]) && $bootstrap->isModule($parts[0])){
+      unset($parts[0]);
+      if(! empty($parts[0]) && is_dir($this->config->application.'/modules/'.$parts[0])){
 
         $module = array_shift($parts);
         $controller = $this->hasController($parts, $module);
@@ -136,10 +197,10 @@ class phiber extends wire
     }
 
     if(! empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'){
-      $this->register('ajax', true);
+      $this->ajax = true;
     }
-    $this->register('route', $route);
-    $this->register('_request', $this->_requestVars);
+    $this->route = $route;
+    $this->request = $this->_requestVars;
   }
 
   private function routeMatchSimple($routes, $current)
@@ -218,11 +279,10 @@ class phiber extends wire
   }
   private function isValidURI(&$uri)
   {
-    $uri = str_replace('/?', '/', $uri);
-    $uri = str_replace('?', '/?', $uri);
-    $uri = str_replace('/?', '/', $uri);
-    $uri = str_replace('&', '/', $uri);
-    $uri = str_replace('=', '/', $uri);
+    $needles = array('/?','?','/?','&','=');
+    $replace = array('/','/?','/','/','/',);
+    $uri = str_replace($needles, $replace, $uri);
+
 
     if(preg_match('~^(?:[/\\w\\s-\,\$\.\*\!\'\(\)\~]+)+/?$~u', $uri)){
 
@@ -249,22 +309,23 @@ class phiber extends wire
   {
 
       $this->path = $this->config->application.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.$module.DIRECTORY_SEPARATOR;
-
+      $controller = $this->config->PHIBER_CONTROLLER_DEFAULT;
 
     if(! empty($parts[0]) && stream_resolve_include_path($this->path . $parts[0] . '.php')){
 
-      return array_shift($parts);
+      $controller = array_shift($parts);
 
     }
+    $this->controller = $this->loadController($controller);
 
-    return $this->config->PHIBER_CONTROLLER_DEFAULT;
+    return $controller;
 
   }
 
   private function hasAction(&$parts, $controller)
   {
 
-    if(! empty($parts[0]) && method_exists($this->load($controller, null, $this->path, false), $parts[0])){
+    if(! empty($parts[0]) && method_exists($this->controller, $parts[0])){
 
       return array_shift($parts);
 
@@ -276,27 +337,27 @@ class phiber extends wire
   }
 
 
-  protected function dispatch()
+  private function dispatch()
   {
 
     $controller = $this->route['controller'];
     $action = $this->route['action'];
 
-    $instance = $this->load($controller, null, $this->path);
-
-    if(method_exists($instance, $action)){
-
-      $instance->{$action}();
-    }else{
-
-      $instance->{$this->config->PHIBER_CONTROLLER_DEFAULT_METHOD}();
-
+    if(method_exists($this->controller,$action)){
+      $this->controller->{$action}();
     }
 
   }
 
+  private function loadController($controller)
+  {
+    require $this->path.$controller.'.php';
+    return $controller::getInstance();
+  }
 
-
-
+  public static function getEvents()
+  {
+    return array(self::EVENT_BOOT, self::EVENT_DISPATCH, self::EVENT_SHUTDOWN);
+  }
 }
 ?>
