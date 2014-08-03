@@ -8,24 +8,36 @@
  */
 class view extends Phiber\phiber
 {
+  private static $instance;
+
   public function showTime()
   {
 
-    if($this->get('layoutEnabled')){
+    if($this->config->layoutEnabled){
       $this->renderLayout();
     }else{
       if(stream_resolve_include_path($this->viewPath)){
-        include $this->content;
+        include $this->render();
       }
     }
 
-    Phiber\Session\session::delete($this->keyHashes['view']);
-
+  }
+  protected function render()
+  {
+    include $this->content;
   }
   public function getURI()
   {
     return '/'.$this->route['module'].'/'.$this->route['controller'].'/'.$this->route['action'];
   }
 
+
+  public static function getInstance()
+  {
+    if(null !== self::$instance){
+      return self::$instance;
+    }
+    return self::$instance = new self;
+  }
 }
 
