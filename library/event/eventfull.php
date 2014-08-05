@@ -3,7 +3,6 @@ namespace Phiber\Event;
 
 use Phiber\Interfaces\phiberEventSubject;
 use Phiber\Interfaces\phiberEventObserver;
-use Phiber\Session\session;
 use Phiber\Event\event;
 
 class eventfull implements phiberEventSubject
@@ -13,12 +12,8 @@ class eventfull implements phiberEventSubject
     return array();
   }
 
-  private static $event_listeners_namespace = 'phiber_event_listeners';
-
-
   public static function attach($observer, $event = null)
   {
-    $session = session::getInstance();
 
     if(null !== $event){
       if(strpos($event,'.') === false){
@@ -27,18 +22,13 @@ class eventfull implements phiberEventSubject
         }
         return;
       }
+      $observers = \Phiber\wire::getInstance()->getObservers();
       $parts = explode('.',$event);
-      if(!$session->nsExists(self::$event_listeners_namespace)){
-        $session->set(sha1($observer), array($parts[0] => array($parts[1]=>$event)),self::$event_listeners_namespace);
-        $session->set(sha1($observer), array('object' => $observer),self::$event_listeners_namespace);
 
-      }else{
-        if(!$session->exists(sha1($observer), self::$event_listeners_namespace)){
-          $session->set(sha1($observer), array('object' => $observer),self::$event_listeners_namespace);
-        }
-        $session->append(sha1($observer), array($parts[0] => array($parts[1],$event)),self::$event_listeners_namespace,true);
-      }
+      $observers[sha1($observer)]['object'] = $observer;
+      $observers[sha1($observer)][$parts[0]][$parts[1]] = $event;
 
+      \Phiber\wire::getInstance()->addObserver(sha1($observer), $observers[sha1($observer)]);
     }else{
       foreach(static::getEvents() as $event){
         self::attach($observer,$event);
@@ -48,7 +38,8 @@ class eventfull implements phiberEventSubject
   }
   public static function detach($observer, $event = null)
   {
-    if(!isset($_SESSION[self::$event_listeners_namespace][sha1($observer)])){
+    $observers = \Phiber\wire::getInstance()->getObservers();
+    if(!isset($observers)){
       return false;
     }
     if(null !== $event){
@@ -59,8 +50,8 @@ class eventfull implements phiberEventSubject
         return;
       }
       $parts = explode('.',$event);
-      if(isset($_SESSION[self::$event_listeners_namespace][sha1($observer)][$parts[0]])){
-        $path = $_SESSION[self::$event_listeners_namespace][sha1($observer)][$parts[0]];
+      if(isset($observers[sha1($observer)][$parts[0]])){
+        $path = $observers[sha1($observer)][$parts[0]];
       }else{
         return false;
       }
@@ -69,21 +60,26 @@ class eventfull implements phiberEventSubject
 
       $path = array_filter($path,'strlen');
       if(count($path)){
-        $_SESSION[self::$event_listeners_namespace][sha1($observer)][$parts[0]] = $path;
+        $observers[sha1($observer)][$parts[0]] = $path;
+        \Phiber\wire::getInstance()->addObserver(sha1($observer), $observers[sha1($observer)]);
         return;
       }
     }
-    session::getInstance()->delete(sha1($observer), self::$event_listeners_namespace);
+
+    \Phiber\wire::getInstance()->removeObserver(sha1($observer));
 
   }
   public static function notify(event $event)
   {
-    $session = session::getInstance();
-    if($session->isStarted() && is_array($session->getNS(self::$event_listeners_namespace))){
-      foreach($session->getNS(self::$event_listeners_namespace) as $observer){
-        $obs = $observer['object'];
-        $observer['object'] = new $obs;
-        if(isset($observer[strstr($event->current['event'],'.',true)]) && in_array($event->current['event'], $observer[strstr($event->current['event'],'.',true)]))
+    $observers = \Phiber\wire::getInstance()->getObservers();
+    if(count($observers)){
+      foreach($observers as $observer){
+
+        if(!is_object($observer['object'])){
+          $observer['object'] = new $observer['object'];
+        }
+        $regEvent = strstr($event->current['event'],'.',true);
+        if(isset($observer[$regEvent]) && in_array($event->current['event'], $observer[$regEvent]))
         $observer['object']->update($event);
       }
     }

@@ -18,8 +18,9 @@ class phiber extends wire
   private $routes = array();
   private $_requestVars = array();
   private $plugins = array();
+  private $stop = false;
 
-  public $method;
+  private $method;
   public $libs = array();
   public $ajax = false;
   public $route;
@@ -39,67 +40,18 @@ class phiber extends wire
     if(null !== self::$instance){
       return self::$instance;
     }
-
     return self::$instance = new self;
-  }
-
-  public function run()
-  {
-
-    error::initiate($this->logger(),$this->config);
-
-    date_default_timezone_set($this->config->PHIBER_TIMEZONE);
-
-    $this->session->start();
-
-    Event\eventfull::notify(new Event\event(self::EVENT_BOOT, __class__));
-
-    $this->session->checkSession();
-
-    $this->router($this->getRoutes());
-
-    $this->plugins();
-
-    $this->dispatch();
-
-    Event\eventfull::notify(new Event\event(self::EVENT_DISPATCH, __class__));
-
-    $this->getView();
-
-    $this->view->showTime();
-
-    Event\eventfull::notify(new Event\event(self::EVENT_SHUTDOWN, __class__));
-
   }
   private function getRoutes()
   {
     return (count($this->routes))?$this->routes:null;
   }
-  public function addRoute(array $routes)
+  public function addNewRoute($rule, $route)
   {
-    if(count($routes)){
-      foreach($routes as $rule => $path){
-        $this->routes[$rule] = $path;
-      }
-
-    }
-  }
-  public function addRoutesFile($path)
-  {
-    if(stream_resolve_include_path($path)){
-      $routes = include $path;
-      if(is_array($routes)){
-        foreach($routes as $route){
-          $this->addRoute($route);
-        }
-      }
-
-    }
-
+    $this->routes[$rule] = $route;
   }
   private function getPlugins()
   {
-
 
     $path = $this->config->application . DIRECTORY_SEPARATOR.'plugins';
     $plugins = $path.DIRECTORY_SEPARATOR.'plugins.php';
@@ -150,21 +102,39 @@ class phiber extends wire
 
   }
 
+  private function uriNormalize($uri)
+  {
+    $needles = array('/?','?','/?','&','=');
+    $replace = array('/','/?','/','/','/',);
+    return trim(str_replace($needles, $replace, $uri));
+  }
   private function router(array $routes = null)
   {
 
-
     $this->uri = urldecode($_SERVER['REQUEST_URI']);
 
-    if(null !== $routes && ($this->routeMatchSimple($routes, $this->uri) || $this->routeMatchRegex($routes, $this->uri))){
-
-      return;
-    }
     $this->method = $_SERVER['REQUEST_METHOD'];
 
     if($this->isValidURI($this->uri)){
 
-      $parts = explode("/", trim($this->uri));
+      if(strpos($this->uri,'?') !== false){
+
+        if(count(explode('/',$this->uri)) < 3){
+          $params = ltrim(strstr($this->uri,'?'),'?');
+          $this->setVars(explode('/',$this->uriNormalize($params)));
+          $this->uri = strstr($this->uri,'?',true);
+        }
+
+      }
+
+      if(null !== $routes && ($this->routeMatchSimple($routes, $this->uri) || $this->routeMatchRegex($routes, $this->uri))){
+
+        return;
+      }
+
+      $this->uri = $this->uriNormalize($this->uri);
+
+      $parts = explode("/", $this->uri);
       unset($parts[0]);
       if(! empty($parts[0]) && is_dir($this->config->application.'/modules/'.$parts[0])){
 
@@ -202,7 +172,6 @@ class phiber extends wire
     $this->route = $route;
     $this->request = $this->_requestVars;
   }
-
   private function routeMatchSimple($routes, $current)
   {
     if(strpos($current,'~') !== false){
@@ -212,6 +181,13 @@ class phiber extends wire
 
       if(is_array($routes[$current])){
         $this->route = $routes[$current];
+      }elseif(is_callable($routes[$current])){
+        $fn = $routes[$current];
+        $rt = $fn($this);
+        if($rt === true){
+          return false;
+        }
+        $this->stop = true;
       }elseif($this->isValidURI($routes[$current])){
 
         $_SERVER['REQUEST_URI'] = $routes[$current];
@@ -244,6 +220,12 @@ class phiber extends wire
              }
            }
            $this->route = $route;
+         }elseif(is_callable($route)){
+           $rt = $route($this);
+           if($rt === true){
+             return false;
+           }
+           $this->stop = true;
          }elseif(strpos($route, ':') !== false){
            $route = trim($route,'/');
            $parts = explode('/',$route);
@@ -277,22 +259,45 @@ class phiber extends wire
     }
     return false;
   }
-  private function isValidURI(&$uri)
+  private function isValidURI($uri)
   {
-    $needles = array('/?','?','/?','&','=');
-    $replace = array('/','/?','/','/','/',);
-    $uri = str_replace($needles, $replace, $uri);
 
-
-    if(preg_match('~^(?:[/\\w\\s-\,\$\.\*\!\'\(\)\~]+)+/?$~u', $uri)){
+    if(preg_match('~^(?:[/\\w\\s-\,\$\.\*\!\'\(\)\~?=&]+)+/?$~u', $uri)){
 
       return true;
     }
     return false;
   }
+  public function run()
+  {
 
+    error::initiate($this->logger(),$this->config);
 
+    date_default_timezone_set($this->config->PHIBER_TIMEZONE);
 
+    $this->session->start();
+
+    new \bootstrap\start($this);
+
+    Event\eventfull::notify(new Event\event(self::EVENT_BOOT, __class__));
+
+    $this->session->checkSession();
+
+    $this->router($this->getRoutes());
+
+    $this->plugins();
+
+    if(!$this->stop){
+
+      $this->dispatch();
+
+      $this->getView();
+
+      $this->view->showTime();
+    }
+    Event\eventfull::notify(new Event\event(self::EVENT_SHUTDOWN, __class__));
+
+  }
   private function setVars($parts)
   {
     foreach($parts as $k => $val){
@@ -346,7 +351,7 @@ class phiber extends wire
     if(method_exists($this->controller,$action)){
       $this->controller->{$action}();
     }
-
+    Event\eventfull::notify(new Event\event(self::EVENT_DISPATCH, __class__));
   }
 
   private function loadController($controller)

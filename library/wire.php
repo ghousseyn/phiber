@@ -10,22 +10,38 @@ class wire
   protected $vars = array();
   protected $confFile;
 
-  public function __construct()
+  public function __construct($confFile = null)
   {
     spl_autoload_register(array($this, 'autoload'),true,true);
+    $this->confFile = $confFile;
   }
   public static function getInstance()
   {
     return new static();
   }
-  public function boot($confFile)
+  public function boot()
   {
-    $this->confFile = $confFile;
-    new \bootstrap\start($this);
+
     phiber::getInstance()->run();
 
   }
+  public function addRoute($rule, $route)
+  {
+    $this->phiber->addNewRoute($rule, $route);
+  }
+  public function addRoutesFile($path)
+  {
+    if(stream_resolve_include_path($path)){
+      $routes = include $path;
+      if(is_array($routes)){
+        foreach($routes as $route){
+          $this->addRoute($route[0],$route[1]);
+        }
+      }
 
+    }
+
+  }
   protected function _redirect($url, $replace = true, $code = 307)
   {
     header("Location: $url", $replace, $code);
@@ -169,10 +185,7 @@ class wire
     if(!is_array($params)){
       $params = array($params,$this->config->logDir.'/'.$params.'.log');
     }
-    if(!is_writable($params[1])){
-      trigger_error('Log destination '.$params[1].' is not writable!',E_USER_WARNING);
-      return;
-    }
+
     $logWriter = "Phiber\\Logger\\$logger";
     $writer = new $logWriter($params,$this->config->logLevel);
 
@@ -205,7 +218,30 @@ class wire
     echo json_encode($data);
     exit(0);
   }
-
+  public function addObserver($name, $object)
+  {
+    $this->phiber->observers[$name] = $object;
+  }
+  public function getObservers()
+  {
+    return $this->phiber->observers;
+  }
+  public function removeObserver($name, $object)
+  {
+    unset($this->phiber->observers);
+  }
+  public static function attach($observer, $event = null)
+  {
+    return Event\eventfull::attach($observer, $event = null);
+  }
+  public static function detach($observer, $event = null)
+  {
+    return Event\eventfull::detach($observer, $event = null);
+  }
+  public static function notify(Event\event $event)
+  {
+    Event\eventfull::notify($event);
+  }
   public function autoload($class)
   {
 
@@ -220,7 +256,7 @@ class wire
 
     }
     $path = $this->config->library . DIRECTORY_SEPARATOR;
-    if(! strstr($class, '\\')){
+    if(strpos($class, '\\') === false){
 
       if(stream_resolve_include_path($path . $class . '.php')){
 
@@ -232,15 +268,13 @@ class wire
 
       if(stream_resolve_include_path($module . $class . '.php')){
 
-        require_once $module . $class . '.php';
+        require $module . $class . '.php';
 
       }
       return true;
     }
 
-
     $parts = explode('\\', $class);
-
 
     $count = count($parts);
 
