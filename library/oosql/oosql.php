@@ -658,7 +658,9 @@ class oosql extends \PDO
    * @todo define these
    */
 
-  public function groupBy(){
+  public function groupBy()
+  {
+
   }
   public function having(){
   }
