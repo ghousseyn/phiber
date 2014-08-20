@@ -27,7 +27,7 @@ class session
     $_SESSION[self::$namespace]['user']['activity'] = time();
 
   }
-  public function checkSession()
+  public function check()
   {
 
       if(isset($_SESSION[self::$namespace]['user']['activity']) && (time() - $_SESSION[self::$namespace]['user']['activity'] > \tools::orDefault((int) \config::getInstance()->PHIBER_SESSION_INACTIVE, 1800))){

@@ -14,6 +14,10 @@ class cachePool implements cache
     $this->handler = $driver;
 
   }
+  public function isHit()
+  {
+    return $this->handler->isHit();
+  }
   public function getHandle()
   {
     return $this->handler;
