@@ -116,7 +116,7 @@ abstract class oogen extends \PDO
         }
         $this->text .= '        );' . PHP_EOL . '  }' . PHP_EOL;
       }else{
-        $this->text .= '  public function getPrimaryValue($key=null)' . PHP_EOL . '  {' . PHP_EOL . '    if(null === $key){' . PHP_EOL . '      return array("' . implode("", $primKey) . '" => $this->' . implode("", $primKey) . ');' . PHP_EOL . '    }' . PHP_EOL . '    $pri = $this->getPrimary();' . PHP_EOL . '    if(in_array($key,$pri)){' . PHP_EOL . '      return $this->{$pri[$key]};' . PHP_EOL . '    }' . PHP_EOL . '  }' . PHP_EOL;
+        $this->text .= '  public function getPrimaryValue($key=null)' . PHP_EOL . '  {' . PHP_EOL . '    if(null === $key){' . PHP_EOL . '      return array("' . implode("", $primKey) . '" => $this->' . implode("", $primKey) . ');' . PHP_EOL . '    }' . PHP_EOL . '    $pri = $this->getPrimary();' . PHP_EOL . '    if(in_array($key,$pri)){' . PHP_EOL . '      return $this->{$key};' . PHP_EOL . '    }' . PHP_EOL . '  }' . PHP_EOL;
 
       }
       // unset($primary);
