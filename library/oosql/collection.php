@@ -28,6 +28,11 @@ class collection extends \ArrayObject
     $this->numObjects++;
   }
 
+  public function addBulck($objects)
+  {
+    $this->objects = $objects + $this->objects;
+    $this->numObjects = count($this->objects);
+  }
   /*
    * get an obj based on one of it's properties. i.e. a User obj with the
    * property 'username' and a value of 'someUser' can be retrieved by
@@ -51,7 +56,7 @@ class collection extends \ArrayObject
         $collection->add($obj);
       }
     }
-    return ($collection->count()) ? $collection : false;
+    return $collection;
   }
   /*
    * alias for objectWhere()
@@ -267,6 +272,14 @@ class collection extends \ArrayObject
     return new \ArrayIterator($this->objects);
   }
 
+  public function toArray()
+  {
+    return $this->objects;
+  }
+  public function toJSON($options = null)
+  {
+    return json_encode($this->objects, $options);
+  }
   public function count()
   {
     return $this->numObjects;

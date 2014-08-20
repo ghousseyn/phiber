@@ -1,6 +1,7 @@
 <?php
 
 require_once 'Tests/PhiberTests.php';
+require_once 'library/wire.php';
 require_once 'library/phiber.php';
 
 class phiberTest extends PhiberTests
@@ -22,7 +23,7 @@ class phiberTest extends PhiberTests
 
     public function testIsValidURI($uri,$out)
     {
-      $this->invokeMethod($this->main,'isValidURI',array(&$uri));
+      $uri = $this->invokeMethod($this->main,'uriNormalize',array($uri));
       $this->assertEquals($uri,$out);
 
     }
@@ -38,13 +39,7 @@ class phiberTest extends PhiberTests
       $this->assertFalse($return);
     }
 
-    public function testGetView(){
 
-      $route = array('module' => 'default', 'controller' => 'index', 'action' => 'main');
-      $this->invokeMethod($this->main,'register',array('route',$route));
-      $this->invokeMethod($this->main,'getView');
-      $this->assertEquals('application'.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.'default'.DIRECTORY_SEPARATOR.'views'.DIRECTORY_SEPARATOR.'index'.DIRECTORY_SEPARATOR.'main.php',$this->main->view->viewPath);
-    }
     public function testGet()
     {
       $value = 'test';
@@ -53,12 +48,7 @@ class phiberTest extends PhiberTests
       $return = $this->invokeMethod($this->main,'get',array($index));
       $this->assertEquals($return, $value);
     }
-    public function test_request()
-    {
-      $this->invokeMethod($this->main,'register',array('_request',array('var1'=>'val1','var2'=>'val2')));
-      $return = $this->invokeMethod($this->main,'_requestParam',array('var1'));
-      $this->assertEquals($return, 'val1');
-    }
+
     public function test_requestDefault()
     {
       $this->invokeMethod($this->main,'register',array('_request',array('var1'=>'val1','var2'=>'val2')));
@@ -66,26 +56,6 @@ class phiberTest extends PhiberTests
       $this->assertEquals($return, 'val3');
     }
 
-
-    public function testLoad()
-    {
-      $class = 'config';
-      $return = $this->invokeMethod($this->main,'load',array($class));
-      $this->assertInstanceOf($class, $return);
-    }
-
-    public function testLoadReturnClassNameAfterInclusion()
-    {
-      $class = 'config';
-      $return = $this->invokeMethod($this->main,'load',array($class,null,null,false));
-      $this->assertTrue(class_exists($return));
-    }
-
-    public function testLoadFalse(){
-      $class = 'Phiber\\controller';
-      $return = $this->invokeMethod($this->main,'load',array($class));
-      $this->assertFalse($return);
-    }
     public function testAutoloadSimple()
     {
       $class = 'Phiber\\controller';
@@ -95,16 +65,9 @@ class phiberTest extends PhiberTests
 
     public function testAutoloadOneLevel()
     {
-      $class = 'Phiber\\oosql\\oosql';
+      $class = 'Phiber\\flag\\flag';
       $this->invokeMethod($this->main,'autoload',array($class));
       $this->assertTrue(class_exists($class));
-    }
-
-    public function testAutoloadOneLevelGlobalShifted()
-    {
-      $class = 'Phiber\\oosql\\oosql';
-      $this->invokeMethod($this->main,'autoload',array($class));
-      $this->assertTrue(class_exists('Phiber\\oosql\\oosql'));
     }
 
     public function testHasActionDefault()
@@ -125,24 +88,6 @@ class phiberTest extends PhiberTests
       $this->assertEquals('main',$return);
     }
 
-    public function testHasController()
-    {
-      $module = 'default';
-      $parts = array('index','main');
-      $return = $this->invokeMethod($this->main,'hasController',array(&$parts,$module));
-
-      $this->assertEquals('index',$return);
-    }
-
-    public function testHasControllerDefault()
-    {
-      $module = 'default';
-      $parts = array('nonExistant','main');
-      $return = $this->invokeMethod($this->main,'hasController',array(&$parts,$module));
-      $this->assertEquals(2,count($parts));
-      $this->assertEquals('index',$return);
-    }
-
     public function testSetVars()
     {
       $expected = array('var1'=>'val1','var2'=>'val2');
@@ -154,28 +99,9 @@ class phiberTest extends PhiberTests
    public function testAddRoute()
    {
      $route = array('/route'=>'to/something');
-     $this->invokeMethod($this->main,'addRoute',array($route));
+     $this->invokeMethod($this->main,'addRoute',array('/route','to/something'));
      $routes = $this->getProperty($this->main,'routes');
      $this->assertEquals(1,count($routes));
-   }
-   public function testRouteMatchSimple()
-   {
-    $routes = array('/info'=>'/default/index/main');
-    $this->setProperty($this->main, 'phiber_bootstrap', \bootstrap::getInstance(\config::getInstance()));
-    $_SERVER['REQUEST_METHOD'] = 'GET';
-    $ret = $this->invokeMethod($this->main, 'routeMatchSimple',array($routes,'/info'));
-    $this->assertTrue($ret);
-    $this->assertEquals('/default/index/main',$_SERVER['REQUEST_URI']);
-   }
-
-   public function testRouteMatchRegex()
-   {
-     $routes = array('~/info/(\d+)/(\d+)~'=>'/default/index/main/:cat/:id');
-     $this->setProperty($this->main, 'phiber_bootstrap', \bootstrap::getInstance(\config::getInstance()));
-     $_SERVER['REQUEST_METHOD'] = 'GET';
-     $ret = $this->invokeMethod($this->main, 'routeMatchRegex',array($routes,'/info/14/13'));
-     $this->assertTrue($ret);
-     $this->assertEquals('/default/index/main/cat/14/id/13',$_SERVER['REQUEST_URI']);
    }
 
     public function providerURI()
