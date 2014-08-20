@@ -24,11 +24,11 @@ class oosql extends \PDO
   protected $oosql_table;
 
   /**
-   * $oosql_model_obj An instance of the entity class
+   * $oosql_entity_obj An instance of the entity class
    * @var mixed
    * @access private
    */
-  private $oosql_model_obj = null;
+  private $oosql_entity_obj = null;
   /**
    * $oosql_limit
    * @var string Limit clause
@@ -66,6 +66,23 @@ class oosql extends \PDO
 
   private $oosql_insert = false;
 
+  private $oosql_sub = false;
+
+  private $oosql_table_alias;
+
+  private $oosql_fields;
+
+  private $oosql_hashes = array();
+
+  private $oosql_exec_prep = false;
+
+  private $oosql_driver;
+
+  private $oosql_in;
+
+  private $oosql_between;
+
+  private static $instance;
   /**
    * __construct()
    * @param string $oosql_table The table we are querying
@@ -75,7 +92,7 @@ class oosql extends \PDO
   function __construct($oosql_table = null, $oosql_class = null,$config = null)
   {
     if($oosql_class === null || $oosql_table === null){
-      throw new \Exception('Class or Table name not provided!',9801,null);
+      throw new \Exception('Class or Table name not provided!',9805,null);
     }
     if(null === $config){
       $config = \config::getInstance();
@@ -86,7 +103,8 @@ class oosql extends \PDO
     parent::__construct($config->PHIBER_DB_DSN, $config->PHIBER_DB_USER, $config->PHIBER_DB_PASS);
     $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     $this->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
-
+    $dsn = explode(':',$config->PHIBER_DB_DSN);
+    $this->oosql_driver = $dsn[0];
   }
 
   /**
@@ -105,40 +123,126 @@ class oosql extends \PDO
    */
   public static function getInstance($oosql_table = null, $oosql_class = null, $config = null)
   {
-    return new self($oosql_table, $oosql_class,$config);
-  }
 
+
+    if(null !== self::$instance){
+      self::$instance->reset();
+      self::$instance->setClass($oosql_class);
+      self::$instance->setTable($oosql_table);
+
+      return self::$instance;
+    }
+    return self::$instance = new self($oosql_table, $oosql_class,$config);
+  }
+  public function reset()
+  {
+
+    $this->oosql_limit = null;
+
+    $this->oosql_order = null;
+
+    $this->oosql_where = null;
+
+    $this->oosql_join = null;
+
+    $this->oosql_stmt = null;
+
+    $this->oosql_conValues = array();
+
+    $this->oosql_numargs = null;
+
+    $this->oosql_fromFlag = false;
+
+    $this->oosql_multiFlag = false;
+
+    $this->oosql_del_multiFlag = false;
+
+    $this->oosql_multi = array();
+
+    $this->oosql_del_numargs = null;
+
+    $this->oosql_sql = null;
+
+    $this->oosql_select = null;
+
+    $this->oosql_distinct = false;
+
+    $this->oosql_insert = false;
+
+    $this->oosql_sub = false;
+
+    $this->oosql_table_alias = null;
+
+    $this->oosql_fields = array();
+
+    $this->oosql_exec_prep = false;
+
+    $this->oosql_entity_obj = null;
+
+    $this->oosql_in = null;
+
+    $this->oosql_between = null;
+
+    return $this;
+  }
+  public function setClass($class)
+  {
+    $this->oosql_class = $class;
+  }
+  public function setTable($table)
+  {
+    $this->oosql_table = $table;
+  }
   /**
    * Returns an instance of the entity class used
    */
-  public function getModelObject()
+  public function getEntityObject()
   {
-    if(null != $this->oosql_model_obj){
-      return $this->oosql_model_obj;
+    if(null != $this->oosql_entity_obj){
+      return $this->oosql_entity_obj;
     }else{
-      return new $this->oosql_class();
+      return new $this->oosql_class($this);
 
     }
   }
+  private function sql($sql = null,$replace = false)
+  {
+    if(null !== $sql){
+      if(!isset($this->oosql_sql[$this->oosql_table]) || $replace){
+        $this->oosql_sql[$this->oosql_table] = $sql;
+      }else{
 
+        $this->oosql_sql[$this->oosql_table] .= $sql;
+      }
+      return;
+    }
+    return $this->oosql_sql[$this->oosql_table];
+  }
   public function select()
   {
-    $this->oosql_sql = 'SELECT ';
+    self::$instance->reset();
+    $this->sql('SELECT ');
     if($this->oosql_distinct ){
-      $this->oosql_sql .= 'DISTINCT ';
+      $this->sql('DISTINCT ');
     }
     $numargs = func_num_args();
 
     if($numargs > 0){
+
       $arg_list = func_get_args();
+
+      $this->oosql_fields = $arg_list;
+
       for($i = 0; $i < $numargs; $i++){
         if($i != 0 && $numargs > 1){
-          $this->oosql_sql .= ',';
+          $this->sql(',');
         }
-        $this->oosql_sql .= $arg_list[$i];
+        $this->sql($arg_list[$i]);
+
       }
     }else{
-      $this->oosql_sql .= $this->oosql_table.'.* ';
+      $this->oosql_fields[] = '*';
+      $this->sql($this->oosql_table.'.* ');
     }
 
     $this->oosql_fromFlag = true;
@@ -146,21 +250,36 @@ class oosql extends \PDO
     $this->oosql_where = null;
     return $this;
   }
-
+  public function getFields($table = null)
+  {
+    if(null == $table){
+      $table = $this->oosql_table;
+    }
+    $newFields = array();
+    foreach ($this->oosql_fields as $field){
+      $newFields[] = $table.'.'.$field;
+    }
+    return $newFields;
+  }
+  public function getPlainFields()
+  {
+    return $this->oosql_fields;
+  }
   public function insert()
   {
-    $this->oosql_sql = 'INSERT INTO '.$this->oosql_table;
+    self::$instance->reset();
+    $this->sql('INSERT INTO '.$this->oosql_table);
 
     $arg_list = func_get_args();
     $numargs = func_num_args();
 
     if($numargs > 0){
       $this->oosql_numargs = $numargs;
-      $this->oosql_sql .= ' (';
+      $this->sql(' (');
 
-      $this->oosql_sql .= implode(',', $arg_list);
+      $this->sql(implode(',', $arg_list));
 
-      $this->oosql_sql .= ')';
+      $this->sql(')');
     }
     $this->oosql_insert = true;
     return $this;
@@ -168,8 +287,8 @@ class oosql extends \PDO
 
   public function update()
   {
-
-    $this->oosql_sql = 'UPDATE';
+    self::$instance->reset();
+    $this->sql('UPDATE');
 
     $numargs = func_num_args();
 
@@ -182,23 +301,23 @@ class oosql extends \PDO
 
       for($i = 0; $i < $numargs; $i++){
         if($i != 0 && $numargs > $i){
-          $this->oosql_sql .= ',';
+          $this->sql(',');
         }
-        $this->oosql_sql .= ' ' . $arg_list[$i];
+        $this->sql(' ' . $arg_list[$i]);
       }
     }else{
-      $this->oosql_sql .= " $this->oosql_table";
+      $this->sql(" $this->oosql_table");
     }
 
-    $this->oosql_sql .= ' SET ';
+    $this->sql(' SET ');
     $this->oosql_where = null;
     return $this;
   }
 
   public function delete()
   {
-
-    $this->oosql_sql = 'DELETE';
+    self::$instance->reset();
+    $this->sql('DELETE');
     $this->oosql_where = null;
     $numargs = func_num_args();
 
@@ -209,16 +328,16 @@ class oosql extends \PDO
       }
       $arg_list = func_get_args();
       if(is_array($arg_list[0])){
-        $this->oosql_sql .= ' FROM '.$this->oosql_table;
+        $this->sql(' FROM '.$this->oosql_table);
         $this->where($arg_list[0][0].' = ?', $arg_list[0][1]);
         return $this;
       }
       $this->oosql_sql .= ' FROM';
       for($i = 0; $i < $numargs; $i++){
         if($i != 0 && $numargs > 1){
-          $this->oosql_sql .= ',';
+          $this->sql(',');
         }
-        $this->oosql_sql .= ' ' . $arg_list[$i];
+        $this->sql(' ' . $arg_list[$i]);
       }
 
     }else{
@@ -229,20 +348,29 @@ class oosql extends \PDO
     return $this;
   }
 
+  public function deleteRecord($oosql = null,array $criteria)
+  {
+    if(null == $oosql){
+      $oosql = $this;
+    }
+    $oosql->delete()->createWhere($criteria)->exe();
+    return $this;
+  }
   /**
    * Sets the column, value pairs in update queries
    * @param array $data An array of the fields with their corresponding values in a key => value format
    */
   public function set(array $data)
   {
+    $sql = '';
     foreach($data as $field => $value){
 
-        $this->oosql_sql .= $field.' = ?,';
+        $sql .= $field.' = ?,';
         $this->oosql_conValues[] = $value;
 
-
     }
-    $this->oosql_sql = rtrim($this->oosql_sql, ',');
+    $this->sql(rtrim($sql, ','));
+
     return $this;
   }
 
@@ -255,73 +383,96 @@ class oosql extends \PDO
   {
     $data = null;
     if(null === $object){
-      if(null === $this->oosql_model_obj){
-        $msg = 'Nothing to save! ' . $this->oosql_sql;
+      if(null === $this->oosql_entity_obj){
+        $msg = 'Nothing to save! ' . $this->sql();
         throw new \Exception($msg,9806,null);
       }
       // This is a brand new record let's insert;
-      $this->insert(implode(',', array_keys((array) $this->oosql_model_obj)))->values(implode(',', array_values((array) $this->oosql_model_obj)))->exe();
-      return true;
-    }
-    if(isset(self::$oosql_result[get_class($object)])){
-      // Updating after a select
-      $primary = $object->getPrimaryValue();
+      $entity = $this->getEntityObject();
+      $fields = (array) $entity;
 
-      foreach(self::$oosql_result[get_class($object)] as $result_object){
-
-        if($result_object->getPrimaryValue() === $primary){
-
-          $old = $result_object;
-        }
+      if($identity = $entity->identity()){
+        unset($fields[$identity]);
       }
-      foreach(array_diff((array) $object, (array) $old) as $key => $value){
+      $fieldnames = array_keys($fields);
+      $fvalues = array_values($fields);
+      $lastID = $this->insert(implode(',', $fieldnames))->values($fvalues)->exe();
+      $entity->{$identity} = $lastID;
 
+      return $entity;
+    }
+
+    if(isset(self::$oosql_result)){
+      // Updating after a select
+
+      $primaryField = $object->getPrimary();
+
+      $old = self::$oosql_result->objectWhere($primaryField[0], $object->{$primaryField[0]});
+
+      // Is it really a modification of a selected row?
+      if($old){
+
+      $identity = $this->getEntityObject()->identity();
+
+      foreach(array_diff((array) $object, (array) $old) as $key => $value){
+        if($key == $identity){
+          continue;
+        }
         $data[$key] = $value;
       }
+
+
       if(null === $data){
-        $msg = 'Nothing to save! ' . $this->oosql_sql;
-        throw new \Exception($msg,9806,null);
+        $msg = 'Nothing to save! ' .$this->sql();
+        throw new \Exception($msg,9807,null);
       }
       $this->update()->set($data)->createWhere($object->getPrimaryValue())->exe();
-      return true;
+
+      return $object;
+
+      }
 
     }
+      // update a row just after inserting it
+      // Or
       // update a related table (no select on it)
-      $primary = $object->getPrimary();
+      $identity = $object->identity();
 
       foreach((array)$object as $k => $v){
-        if($v === null || in_array($k, $primary)){
+        if($v === null || $k == $identity){
           continue;
         }
         $data[$k] = $v;
       }
+
       if(count($data) !== 0){
+
         $this->update()->set($data)->createWhere($object->getPrimaryValue())->exe();
-        return true;
+
+        return $object;
       }
-      $msg = 'Nothing to save! ' . $this->oosql_sql;
-      throw new \Exception($msg,9806,null);
+      $msg = 'Nothing to save! ' . $this->sql();
+      throw new \Exception($msg,9808,null);
   }
 
   /**
    * Creates where clause(s) from an array of conditions
    * @param array $conditions An array of conditions in the format:
-   *              <code>array("column = ?", $value)</code>
+   *              <code>array("column" => $value)</code>
    */
-  public function createWhere(array $conditions)
+  public function createWhere(array $conditions, $operator = '=', $condition = 'and')
   {
-    $num = 0;
 
     foreach($conditions as $col => $value){
-      if(empty($value)){
+
+      if(null === $this->oosql_where){
+        $this->where($col . ' '.$operator.'?', $value);
         continue;
       }
-      if($num === 0){
-        $this->where($col . ' =?', $value);
-        $num++;
-        continue;
-      }
-      $this->andWhere($col . ' =?', $value);
+
+      $method = $condition.'Where';
+
+      $this->{$method}($col . ' '.$operator.'?', $value);
 
     }
 
@@ -340,21 +491,28 @@ class oosql extends \PDO
     $numargs = func_num_args();
 
     if(($this->oosql_numargs !== 0 && $numargs !== $this->oosql_numargs) || $numargs === 0){
-      $msg = 'Insert numargs: '.$this->oosql_numargs.' | values numargs = '.$numargs.', Columns and passed data do not match! ' . $this->oosql_sql;
-      throw new \Exception($msg,9807,null);
+      $msg = 'Insert numargs: '.$this->oosql_numargs.' | values numargs = '.$numargs.', Columns and passed data do not match! ' . $this->sql();
+      throw new \Exception($msg,9809,null);
     }
 
-    $this->oosql_sql .= ' VALUES (';
+    $this->sql(' VALUES (');
 
     for($i = 0; $i < $numargs; $i++){
       if($i != 0 && $numargs > 1){
-        $this->oosql_sql .= ',';
+        $this->sql(',');
       }
-      $this->oosql_sql .= ' ?';
 
+      if(is_array($arg_list[$i])){
+        $this->sql(rtrim(str_repeat('?,',count($arg_list[$i])),','));
+        $this->oosql_conValues += $arg_list[$i];
+      }else{
+      $this->oosql_conValues[] = $arg_list[$i];
+      $this->sql(' ?');
+      }
     }
-    $this->oosql_conValues = $arg_list;
-    $this->oosql_sql .= ')';
+
+
+    $this->sql(')');
 
     $this->oosql_fromFlag = false;
     return $this;
@@ -366,6 +524,7 @@ class oosql extends \PDO
    */
   public function from()
   {
+    $from = '';
 
     $numargs = func_num_args();
 
@@ -373,27 +532,44 @@ class oosql extends \PDO
 
 
       if($numargs < $this->oosql_del_numargs){
-        $msg = 'Columns and passed data do not match! ' . $this->oosql_sql;
-        throw new \PDOException($msg,9807,null);
+        $msg = 'Columns and passed data do not match! ' . $this->sql();
+        throw new \PDOException($msg,9810,null);
       }
 
 
     }
 
-    $this->oosql_sql .= ' FROM ';
+    $from .= ' FROM ';
+
+    $from .= $this->oosql_table;
 
     if($numargs > 0){
+      $from .= ', ';
+
       $arg_list = func_get_args();
+
       for($i = 0; $i < $numargs; $i++){
         if($i !== 0 && $numargs > $i){
-          $this->oosql_sql .= ', ';
+          $from .= ', ';
         }
-        $this->oosql_sql .= $arg_list[$i];
+
+        if($arg_list[$i] instanceof oosql){
+
+          $arg_list[$i]->alias();
+          $fields = $arg_list[$i]->getFields($arg_list[$i]->getTableAlias());
+
+          $this->sql(','.implode(', ',$fields));
+          $from .= $arg_list[$i]->getSql().' AS '.$arg_list[$i]->getTableAlias();
+        }else{
+          $from .= $arg_list[$i];
+        }
       }
-    }else{
-      $this->oosql_sql .= $this->oosql_table;
     }
+
+    $this->sql($from);
+
     $this->oosql_fromFlag = false;
+
     return $this;
   }
 
@@ -406,17 +582,17 @@ class oosql extends \PDO
 
   public function joinLeft($table, $criteria)
   {
-    return $this->join($table, $criteria, $type = 'LEFT');
+    return $this->join($table, $criteria, 'LEFT');
   }
 
   public function joinRight($table, $criteria)
   {
-    return $this->join($table, $criteria, $type = 'RIGHT');
+    return $this->join($table, $criteria, 'RIGHT');
   }
 
   public function joinFull($table, $criteria)
   {
-    return $this->join($table, $criteria, $type = 'FULL OUTER');
+    return $this->join($table, $criteria, 'FULL OUTER');
   }
 
   public function where($condition, $value=null, $type = null)
@@ -436,12 +612,25 @@ class oosql extends \PDO
         $clause = 'WHERE';
     }
 
-    $this->oosql_where .= " $clause $condition";
-    $this->oosql_conValues[] = $value;
+      $this->oosql_where .= " $clause $condition";
+
+    if($value instanceof oosql){
+
+      $this->oosql_where .= $value->getSql();
+      }elseif(null !== $value){
+
+      $this->oosql_conValues[] = $value;
+    }
 
     return $this;
   }
+  public function sub(){
+    $this->oosql_sub = true;
+    $this->exe();
+    $this->sql('('.$this->getSql().')',true);
 
+    return $this;
+  }
   public function andWhere($condition, $value=null)
   {
     $this->where($condition, $value, 'and');
@@ -454,67 +643,121 @@ class oosql extends \PDO
     return $this;
   }
 
-  protected function valid_int($val)
+  public function validInt($val)
   {
     return ctype_digit(strval($val));
   }
-
-  public function exe($lastID = 'id')
+  public function prep($values = null)
   {
+    $hash = $this->queryHash();
+
+    $prepOnly = true;
+
+    if(is_array($values)){
+
+      $prepOnly = false;
+
+    }
+
+    if(isset($this->oosql_hashes[$hash])){
+
+      $this->oosql_stmt = $this->oosql_hashes[$hash];
+
+    }else{
+
+      $this->oosql_stmt = $this->prepare(trim($this->sql()));
+      $this->oosql_hashes[$hash] = $this->oosql_stmt;
+    }
+
+
+
+    if($prepOnly){
+
+      return $this->oosql_stmt;
+
+    }
+
+    return $this->execBound($this->oosql_stmt,$values);
+  }
+  public function execBound($stmt,$values)
+  {
+    $ord = 1;
+    foreach($values as $val){
+
+      if($this->validInt($val)){
+
+        $stmt->bindValue($ord, $val, \PDO::PARAM_INT);
+
+      }else{
+
+        $stmt->bindValue($ord, $val, \PDO::PARAM_STR);
+      }
+      $ord++;
+    }
+
+    return  $stmt->execute();
+  }
+  public function exe()
+  {
+
     if($this->oosql_fromFlag){
       $this->from();
     }
     if(null != $this->oosql_join){
-      $this->oosql_sql .= $this->oosql_join;
+      $this->sql($this->oosql_join);
     }
     if(null != $this->oosql_where){
-      $this->oosql_sql .= $this->oosql_where;
+      $this->sql($this->oosql_where);
+    }
+    if(null != $this->oosql_in){
+      $this->sql($this->oosql_in);
+    }
+    if(null != $this->oosql_between){
+      $this->sql($this->oosql_between);
     }
     if(null != $this->oosql_limit){
-      $this->oosql_sql .= ' ' . $this->oosql_limit;
+      $this->sql(' ' . $this->oosql_limit);
     }
     if(null != $this->oosql_order){
-      $this->oosql_sql .= ' ' . $this->oosql_order;
+      $this->sql(' ' . $this->oosql_order);
     }
 
     if(count($this->oosql_conValues) !== 0){
-      $this->oosql_stmt = $this->prepare(trim($this->oosql_sql));
-      $ord = 1;
-      foreach($this->oosql_conValues as $val){
 
-        if($this->valid_int($val)){
-
-          $this->oosql_stmt->bindValue($ord, $val, \PDO::PARAM_INT);
-
-        }else{
-
-          $this->oosql_stmt->bindValue($ord, $val, \PDO::PARAM_STR);
-        }
-        $ord++;
-      }
+      $return = $this->prep($this->oosql_conValues);
       $this->oosql_conValues = array();
-
-      $return = $this->oosql_stmt->execute();
       if($return === false){
-        $msg = 'Execution failed! ' . $this->oosql_sql;
-        throw new \Exception($msg,9812,null);
+        $msg = 'Execution failed! ' . $this->sql();
+        throw new \Exception($msg,9811,null);
       }
 
     }else{
 
-      $this->oosql_stmt = $this->query($this->oosql_sql);
+      $this->oosql_stmt = $this->query($this->sql());
 
     }
+
     if($this->oosql_insert){
-      return $this->lastInsertId($lastID);
+
+      $identity = $this->getEntityObject()->identity();
+
+      if($identity !== false){
+        if($this->oosql_driver == 'pgsql'){
+          $identity = $this->oosql_table.'_'.$identity.'_seq';
+        }
+        $lastID = $this->lastInsertId($identity);
+
+        return $lastID;
+      }
+
     }
     /*
      * $str = $this->oosql_sql." | "; $str .= implode(',
      * ',$this->oosql_conValues)."\r\n"; $f = fopen("g:\log.txt","a+");
      * fwrite($f, $str); fclose($f);
      */
-    // echo $this->oosql_sql."</br></br>";
-    $this->oosql_stmt->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $this->oosql_class);
+    // echo $this->sql()."</br></br>";
+
 
     return $this->oosql_stmt;
   }
@@ -527,6 +770,9 @@ class oosql extends \PDO
    */
   public function fetch()
   {
+    if($this->oosql_sub){
+      return $this;
+    }
     $numargs = func_num_args();
     if($numargs !== 0){
       $argumants = func_get_args();
@@ -538,49 +784,52 @@ class oosql extends \PDO
           $this->limit($argumants[0], $argumants[1]);
           break;
         default:
-          throw new \InvalidArgumentException('Fetch expects zero, one or two arguments as a query result limit',9808,null);
+          throw new \InvalidArgumentException('Fetch expects zero, one or two arguments as a query result limit',9812,null);
       }
     }
 
-    if($this->oosql_select instanceof oosql){
-      $this->oosql_select->exe();
-    }else{
-      $msg = 'Query returned no results! You need to select first! ' . $this->oosql_sql;
-      throw new \Exception($msg,9809,null);
+    if(!$this->oosql_select instanceof oosql){
+      $this->select();
     }
+      $this->oosql_select->exe();
+
 
 
     if(! $this->oosql_stmt){
 
-      $msg = 'Query returned no results! ' . $this->oosql_sql;
-      throw new \Exception($msg,9810,null);
+      $msg = 'Query returned no results! ' . $this->sql();
+      throw new \Exception($msg,9814,null);
     }
-
+    $this->oosql_stmt->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $this->oosql_class);
     $result = $this->oosql_stmt->fetchAll();
 
     $collection = new collection();
 
-    foreach($result as $res){
-      $collection->add($res);
+   // foreach($result as $res){
+      $collection->addBulck($result);
 
-    }
+    //}
     $collection->obj_name = $this->oosql_class;
-    self::$oosql_result[$this->oosql_class] = clone $collection;
+    self::$oosql_result = clone $collection;
+
     return $collection;
   }
 
   public function with(array $related)
   {
 
-    $relations = $this->getModelObject()->getRelations();
+    $relations = $this->getEntityObject()->getRelations();
     foreach($relations as $fk => $target){
-      $table = substr($target, 0, strpos($target, '.'));
+      $table = strstr($target,'.',true);
+
       if(in_array($table, $related)){
-        $this->oosql_sql .= " ,$table.*";
+
+        $this->sql(" ,$table.*");
         $this->join($table, "$this->oosql_table.$fk = $target");
-      }elseif(in_array($table, array_keys($related))){
+      }elseif(isset($related[$table])){
+
         foreach($related[$table] as $field){
-          $this->oosql_sql .= " ,$table.$field";
+          $this->sql(" ,$table.$field");
         }
         $this->join($table, "$this->oosql_table.$fk = $target");
       }
@@ -612,16 +861,15 @@ class oosql extends \PDO
     return $this->find($arg, $operator, $fields)->limit($from, $to);
   }
 
-  public function findAll()
+  public function findAll($arg, $operator = '=', $fields = array('*'))
   {
-    $this->oosql_select = $this->select('*');
-    return $this;
+    return $this->find($arg, $operator = '=', $fields = array('*'));
   }
 
   public function find($arg, $operator = '=', $fields = array('*'))
   {
     if($fields[0] == '*'){
-      $this->oosql_select = $this->select("*");
+      $this->select();
     }else{
     $select_args = '';
     foreach ($fields as $key => $field){
@@ -634,10 +882,10 @@ class oosql extends \PDO
       }
     }
 
-    $this->oosql_select = $this->select(rtrim($select_args,','));
+    $this->select(rtrim($select_args,','));
     }
     if(! is_array($arg)){
-      $obj = new $this->oosql_class();
+      $obj = $this->getEntityObject();
       $pri = $obj->getPrimary();
       $arg = array($pri[0] => $arg);
     }
@@ -647,7 +895,7 @@ class oosql extends \PDO
       if($i > 0){
         $flag = 'and';
       }
-      $this->oosql_select->where("$this->oosql_table.$col $operator ?", $val, $flag);
+      $this->where("$this->oosql_table.$col $operator ?", $val, $flag);
       $i++;
     }
 
@@ -658,33 +906,154 @@ class oosql extends \PDO
    * @todo define these
    */
 
-  public function groupBy()
-  {
 
+  public function alias($alias = null)
+  {
+    if(null === $alias){
+      $alias = $this->getTableAlias();
+    }
+    $this->oosql_table_alias = $alias;
+    return $this;
   }
-  public function having(){
+  public function getTableAlias()
+  {
+    if(null !== $this->oosql_table_alias){
+      return $this->oosql_table_alias;
+    }
+    $hash = $this->queryHash();
+    $this->oosql_table_alias = $hash;
+    return $hash;
   }
-  public function in(){
+  public function queryHash()
+  {
+    return hash('adler32',$this->sql());
   }
-  public function between(){
+  public function groupBy($field)
+  {
+    $this->oosql_group = ' GROUP BY ' . $field;
+
+    return $this;
   }
-  public function union(){
+  public function having()
+  {
   }
-  public function distinct(){
+  public function notIn($item, array $list, $cond = null, $not=true)
+  {
+    return $this->in($item, $list, $cond, $not);
+  }
+  public function orIn($item, array $list, $cond = 'or', $not=false)
+  {
+    return $this->in($item, $list, $cond, $not);
+  }
+  public function orNotIn($item, array $list, $cond = 'or', $not=true)
+  {
+    return $this->in($item, $list, $cond, $not);
+  }
+  public function in($item, array $list, $cond = null, $not=false)
+  {
+    $inClause = '';
+
+    if(null == $this->oosql_where && null == $this->oosql_in && null == $this->oosql_between){
+      $inClause .= ' WHERE ';
+    }else{
+      $cnd = ' AND ';
+
+      if(null != $cond){
+
+        if(strtolower($cond) == 'or'){
+          $cnd = ' OR ';
+        }
+
+      }
+      $inClause .= $cnd;
+    }
+    if($not){
+      $item = $item.' NOT ';
+    }
+    $inClause .= $item.' IN ';
+
+    $obj = $this;
+
+    $list = array_map(function($data) use($obj){return (!$obj->validInt($data))?$obj->quote($data):$data;},$list);
+
+    $inClause .= '('.implode(',', $list).')';
+
+    $this->oosql_in = $inClause;
+
+    return $this;
+  }
+  public function between($item, $low, $up, $cond = null, $not=false)
+  {
+    $bClause = '';
+
+    if(null == $this->oosql_where && null == $this->oosql_between && null == $this->oosql_in){
+      $bClause .= ' WHERE ';
+    }else{
+      $cnd = ' AND ';
+
+      if(null != $cond){
+
+        if(strtolower($cond) == 'or'){
+          $cnd = ' OR ';
+        }
+
+      }
+      $bClause .= $cnd;
+    }
+
+    if($not){
+      $item = $item.' NOT ';
+    }
+    $bClause .= $item.' BETWEEN '.$low.' AND '.$up;
+
+    $this->oosql_between = $bClause;
+
+    return $this;
+  }
+  public function union()
+  {
+  }
+  public function distinct()
+  {
     $this->oosql_distinct = true;
     return $this;
+  }
+  public  function transaction($fn)
+  {
+    return self::transactional($fn);
+  }
+  public static function transactional($fn)
+  {
+    $oosql = self::getInstance('oosql','void');
+    if(!$oosql->beginTransaction()){
+      $msg = 'Could not start this transaction. BeginTransaction failed!';
+      throw new \Exception($msg,9815,null);
+    }
+    if(is_callable($fn)){
+      $ret = $fn();
+      return $ret;
+    }
+    $msg = 'Please pass a Lamda function as a parameter to this method!';
+    throw new \Exception($msg,9816,null);
+  }
+
+  public function getSql()
+  {
+    return $this->sql();
   }
   public function __set($var, $val)
   {
 
-    if(null != $this->oosql_model_obj){
-      $this->oosql_model_obj->{$var} = $val;
+    if(null != $this->oosql_entity_obj){
+      $this->oosql_entity_obj->{$var} = $val;
     }else{
-      $this->oosql_model_obj = new $this->oosql_class();
-      $this->oosql_model_obj->{$var} = $val;
+      $this->oosql_entity_obj = $this->getEntityObject();
+      $this->oosql_entity_obj->{$var} = $val;
     }
-    return $this->oosql_model_obj;
+    return $this->oosql_entity_obj;
   }
+
+
 
 }
 ?>

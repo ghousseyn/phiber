@@ -48,14 +48,16 @@ class file implements cacheDriver
     if(file_exists($filename)){
       $bag = unserialize(file_get_contents($filename));
       $current = microtime(true);
-      if(is_object($bag) && ($current - $bag->timestamp) > $bag->ttl){
-        unlink($filename);
-      }else{
-        $this->hit = true;
-        $this->bag = $bag;
-        $this->set = true;
-        $this->ttl = $this->bag->ttl;
-        return $bag->data;
+      if($bag instanceof item ){
+        if(($current - $bag->timestamp) > $bag->ttl){
+          unlink($filename);
+        }else{
+          $this->hit = true;
+          $this->bag = $bag;
+          $this->set = true;
+          $this->ttl = $this->bag->ttl;
+          return $bag->data;
+        }
       }
     }
     return new item;

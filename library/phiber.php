@@ -21,9 +21,10 @@ class phiber extends wire
   private $stop = false;
 
   private $method;
+  public $observers;
   public $libs = array();
   public $ajax = false;
-  public $route;
+  public $currentRoute;
   public $request;
   public $logger;
 
@@ -169,7 +170,7 @@ class phiber extends wire
     if(! empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'){
       $this->ajax = true;
     }
-    $this->route = $route;
+    $this->currentRoute = $route;
     $this->request = $this->_requestVars;
   }
   private function routeMatchSimple($routes, $current)
@@ -270,18 +271,9 @@ class phiber extends wire
   }
   public function run()
   {
-
-    error::initiate($this->logger(),$this->config);
-
-    date_default_timezone_set($this->config->PHIBER_TIMEZONE);
-
-    $this->session->start();
-
     new \bootstrap\start($this);
 
     Event\eventfull::notify(new Event\event(self::EVENT_BOOT, __class__));
-
-    $this->session->checkSession();
 
     $this->router($this->getRoutes());
 
@@ -291,9 +283,6 @@ class phiber extends wire
 
       $this->dispatch();
 
-      $this->getView();
-
-      $this->view->showTime();
     }
     Event\eventfull::notify(new Event\event(self::EVENT_SHUTDOWN, __class__));
 
@@ -359,7 +348,10 @@ class phiber extends wire
     require $this->path.$controller.'.php';
     return $controller::getInstance();
   }
-
+  public function addObserver($name, $object)
+  {
+    $this->observers[$name] = $object;
+  }
   public static function getEvents()
   {
     return array(self::EVENT_BOOT, self::EVENT_DISPATCH, self::EVENT_SHUTDOWN);

@@ -55,28 +55,6 @@ class wire
     $this->phiber->libs[$name] = $src;
 
   }
-  protected function getView()
-  {
-
-    $path = array_slice($this->route, 0,3,true);
-
-    $path = $this->config->application . '/modules/' . array_shift($path) . '/views/' . implode('/', $path) . '.php';
-
-    $this->view->viewPath = $path;
-
-  }
-  protected function setView($path)
-  {
-    if(stream_resolve_include_path($path)){
-      $this->view->viewPath = $path;
-      return true;
-    }
-    return false;
-  }
-  protected function renderLayout()
-  {
-    include $this->config->application.DIRECTORY_SEPARATOR.'layouts'.DIRECTORY_SEPARATOR.'layout.php';
-  }
 
   private function isHttpMethod($method)
   {
@@ -149,9 +127,7 @@ class wire
 
   protected function register($name, $value)
   {
-
     $this->session->set($name, $value);
-
   }
 
   protected function get($index)
@@ -210,38 +186,62 @@ class wire
     }
     return $this->setLog();
   }
-  protected function sendJSON($data, $options = 0 , $depth = 512)
+  protected function sendJSON($data, $options = null)
   {
+    $this->view->disableLayout();
+    $this->view->disableView();
+
     header('Cache-Control: no-cache, must-revalidate');
     header('Expires: Mon, 16 Jul 1997 02:00:00 GMT');
     header('Content-type: application/json; charset=utf-8');
-    echo json_encode($data);
-    exit(0);
+
+    echo json_encode($data,$options);
   }
-  public function addObserver($name, $object)
+
+  public function getObservers($event)
   {
-    $this->phiber->observers[$name] = $object;
+    if(isset($this->phiber->observers[$event])){
+      return $this->phiber->observers[$event];
+    }
   }
-  public function getObservers()
+  public function removeObserver($event, $name)
   {
-    return $this->phiber->observers;
+    if(isset($this->phiber->observers[$event][$name])){
+      unset($this->phiber->observers[$event][$name]);
+    }
+
   }
-  public function removeObserver($name, $object)
+  protected function hashObject()
   {
-    unset($this->phiber->observers);
+    $class = get_called_class();
+    $reflect = new \ReflectionClass($class);
+    return sha1($class.$reflect->getFileName());
   }
-  public static function attach($observer, $event = null)
+  protected function attach($event, $observer = null, $hash = null, $runMethod = null)
   {
-    return Event\eventfull::attach($observer, $event = null);
+    if(null === $observer){
+      $observer = $this;
+    }
+    if(null === $hash){
+      $hash = $this->hashObject();
+    }
+    return Event\eventfull::attach($observer, $event, $hash, $runMethod);
   }
-  public static function detach($observer, $event = null)
+  protected function detach( $event, $observer = null, $hash = null)
   {
-    return Event\eventfull::detach($observer, $event = null);
+    if(null === $observer){
+      $observer = $this;
+    }
+    if(null === $hash){
+      $hash = $this->hashObject();
+    }
+    return Event\eventfull::detach($observer, $event, $hash);
   }
-  public static function notify(Event\event $event)
+  protected function notify(Event\event $event)
   {
     Event\eventfull::notify($event);
   }
+
   public function autoload($class)
   {
 
@@ -326,8 +326,8 @@ class wire
       case 'view':
         return \view::getInstance();
       case 'route':
-        return $this->get('route');
-      case 'content':
+        return $this->phiber->currentRoute;
+      case 'phiber_content_view_path':
         return $this->viewPath;
       case 'config':
         return \config::getInstance();
@@ -336,7 +336,7 @@ class wire
       case 'phiber';
         return phiber::getInstance();
     }
-    if(key_exists($var, $this->vars)){
+    if(isset($this->vars[$var])){
       return $this->vars[$var];
     }
 
