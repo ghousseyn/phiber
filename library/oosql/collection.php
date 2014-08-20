@@ -113,14 +113,17 @@ class collection extends \ArrayObject
    */
   public function removeWhere($property, $value)
   {
+    $results = array();
     foreach($this->objects as $key => $obj){
       if($obj->{$property} === $value){
         $this->deletedObjects[] = $this->objects[$key];
+        $results[] = $this->objects[$key];
         unset($this->objects[$key]);
         $this->numObjects--;
       }
     }
     $this->objects = array_values($this->objects);
+    return $results;
   }
 
   public function restoreWhere($property, $value)
@@ -141,6 +144,9 @@ class collection extends \ArrayObject
 
   public function pop()
   {
+    if($this->count() == 0){
+      return false;
+    }
     $element = $this->objects[$this->numObjects - 1];
     $this->deletedObjects[] = $element;
     unset($this->objects[$this->numObjects - 1]);
