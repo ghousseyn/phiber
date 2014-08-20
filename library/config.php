@@ -1,9 +1,10 @@
 <?php
 
+
 /**
  * Configuration class.
  * @version 	1.0
- * @author 	Hussein Guettaf <ghoucine@gmail.com>
+ * @author 	Hussein Guettaf <ghussein@coda-dz.com>
  * @package 	Phiber
  */
 
@@ -12,16 +13,18 @@ class config
   private static $instance = null;
 
   public $PHIBER_TIMEZONE = 'Africa/Algiers';
-
-  public $PHIBER_MOD = 'dev';
-  /*
+  /**
+   * Is this a dev instance or a production application
+   */
+  protected $PHIBER_MODE = 'dev';
+  /**
    * DB configuration properties
   */
-  public $PHIBER_DB_DSN = 'mysql:host=127.0.0.1;dbname=phiber';
+  public $PHIBER_DB_DSN = '<db-dsn>';
 
-  public $PHIBER_DB_PASS = "password";
+  public $PHIBER_DB_PASS = '<db-password>';
 
-  public $PHIBER_DB_USER = "root";
+  public $PHIBER_DB_USER = '<db-user>';
   /**
    * Enable/Disable logging
    * @var boolean
@@ -54,19 +57,23 @@ class config
   public $PHIBER_CONTROLLER_DEFAULT_METHOD = 'main';
   /**
    *
-   * @var unknown_type
+   * Default controller
    */
 
-  public $PHIBER_CONTROLLER_DEFAULT = 'index';
+  public  $PHIBER_CONTROLLER_DEFAULT = 'index';
+  /**
+   * Layout file
+   */
+  public  $PHIBER_LAYOUT_FILE = 'lauyout.php';
   /**
    * Directory of the logs please set an absolute path. Must be writable by the server
    * @var string A Valid absolute path (directories will not be created for you)
    */
-  public $logDir = null;
+  protected $logDir = null;
 
   /**
    * Sets log level inclusive to previous levels i.e setting it to 'alert'
-   * will log 'alert' and 'emergency' level events and 'debug' will log everything
+   * will log 'alert' and 'emergency' level events and 'debug' will log everything  and display all errors
    *
    * 'emergency';
    * 'alert';
@@ -77,18 +84,15 @@ class config
    * 'info';
    * 'debug';
    */
-  public $logLevel = 'info';
+  protected $logLevel = 'debug';
 
   public $STOP_ON_WARNINGS = true;
 
   public $STOP_ON_USER_WARNINGS = true;
-  /**
-   * Path to the library relative to this file (set in the construct)
-   */
-  protected $library = 'library';
 
+  protected $library;
 
-  protected $application = 'application';
+  protected $application;
 
 
   /**
@@ -112,7 +116,10 @@ class config
 
   public static function getInstance()
   {
-    return new self;
+    if(null !== self::$instance){
+      return self::$instance;
+    }
+    return self::$instance = new self;
   }
 
   public function __get($var)

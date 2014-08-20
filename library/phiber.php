@@ -7,105 +7,137 @@
  * @package     Phiber
  */
 namespace Phiber;
-require 'wire.php';
+
+
 class phiber extends wire
 {
 
-  const PHIBER_ROUTE_FILE_PHP = 90;
-  const PHIBER_ROUTE_FILE_YAML = 91;
-  const PHIBER_ROUTE_FILE_XML = 92;
-
+  private $controller;
   private $path;
   private $uri;
   private $routes = array();
-  private $phiber_bootstrap;
   private $_requestVars = array();
+  private $plugins = array();
+  private $stop = false;
+
   private $method;
+  public $observers;
+  public $libs = array();
+  public $ajax = false;
+  public $currentRoute;
+  public $request;
+  public $logger;
 
-  public function run($confFile = null)
+  private static $instance;
+
+  const EVENT_BOOT = 'phiber.boot';
+
+  const EVENT_SHUTDOWN = 'phiber.shutdown';
+
+  const EVENT_DISPATCH = 'phiber.dispatch';
+
+  public static function getInstance()
   {
-
-    spl_autoload_register(array($this, 'autoload'),true,true);
-
-    if(null !== $confFile){
-      $this->confFile = $confFile;
-
+    if(null !== self::$instance){
+      return self::$instance;
     }
-
-    error::initiate($this->logger(),$this->config);
-
-    date_default_timezone_set($this->config->PHIBER_TIMEZONE);
-
-    $this->phiber_bootstrap = \bootstrap::getInstance($this->config);
-
-    $this->session->start();
-
-    $this->session->checkSession();
-
-    $this->register('context', null);
-    $this->register('layoutEnabled', $this->config->layoutEnabled);
-    $this->register('ajax', false);
-
-    $this->router($this->getRoutes());
-
-    $this->plugins();
-    $this->dispatch();
-    $this->getView();
-    $this->view->showTime();
-
+    return self::$instance = new self;
   }
   private function getRoutes()
   {
     return (count($this->routes))?$this->routes:null;
   }
-  public function addRoute(array $routes)
+  public function addNewRoute($rule, $route)
   {
-    if(count($routes)){
-      foreach($routes as $rule => $path){
-        $this->routes[$rule] = $path;
-      }
-
-    }
+    $this->routes[$rule] = $route;
   }
-  public function addRoutesFile($path)
+  private function getPlugins()
   {
-    if(stream_resolve_include_path($path)){
-      $routes = include $path;
-      if(is_array($routes)){
-        foreach($routes as $route){
-          $this->addRoute($route);
-        }
+
+    $path = $this->config->application . DIRECTORY_SEPARATOR.'plugins';
+    $plugins = $path.DIRECTORY_SEPARATOR.'plugins.php';
+
+    if(stream_resolve_include_path($plugins)){
+      $pluginsList = include $plugins;
+    }else{
+      $pluginsList['g5475ff2f44a9102d8b7'] = 'phiber';
+    }
+
+    if($this->config->PHIBER_MODE === 'production' && stream_resolve_include_path($plugins) && is_array($pluginsList)){
+      return $pluginsList;
+    }
+
+    /*
+     * //Auto discovery
+    *
+    */
+
+    foreach (new \DirectoryIterator($path) as $plugin) {
+      if ($plugin->isDot()) {
+        continue;
       }
+      $dir = $path . "/" . $plugin->getFilename();
+      if (is_dir($dir)) {
+        $this->plugins[] = $plugin->getFilename();
+      }
+    }
+
+    if(count(array_diff($pluginsList,$this->plugins)) !== 0 || count(array_diff($this->plugins,$pluginsList)) !== 0 || isset($pluginsList['g5475ff2f44a9102d8b7'])){
+      $code = '<?php return '.\tools::transcribe($this->plugins).'; ?>';
+      file_put_contents($plugins, $code);
 
     }
+
+    return $this->plugins;
 
   }
   private function plugins()
   {
-
-    foreach($this->phiber_bootstrap->getPlugins() as $plugin){
-      $this->load($plugin, null, $this->config->application.DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.$plugin .DIRECTORY_SEPARATOR)->run();
+    $plugins = $this->getPlugins();
+    if(count($plugins)){
+      foreach($plugins as $plugin){
+        include $this->config->application.DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.$plugin .DIRECTORY_SEPARATOR.$plugin.'.php';
+        $plugin::getInstance()->run();
+      }
     }
+
   }
 
+  private function uriNormalize($uri)
+  {
+    $needles = array('/?','?','/?','&','=');
+    $replace = array('/','/?','/','/','/',);
+    return trim(str_replace($needles, $replace, $uri));
+  }
   private function router(array $routes = null)
   {
 
-
     $this->uri = urldecode($_SERVER['REQUEST_URI']);
 
-    if(null !== $routes && ($this->routeMatchSimple($routes, $this->uri) || $this->routeMatchRegex($routes, $this->uri))){
-
-      return;
-    }
     $this->method = $_SERVER['REQUEST_METHOD'];
 
-    $this->register('http_method', $this->method);
     if($this->isValidURI($this->uri)){
-      $bootstrap = $this->phiber_bootstrap->getModules();
-      $parts = explode("/", trim($this->uri));
-      array_shift($parts);
-      if(! empty($parts[0]) && $bootstrap->isModule($parts[0])){
+
+      if(strpos($this->uri,'?') !== false){
+
+        if(count(explode('/',$this->uri)) < 3){
+          $params = ltrim(strstr($this->uri,'?'),'?');
+          $this->setVars(explode('/',$this->uriNormalize($params)));
+          $this->uri = strstr($this->uri,'?',true);
+        }
+
+      }
+
+      if(null !== $routes && ($this->routeMatchSimple($routes, $this->uri) || $this->routeMatchRegex($routes, $this->uri))){
+
+        return;
+      }
+
+      $this->uri = $this->uriNormalize($this->uri);
+
+      $parts = explode("/", $this->uri);
+      unset($parts[0]);
+      if(! empty($parts[0]) && is_dir($this->config->application.'/modules/'.$parts[0])){
 
         $module = array_shift($parts);
         $controller = $this->hasController($parts, $module);
@@ -136,12 +168,11 @@ class phiber extends wire
     }
 
     if(! empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'){
-      $this->register('ajax', true);
+      $this->ajax = true;
     }
-    $this->register('route', $route);
-    $this->register('_request', $this->_requestVars);
+    $this->currentRoute = $route;
+    $this->request = $this->_requestVars;
   }
-
   private function routeMatchSimple($routes, $current)
   {
     if(strpos($current,'~') !== false){
@@ -151,6 +182,13 @@ class phiber extends wire
 
       if(is_array($routes[$current])){
         $this->route = $routes[$current];
+      }elseif(is_callable($routes[$current])){
+        $fn = $routes[$current];
+        $rt = $fn($this);
+        if($rt === true){
+          return false;
+        }
+        $this->stop = true;
       }elseif($this->isValidURI($routes[$current])){
 
         $_SERVER['REQUEST_URI'] = $routes[$current];
@@ -183,6 +221,12 @@ class phiber extends wire
              }
            }
            $this->route = $route;
+         }elseif(is_callable($route)){
+           $rt = $route($this);
+           if($rt === true){
+             return false;
+           }
+           $this->stop = true;
          }elseif(strpos($route, ':') !== false){
            $route = trim($route,'/');
            $parts = explode('/',$route);
@@ -216,23 +260,33 @@ class phiber extends wire
     }
     return false;
   }
-  private function isValidURI(&$uri)
+  private function isValidURI($uri)
   {
-    $uri = str_replace('/?', '/', $uri);
-    $uri = str_replace('?', '/?', $uri);
-    $uri = str_replace('/?', '/', $uri);
-    $uri = str_replace('&', '/', $uri);
-    $uri = str_replace('=', '/', $uri);
 
-    if(preg_match('~^(?:[/\\w\\s-\,\$\.\*\!\'\(\)\~]+)+/?$~u', $uri)){
+    if(preg_match('~^(?:[/\\w\\s-\,\$\.\*\!\'\(\)\~?=&]+)+/?$~u', $uri)){
 
       return true;
     }
     return false;
   }
+  public function run()
+  {
+    new \bootstrap\start($this);
 
+    Event\eventfull::notify(new Event\event(self::EVENT_BOOT, __class__));
 
+    $this->router($this->getRoutes());
 
+    $this->plugins();
+
+    if(!$this->stop){
+
+      $this->dispatch();
+
+    }
+    Event\eventfull::notify(new Event\event(self::EVENT_SHUTDOWN, __class__));
+
+  }
   private function setVars($parts)
   {
     foreach($parts as $k => $val){
@@ -249,22 +303,23 @@ class phiber extends wire
   {
 
       $this->path = $this->config->application.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.$module.DIRECTORY_SEPARATOR;
-
+      $controller = $this->config->PHIBER_CONTROLLER_DEFAULT;
 
     if(! empty($parts[0]) && stream_resolve_include_path($this->path . $parts[0] . '.php')){
 
-      return array_shift($parts);
+      $controller = array_shift($parts);
 
     }
+    $this->controller = $this->loadController($controller);
 
-    return $this->config->PHIBER_CONTROLLER_DEFAULT;
+    return $controller;
 
   }
 
   private function hasAction(&$parts, $controller)
   {
 
-    if(! empty($parts[0]) && method_exists($this->load($controller, null, $this->path, false), $parts[0])){
+    if(! empty($parts[0]) && method_exists($this->controller, $parts[0])){
 
       return array_shift($parts);
 
@@ -276,27 +331,30 @@ class phiber extends wire
   }
 
 
-  protected function dispatch()
+  private function dispatch()
   {
 
     $controller = $this->route['controller'];
     $action = $this->route['action'];
 
-    $instance = $this->load($controller, null, $this->path);
-
-    if(method_exists($instance, $action)){
-
-      $instance->{$action}();
-    }else{
-
-      $instance->{$this->config->PHIBER_CONTROLLER_DEFAULT_METHOD}();
-
+    if(method_exists($this->controller,$action)){
+      $this->controller->{$action}();
     }
-
+    Event\eventfull::notify(new Event\event(self::EVENT_DISPATCH, __class__));
   }
 
-
-
-
+  private function loadController($controller)
+  {
+    require $this->path.$controller.'.php';
+    return $controller::getInstance();
+  }
+  public function addObserver($name, $object)
+  {
+    $this->observers[$name] = $object;
+  }
+  public static function getEvents()
+  {
+    return array(self::EVENT_BOOT, self::EVENT_DISPATCH, self::EVENT_SHUTDOWN);
+  }
 }
 ?>

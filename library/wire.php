@@ -1,71 +1,64 @@
 <?php
 namespace Phiber;
 
-abstract class wire
+class wire
 {
 
   const PHIBER_SESSION_NAMESPACE = 'phiber';
 
 
   protected $vars = array();
-  protected $keyHashes;
   protected $confFile;
 
-
-  protected function __construct()
+  public function __construct($confFile = null)
   {
-    $this->keyHashes = array('view'=>md5('Phiber.View'));
-
+    spl_autoload_register(array($this, 'autoload'),true,true);
+    $this->confFile = $confFile;
   }
   public static function getInstance()
   {
     return new static();
   }
+  public function boot()
+  {
 
+    phiber::getInstance()->run();
 
+  }
+  public function addRoute($rule, $route)
+  {
+    $this->phiber->addNewRoute($rule, $route);
+  }
+  public function addRoutesFile($path)
+  {
+    if(stream_resolve_include_path($path)){
+      $routes = include $path;
+      if(is_array($routes)){
+        foreach($routes as $route){
+          $this->addRoute($route[0],$route[1]);
+        }
+      }
+
+    }
+
+  }
   protected function _redirect($url, $replace = true, $code = 307)
   {
     header("Location: $url", $replace, $code);
   }
-  protected function addLib($name,$src = null)
+  public function addLib($name,$src = null)
   {
     if(null === $src){
       $src = $name;
     }
-    if($this->session->exists($name)){
-      $libs = $this->session->get('libs');
-    }else{
-      $libs =array();
-    }
-    $libs[$name] = $src;
-    $this->session->set('libs', $libs);
-  }
-  protected function getView()
-  {
 
-    $path = array_slice($this->route, 0,3,true);
+    $this->phiber->libs[$name] = $src;
 
-    $path = $this->config->application.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.array_shift($path).DIRECTORY_SEPARATOR.'views'.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $path) . '.php';
-
-    $this->view->viewPath = $path;
-
-  }
-  protected function setView($path)
-  {
-    if(stream_resolve_include_path($path)){
-      $this->view->viewPath = $path;
-      return true;
-    }
-    return false;
-  }
-  protected function renderLayout()
-  {
-    require $this->config->application.DIRECTORY_SEPARATOR.'layouts'.DIRECTORY_SEPARATOR.'layout.php';
   }
 
   private function isHttpMethod($method)
   {
-    return (strtoupper($method) === strtoupper($this->get('http_method')));
+    return (strtoupper($method) === strtoupper($this->phiber->method));
   }
   protected function isPost()
   {
@@ -102,7 +95,7 @@ abstract class wire
   }
   protected function isAjax()
   {
-    return $this->session->get('ajax');
+    return $this->phiber->ajax;
   }
 
 
@@ -121,7 +114,7 @@ abstract class wire
   }
   protected function _requestParam($var, $default = null)
   {
-    $vars = $this->get('_request');
+    $vars = $this->phiber->request;
     if(is_array($vars) && isset($vars[$var])){
       return $vars[$var];
     }else{
@@ -134,9 +127,7 @@ abstract class wire
 
   protected function register($name, $value)
   {
-
     $this->session->set($name, $value);
-
   }
 
   protected function get($index)
@@ -157,45 +148,98 @@ abstract class wire
 
   protected function setLog($logger = null,$params = null,$name = null)
   {
-    if(null === $logger || !stream_resolve_include_path($this->config->library.DIRECTORY_SEPARATOR.'logger'.DIRECTORY_SEPARATOR.$logger.'.php')){
+
+    if(null === $logger){
       $logger = $this->config->PHIBER_LOG_DEFAULT_HANDLER;
+    }elseif(!stream_resolve_include_path($this->config->library.'/logger/'.$logger.'.php')){
+      trigger_error('Log handler '.$logger.' could not be located!',E_USER_WARNING);
+      return;
     }
     if(null === $params){
-      $params = array('default',$this->config->logDir.DIRECTORY_SEPARATOR.$this->config->PHIBER_LOG_DEFAULT_FILE);
+      $params = array('default',$this->config->logDir.'/'.$this->config->PHIBER_LOG_DEFAULT_FILE);
     }
     if(!is_array($params)){
-      $params = array($params,$this->config->logDir.DIRECTORY_SEPARATOR.$params.'.log');
+      $params = array($params,$this->config->logDir.'/'.$params.'.log');
     }
+
     $logWriter = "Phiber\\Logger\\$logger";
     $writer = new $logWriter($params,$this->config->logLevel);
-    if(null === $name){
+
+    if(null == $name){
       $name = 'log';
     }
     $writer->level = $this->config->logLevel;
-    $this->register(sha1($name),array($logger,$params));
+    $this->phiber->logger[$name] = array($logger,$params);
     return $writer;
   }
   protected function logger($name = 'log')
   {
-    $name = sha1($name);
-    if($this->session->exists($name)){
-      $log = $this->get($name);
+    $logger = $this->phiber->logger;
+    if(null !== $logger && isset($logger[$name])){
+      $log = $logger[$name];
       $class = "Phiber\\Logger\\$log[0]";
-      if(stream_resolve_include_path($this->config->library.DIRECTORY_SEPARATOR.'logger'.DIRECTORY_SEPARATOR.$log[0].'.php')){
+      if(stream_resolve_include_path($this->config->library . DIRECTORY_SEPARATOR . 'logger' . DIRECTORY_SEPARATOR .$log[0].'.php')){
         $logObject = new $class($log[1],$this->config->logLevel);
-        return ($logObject instanceof Logger\logger)? $logObject : $this->logger();
+        return ($logObject instanceof Logger\logger)? $logObject : $this->setLog();
       }
 
     }
     return $this->setLog();
   }
-  protected function sendJSON($data, $options = 0 , $depth = 512)
+  protected function sendJSON($data, $options = null)
   {
+    $this->view->disableLayout();
+    $this->view->disableView();
+
     header('Cache-Control: no-cache, must-revalidate');
     header('Expires: Mon, 16 Jul 1997 02:00:00 GMT');
     header('Content-type: application/json; charset=utf-8');
-    echo json_encode($data);
-    exit(0);
+
+    echo json_encode($data,$options);
+  }
+
+  public function getObservers($event)
+  {
+    if(isset($this->phiber->observers[$event])){
+      return $this->phiber->observers[$event];
+    }
+  }
+  public function removeObserver($event, $name)
+  {
+    if(isset($this->phiber->observers[$event][$name])){
+      unset($this->phiber->observers[$event][$name]);
+    }
+
+  }
+  protected function hashObject()
+  {
+    $class = get_called_class();
+    $reflect = new \ReflectionClass($class);
+    return sha1($class.$reflect->getFileName());
+  }
+  protected function attach($event, $observer = null, $hash = null, $runMethod = null)
+  {
+    if(null === $observer){
+      $observer = $this;
+    }
+    if(null === $hash){
+      $hash = $this->hashObject();
+    }
+    return Event\eventfull::attach($observer, $event, $hash, $runMethod);
+  }
+  protected function detach( $event, $observer = null, $hash = null)
+  {
+    if(null === $observer){
+      $observer = $this;
+    }
+    if(null === $hash){
+      $hash = $this->hashObject();
+    }
+    return Event\eventfull::detach($observer, $event, $hash);
+  }
+  protected function notify(Event\event $event)
+  {
+    Event\eventfull::notify($event);
   }
 
   public function autoload($class)
@@ -204,15 +248,15 @@ abstract class wire
     if('config' === $class && null !== $this->confFile){
 
       if(stream_resolve_include_path($this->confFile)){
-        require_once $this->confFile;
-        return;
+        require $this->confFile;
+        return true;
       }else{
         trigger_error("Could not find configuration file: ".$this->confFile, E_USER_ERROR);
       }
 
     }
     $path = $this->config->library . DIRECTORY_SEPARATOR;
-    if(! strstr($class, '\\')){
+    if(strpos($class, '\\') === false){
 
       if(stream_resolve_include_path($path . $class . '.php')){
 
@@ -224,88 +268,40 @@ abstract class wire
 
       if(stream_resolve_include_path($module . $class . '.php')){
 
-        require_once $module . $class . '.php';
+        require $module . $class . '.php';
 
       }
-      return;
+      return true;
     }
-
 
     $parts = explode('\\', $class);
 
-
     $count = count($parts);
+
     if($parts[0] !== 'Phiber'){
 
-      $libs = $libs = $this->session->get('libs','PhiberLibs');
+      $libs = $this->phiber->libs;
 
       if(isset($libs[$parts[0]])){
 
         $path = $this->config->application.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.$libs[$parts[0]].DIRECTORY_SEPARATOR;
-
+        unset($parts[0]);
       }else{
-
         $path = $this->config->application.DIRECTORY_SEPARATOR;
 
       }
-    }
-    for($i=0; $i < $count; $i++){
-      if($parts[$i] === 'Phiber' || (isset($libs[$parts[0]]) && $i != $count - 1)){
-        continue;
-      }
-      if($i == $count - 1){
-        $path .= $parts[$i] . '.php';
-        break;
-      }
-      $path .=  strtolower($parts[$i]) . DIRECTORY_SEPARATOR;
+    }else{
+      unset($parts[0]);
 
     }
+    $path .= strtolower(implode(DIRECTORY_SEPARATOR,$parts)).'.php';
 
     if(stream_resolve_include_path($path)){
-      require_once $path;
+
+      require $path;
       return;
     }
 
-  }
-
-  protected function load($class, $params = null, $path = null, $inst = true)
-  {
-    $newpath = $path;
-    if(null === $newpath){
-      $newpath = __DIR__ . DIRECTORY_SEPARATOR;
-    }
-    $incpath = $newpath . $class . '.php';
-
-    if(in_array($class, array('view'))){
-
-      $hash = $this->keyHashes[$class];
-
-      if($this->session->exists($hash) && false !== $inst){
-
-        return $this->get($hash);
-      }
-    }
-
-    if(! stream_resolve_include_path($incpath)){
-      return false;
-    }
-    include_once ($incpath);
-
-    if(false === $inst){
-      return $class;
-    }
-    if(null !== $params && is_array($params)){
-      $parameters = implode(",", $params);
-    }else{
-      $parameters = $params;
-    }
-
-    $instance = $class::getInstance($parameters);
-
-    if(isset($hash)){
-      $this->register($hash, $instance);
-    }
-    return $instance;
   }
 
   public function __set($var, $val)
@@ -328,23 +324,19 @@ abstract class wire
     switch($var){
 
       case 'view':
-
-        return $this->load('view');
-
+        return \view::getInstance();
       case 'route':
-        return $this->get('route');
-
-      case 'content':
+        return $this->phiber->currentRoute;
+      case 'phiber_content_view_path':
         return $this->viewPath;
-
       case 'config':
         return \config::getInstance();
-
       case 'session':
-        return new Session\session();
-
+        return Session\session::getInstance();
+      case 'phiber';
+        return phiber::getInstance();
     }
-    if(key_exists($var, $this->vars)){
+    if(isset($this->vars[$var])){
       return $this->vars[$var];
     }
 

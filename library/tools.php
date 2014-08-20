@@ -88,8 +88,11 @@ class tools
         if(isset($data["class"])){
           $class = $data["class"].'->';
         }
+        $line = (isset($data["line"]))?$data["line"]:'';
+        $file = (isset($data["file"]))?$data["file"].':':'';
+        $fn = (isset($data["function"]))?$data["function"].'() ':'';
 
-       $text .= PHP_EOL.$step.'. '.$class.$data["function"].'() '.$data["file"].':'.$data["line"].PHP_EOL;
+       $text .= PHP_EOL.$step.'. '.$class.$fn.$file.$line.PHP_EOL;
        if(isset($data['args']) && count($data['args'])){
          $text .= PHP_EOL.'  Vars:'.PHP_EOL;
          foreach($data['args'] as $arg => $val){

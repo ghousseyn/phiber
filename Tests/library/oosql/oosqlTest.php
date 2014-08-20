@@ -18,7 +18,7 @@ class oosqlTest extends PhiberTests
   public function testSelect()
   {
     $return = $this->invokeMethod($this->oosql, 'select');
-    $sql = $this->getProperty($this->oosql, 'oosql_sql');
+    $sql = $this->invokeMethod($this->oosql, 'sql');
     $flag = $this->getProperty($this->oosql, 'oosql_fromFlag');
     $select = $this->getProperty($this->oosql, 'oosql_select');
     $this->assertEquals('SELECT table.* ', $sql);
@@ -30,7 +30,7 @@ class oosqlTest extends PhiberTests
   public function testSelectColumnsSpecified()
   {
     $return = $this->invokeMethod($this->oosql, 'select',array('column1','column2'));
-    $sql = $this->getProperty($this->oosql, 'oosql_sql');
+    $sql = $this->invokeMethod($this->oosql, 'sql');
     $flag = $this->getProperty($this->oosql, 'oosql_fromFlag');
     $select = $this->getProperty($this->oosql, 'oosql_select');
     $this->assertEquals('SELECT column1,column2', $sql);
@@ -41,14 +41,14 @@ class oosqlTest extends PhiberTests
   public function testInsert()
   {
     $return = $this->invokeMethod($this->oosql, 'insert');
-    $sql = $this->getProperty($this->oosql, 'oosql_sql');
+    $sql = $this->invokeMethod($this->oosql, 'sql');
     $this->assertEquals('INSERT INTO table', $sql);
     $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testInsertColumnsSpecified()
   {
     $return = $this->invokeMethod($this->oosql, 'insert',array('column1','column2'));
-    $sql = $this->getProperty($this->oosql, 'oosql_sql');
+    $sql = $this->invokeMethod($this->oosql, 'sql');
     $numargs = $this->getProperty($this->oosql, 'oosql_numargs');
     $this->assertEquals(2, $numargs);
     $this->assertEquals('INSERT INTO table (column1,column2)', $sql);
@@ -57,7 +57,7 @@ class oosqlTest extends PhiberTests
   public function testUpdate()
   {
     $return = $this->invokeMethod($this->oosql, 'update');
-    $sql = $this->getProperty($this->oosql, 'oosql_sql');
+    $sql = $this->invokeMethod($this->oosql, 'sql');
     $flag = $this->getProperty($this->oosql, 'oosql_multiFlag');
     $this->assertFalse($flag);
     $this->assertEquals('UPDATE table SET ', $sql);
@@ -66,7 +66,7 @@ class oosqlTest extends PhiberTests
   public function testUpdateMultiple()
   {
     $return = $this->invokeMethod($this->oosql, 'update',array('table1', 'table2'));
-    $sql = $this->getProperty($this->oosql, 'oosql_sql');
+    $sql = $this->invokeMethod($this->oosql, 'sql');
     $flag = $this->getProperty($this->oosql, 'oosql_multiFlag');
     $this->assertTrue($flag);
     $this->assertEquals('UPDATE table1, table2 SET ', $sql);
@@ -75,29 +75,17 @@ class oosqlTest extends PhiberTests
   public function testDelete()
   {
     $return = $this->invokeMethod($this->oosql, 'delete');
-    $sql = $this->getProperty($this->oosql, 'oosql_sql');
+    $sql = $this->invokeMethod($this->oosql, 'sql');
     $flag = $this->getProperty($this->oosql, 'oosql_fromFlag');
     $this->assertTrue($flag);
     $this->assertEquals('DELETE', $sql);
     $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
-  public function testDeleteMulti()
-  {
-    $return = $this->invokeMethod($this->oosql, 'delete',array('table1','table2'));
-    $sql = $this->getProperty($this->oosql, 'oosql_sql');
-    $flagFrom = $this->getProperty($this->oosql, 'oosql_fromFlag');
-    $flagMulti = $this->getProperty($this->oosql, 'oosql_del_multiFlag');
-    $flagArgs = $this->getProperty($this->oosql, 'oosql_del_numargs');
-    $this->assertFalse($flagFrom);
-    $this->assertTrue($flagMulti);
-    $this->assertEquals(2,$flagArgs);
-    $this->assertEquals('DELETE FROM table1, table2', $sql);
-    $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
-  }
+
   public function testDeleteShortCut()
   {
     $return = $this->invokeMethod($this->oosql, 'delete',array(array('id',1)));
-    $sql = $this->getProperty($this->oosql, 'oosql_sql');
+    $sql = $this->invokeMethod($this->oosql, 'sql');
     $flag = $this->getProperty($this->oosql, 'oosql_fromFlag');
     $value = $this->getProperty($this->oosql, 'oosql_conValues');
     $this->assertFalse($flag);
@@ -110,7 +98,7 @@ class oosqlTest extends PhiberTests
     $data = array('field1'=>'value','field2'=>12);
     $this->invokeMethod($this->oosql, 'update');
     $return = $this->invokeMethod($this->oosql, 'set', array($data));
-    $sql = $this->getProperty($this->oosql, 'oosql_sql');
+    $sql = $this->invokeMethod($this->oosql, 'sql');
     $values = $this->getProperty($this->oosql, 'oosql_conValues');
 
     $this->assertEquals('UPDATE table SET field1 = ?,field2 = ?', $sql);
@@ -152,7 +140,7 @@ class oosqlTest extends PhiberTests
   }
   /**
    * @expectedException Exception
-   * @expectedExceptionCode 9807
+   * @expectedExceptionCode 9809
    */
   public function testValuesNoArgs()
   {
@@ -161,7 +149,7 @@ class oosqlTest extends PhiberTests
 
   /**
    * @expectedException Exception
-   * @expectedExceptionCode 9807
+   * @expectedExceptionCode 9809
    */
   public function testValuesArgsNotMatching()
   {
@@ -172,7 +160,7 @@ class oosqlTest extends PhiberTests
   {
     $this->invokeMethod($this->oosql,'insert', array('field1','field2'));
     $return = $this->invokeMethod($this->oosql, 'values',array('value1',3));
-    $sql = $this->getProperty($this->oosql, 'oosql_sql');
+    $sql = $this->invokeMethod($this->oosql, 'sql');
     $values = $this->getProperty($this->oosql, 'oosql_conValues');
     $flag = $this->getProperty($this->oosql, 'oosql_fromFlag');
 
@@ -182,22 +170,14 @@ class oosqlTest extends PhiberTests
     $this->assertcontains(3,$values);
     $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
-  /**
-   * @expectedException Exception
-   * @expectedExceptionCode 9807
-   */
-  public function testFromArgsNotMatching()
-  {
-    $this->invokeMethod($this->oosql,'delete', array('field1','field2'));
-    $this->invokeMethod($this->oosql, 'from',array('table1'));
-  }
+
   public function testFromWithArgs()
   {
     $return = $this->invokeMethod($this->oosql, 'from',array('table1','table2'));
 
-    $sql = $this->getProperty($this->oosql, 'oosql_sql');
+    $sql = $this->invokeMethod($this->oosql, 'sql');
     $flag = $this->getProperty($this->oosql, 'oosql_fromFlag');
-    $this->assertEquals(' FROM table1, table2', $sql);
+    $this->assertEquals(' FROM table, table1, table2', $sql);
     $this->assertFalse($flag);
     $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
@@ -205,7 +185,7 @@ class oosqlTest extends PhiberTests
   {
     $return = $this->invokeMethod($this->oosql, 'from');
 
-    $sql = $this->getProperty($this->oosql, 'oosql_sql');
+    $sql = $this->invokeMethod($this->oosql, 'sql');
     $flag = $this->getProperty($this->oosql, 'oosql_fromFlag');
     $this->assertEquals(' FROM table', $sql);
     $this->assertFalse($flag);
@@ -279,11 +259,11 @@ class oosqlTest extends PhiberTests
   }
   public function testValidInteger()
   {
-    $return1 = $this->invokeMethod($this->oosql, 'valid_int',array(1.2304e6));
-    $return2 = $this->invokeMethod($this->oosql, 'valid_int',array(16));
-    $return3 = $this->invokeMethod($this->oosql, 'valid_int',array('16'));
-    $return4 = $this->invokeMethod($this->oosql, 'valid_int',array('1.2304e6'));
-    $return5 = $this->invokeMethod($this->oosql, 'valid_int',array(16.2));
+    $return1 = $this->invokeMethod($this->oosql, 'validInt',array(1.2304e6));
+    $return2 = $this->invokeMethod($this->oosql, 'validInt',array(16));
+    $return3 = $this->invokeMethod($this->oosql, 'validInt',array('16'));
+    $return4 = $this->invokeMethod($this->oosql, 'validInt',array('1.2304e6'));
+    $return5 = $this->invokeMethod($this->oosql, 'validInt',array(16.2));
 
     $this->assertTrue($return1);
     $this->assertTrue($return2);
@@ -293,20 +273,13 @@ class oosqlTest extends PhiberTests
   }
   /**
    * @expectedException InvalidArgumentException
-   * @expectedExceptionCode 9808
+   * @expectedExceptionCode 9812
    */
   public function testFetchWrongArgs()
   {
     $this->invokeMethod($this->oosql, 'fetch',array(0,1,2));
   }
-  /**
-   * @expectedException Exception
-   * @expectedExceptionCode 9809
-   */
-  public function testFetchNoResults()
-  {
-    $this->invokeMethod($this->oosql, 'fetch');
-  }
+
   public function testLimit()
   {
     $return = $this->invokeMethod($this->oosql, 'limit',array(0,10));

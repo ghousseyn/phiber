@@ -46,7 +46,7 @@ abstract class logger extends \Phiber\phiber
     }
     $sevirities = array_slice($levels,$levels[$this->level]-9809,null,true);
 
-    if(!in_array($this->sevirity[$sevirity], $sevirities)  ){
+    if(!array_key_exists($this->sevirity[$sevirity], $sevirities) || array_shift($sevirities) == $levels[$this->sevirity[$sevirity]] ){
 
       $context['exception'] = $exception;
       $this->{$this->sevirity[$sevirity]}($exception->getMessage(),$context);
