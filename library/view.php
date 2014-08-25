@@ -38,7 +38,7 @@ class view extends Phiber\phiber
   {
     $this->getView();
     if($this->viewEnabled){
-      include $this->phiber_content_view_path;
+      include $this->viewPath;
     }
   }
   protected function getView()
@@ -48,7 +48,7 @@ class view extends Phiber\phiber
 
     $path = $this->config->application . '/modules/' . array_shift($path) . '/views/' . implode('/', $path) . '.php';
 
-    $this->view->viewPath = $path;
+    $this->viewPath = $path;
 
   }
   public function disableView()
