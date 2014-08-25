@@ -172,7 +172,7 @@ class wire
     $this->phiber->logger[$name] = array($logger,$params);
     return $writer;
   }
-  protected function logger($name = 'log')
+  public function logger($name = 'log')
   {
     $logger = $this->phiber->logger;
     if(null !== $logger && isset($logger[$name])){
