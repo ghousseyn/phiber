@@ -126,7 +126,7 @@ abstract class oogen extends \PDO
     if(isset($this->foreign[$table]) && count($this->foreign[$table])){
       $this->text .= '  public function getRelations()' . PHP_EOL . '  {' . PHP_EOL . '    return array(';
       foreach($this->foreign[$table] as $member => $content){
-        $this->text .= "'" . $member . "'=>'" . $content[1] . "." . str_replace('`)', '', $content[0]) . "',";
+        $this->text .= "'" . $member . "'=>'" . $content[1] . "." . trim(str_replace('`)', '', $content[0])). "',";
       }
       $this->text .= ');' . PHP_EOL . '  }' . PHP_EOL;
     }
@@ -163,7 +163,7 @@ abstract class oogen extends \PDO
       print "Generating class $cname ...";
 
       $this->text .= '<?php' . PHP_EOL . 'namespace entity;' . PHP_EOL . 'use Phiber;';
-      $this->text .= PHP_EOL . "class $cname extends Phiber\entity\entity  " . PHP_EOL . "{" . PHP_EOL;
+      $this->text .= PHP_EOL . "class $cname extends Phiber\\entity\\entity  " . PHP_EOL . "{" . PHP_EOL;
 
       $this->ai = false;
 
