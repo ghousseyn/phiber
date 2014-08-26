@@ -37,7 +37,7 @@ class mysql extends oogen
         }
       }
 
-      if( $col['Key'] == 'PRI'){
+      if(isset($col['Key']) && $col['Key'] == 'PRI'){
         $this->primary[$tname][] = $col['Field'];
       }
 
