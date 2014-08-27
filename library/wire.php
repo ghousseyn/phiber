@@ -19,6 +19,10 @@ class wire
   {
     return new static();
   }
+  public function baseUri($base)
+  {
+    $this->phiber->setBase($base);
+  }
   public function boot()
   {
 
@@ -112,9 +116,9 @@ class wire
     }
 
   }
-  protected function _requestParam($var, $default = null)
+  public function _requestParam($var, $default = null)
   {
-    $vars = $this->phiber->request;
+    $vars = $this->phiber->_reqVars();
     if(is_array($vars) && isset($vars[$var])){
       return $vars[$var];
     }else{
