@@ -85,7 +85,10 @@ class view extends Phiber\phiber
   }
   public function getURI()
   {
-    return '/'.$this->route['module'].'/'.$this->route['controller'].'/'.$this->route['action'];
+    $uri = (isset($this->route['module'])?$this->route['module'].'/':'').
+           (isset($this->route['controller'])?$this->route['controller'].'/':'').
+           (isset($this->route['action'])?$this->route['action'].'/':'');
+    return '/'.trim($this->phiber->getBase(),'/').'/'.$uri;
   }
 
   public static function getInstance()
