@@ -1,6 +1,6 @@
 <?php
 
-
+namespace Phiber;
 /**
  * Configuration class.
  * @version 	1.0

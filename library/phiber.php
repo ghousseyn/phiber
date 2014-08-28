@@ -12,7 +12,6 @@ namespace Phiber;
 class phiber extends wire
 {
 
-  private $baseUrl = '/';
   private $controller;
   private $path;
   private $uri;
@@ -20,8 +19,8 @@ class phiber extends wire
   private $_requestVars = array();
   private $plugins = array();
   private $stop = false;
-  private $method;
 
+  private $method;
   public $observers;
   public $libs = array();
   public $ajax = false;
@@ -32,9 +31,10 @@ class phiber extends wire
   private static $instance;
 
   const EVENT_BOOT = 'phiber.boot';
+
   const EVENT_SHUTDOWN = 'phiber.shutdown';
+
   const EVENT_DISPATCH = 'phiber.dispatch';
-  const EVENT_URINOTFOUND = 'phiber.urinotfound';
 
   public static function getInstance()
   {
@@ -42,10 +42,6 @@ class phiber extends wire
       return self::$instance;
     }
     return self::$instance = new self;
-  }
-  public function _reqVars()
-  {
-    return $this->_requestVars;
   }
   private function getRoutes()
   {
@@ -87,7 +83,7 @@ class phiber extends wire
     }
 
     if(count(array_diff($pluginsList,$this->plugins)) !== 0 || count(array_diff($this->plugins,$pluginsList)) !== 0 || isset($pluginsList['g5475ff2f44a9102d8b7'])){
-      $code = '<?php return '.\tools::transcribe($this->plugins).'; ?>';
+      $code = '<?php return '.tools::transcribe($this->plugins).'; ?>';
       file_put_contents($plugins, $code);
 
     }
@@ -109,25 +105,14 @@ class phiber extends wire
 
   private function uriNormalize($uri)
   {
-    $needles = array('/?','?','/?','&','=','\\','..');
-    $replace = array('/','/?','/','/','/','','');
-    $uri = ltrim($uri,$this->baseUrl);
-    $uri = '/'.$uri;
+    $needles = array('/?','?','/?','&','=');
+    $replace = array('/','/?','/','/','/',);
     return trim(str_replace($needles, $replace, $uri));
-  }
-  public function setBase($base)
-  {
-    $base = ltrim($base,'/');
-    $this->baseUrl = '/'.$base;
-  }
-  public function getBase()
-  {
-    return $this->baseUrl;
   }
   private function router(array $routes = null)
   {
 
-    $this->uri = $this->uriNormalize(urldecode($_SERVER['REQUEST_URI']));
+    $this->uri = urldecode($_SERVER['REQUEST_URI']);
 
     $this->method = $_SERVER['REQUEST_METHOD'];
 
@@ -193,14 +178,12 @@ class phiber extends wire
     if(strpos($current,'~') !== false){
       return;
     }
-
     if(isset($routes[$current])){
 
       if(is_array($routes[$current])){
         $this->route = $routes[$current];
       }elseif(is_callable($routes[$current])){
         $fn = $routes[$current];
-        $this->setVars(explode('/',$this->uri));
         $rt = $fn($this);
         if($rt === true){
           return false;
@@ -239,7 +222,6 @@ class phiber extends wire
            }
            $this->route = $route;
          }elseif(is_callable($route)){
-           $this->setVars(explode('/',$this->uri));
            $rt = $route($this);
            if($rt === true){
              return false;
@@ -281,11 +263,10 @@ class phiber extends wire
   private function isValidURI($uri)
   {
 
-    if(preg_match('~^(?:[/\\w\\s-\,\$\.\;\@\:\%\[\]\*\!\'\(\)\~?=&]+)+/?$~u', $uri)){
+    if(preg_match('~^(?:[/\\w\\s-\,\$\.\*\!\'\(\)\~?=&]+)+/?$~u', $uri)){
 
       return true;
     }
-    Event\eventfull::notify(new Event\event(self::EVENT_URINOTFOUND, __class__));
     return false;
   }
   public function run()
@@ -373,12 +354,7 @@ class phiber extends wire
   }
   public static function getEvents()
   {
-    return array(
-                 self::EVENT_BOOT,
-                 self::EVENT_DISPATCH,
-                 self::EVENT_SHUTDOWN,
-                 self::EVENT_URINOTFOUND
-                );
+    return array(self::EVENT_BOOT, self::EVENT_DISPATCH, self::EVENT_SHUTDOWN);
   }
 }
 ?>
