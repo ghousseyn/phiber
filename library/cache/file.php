@@ -17,7 +17,7 @@ class file implements cacheDriver
     if(null != $path){
       $this->path = $path;
     }else{
-      $this->path = \config::getInstance()->application.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.'cache'.DIRECTORY_SEPARATOR;
+      $this->path = \Phiber\config::getInstance()->application.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.'cache'.DIRECTORY_SEPARATOR;
     }
 
   }
