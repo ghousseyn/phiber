@@ -25,7 +25,7 @@ class error
     }
 
   }
-  public static function initiate(Logger\logger $writer,\config $config)
+  public static function initiate(Logger\logger $writer,config $config)
   {
     self::$instance = new self($config);
     self::$instance->setWriter($writer);

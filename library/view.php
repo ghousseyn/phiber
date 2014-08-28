@@ -1,12 +1,12 @@
 <?php
-
+namespace Phiber {
 /**
  * The view class.
  * @version 	1.0
  * @author 	Hussein Guettaf <ghussein@coda-dz.com>
  * @package 	Phiber
  */
-class view extends Phiber\phiber
+class view extends phiber
 {
   private static $instance;
 
@@ -38,7 +38,7 @@ class view extends Phiber\phiber
   {
     $this->getView();
     if($this->viewEnabled){
-      include $this->viewPath;
+      include $this->phiber_content_view_path;
     }
   }
   protected function getView()
@@ -48,7 +48,7 @@ class view extends Phiber\phiber
 
     $path = $this->config->application . '/modules/' . array_shift($path) . '/views/' . implode('/', $path) . '.php';
 
-    $this->viewPath = $path;
+    $this->view->viewPath = $path;
 
   }
   public function disableView()
@@ -85,10 +85,7 @@ class view extends Phiber\phiber
   }
   public function getURI()
   {
-    $uri = (isset($this->route['module'])?$this->route['module'].'/':'').
-           (isset($this->route['controller'])?$this->route['controller'].'/':'').
-           (isset($this->route['action'])?$this->route['action'].'/':'');
-    return '/'.trim($this->phiber->getBase(),'/').'/'.$uri;
+    return '/'.$this->route['module'].'/'.$this->route['controller'].'/'.$this->route['action'];
   }
 
   public static function getInstance()
@@ -103,7 +100,10 @@ class view extends Phiber\phiber
     $this->showtime();
   }
 }
+}
+namespace {
 function T_($var)
 {
   echo htmlentities($var);
+}
 }

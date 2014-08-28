@@ -1,5 +1,5 @@
 <?php
-
+namespace Phiber;
 /**
  * Bootstrap class.
  * @version 	1.0

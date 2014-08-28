@@ -11,7 +11,7 @@ class oosqlTest extends PhiberTests
 
   public function setUp()
   {
-    $config = \config::getInstance();
+    $config = Phiber\config::getInstance();
     $config->PHIBER_DB_DSN = 'sqlite:./test.db';
     $this->oosql = \Phiber\oosql\oosql::getInstance('table','class',$config);
   }
