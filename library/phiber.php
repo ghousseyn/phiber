@@ -137,6 +137,7 @@ class phiber extends wire
 
       $parts = explode("/", $this->uri);
       unset($parts[0]);
+      $parts = array_values($parts);
       if(! empty($parts[0]) && is_dir($this->config->application.'/modules/'.$parts[0])){
 
         $module = array_shift($parts);
