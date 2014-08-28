@@ -39,7 +39,7 @@ class eventfull
         $method = $m;
       }
 
-      \Phiber\wire::getInstance()->phiber->addObserver($event,array($hash => array('object'=> $observer,'method' => $method)));
+      \Phiber\phiber::getInstance()->addObserver($event,array($hash => array('object'=> $observer,'method' => $method)));
 
   }
   public static function detach($observer = null, $event,$hash = null)
@@ -55,13 +55,13 @@ class eventfull
         return;
       }
 
-    \Phiber\wire::getInstance()->removeObserver($event,$hash);
+    \Phiber\phiber::getInstance()->removeObserver($event,$hash);
 
   }
   public static function notify(event $event)
   {
 
-    $observers = \Phiber\wire::getInstance()->getObservers($event->current['event']);
+    $observers = \Phiber\phiber::getInstance()->getObservers($event->current['event']);
 
     if(count($observers)){
 
