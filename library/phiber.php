@@ -3,7 +3,7 @@
 /**
  * The main framework class
  * @version     1.0
- * @author      Hussein Guettaf <ghussein@coda-dz.com>
+ * @author      Housseyn Guettaf <ghoucine@gmail.com>
  * @package     Phiber
  */
 namespace Phiber;

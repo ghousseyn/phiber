@@ -1,4 +1,10 @@
 <?php
+/**
+ * Error class.
+ * @version 	1.0
+ * @author 	Housseyn Guettaf <ghoucine@gmail.com>
+ * @package 	Phiber
+ */
 namespace Phiber;
 
 class error

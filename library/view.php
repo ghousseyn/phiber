@@ -1,4 +1,10 @@
 <?php
+/**
+ * View class.
+ * @version 	1.0
+ * @author 	Housseyn Guettaf <ghoucine@gmail.com>
+ * @package 	Phiber
+ */
 namespace Phiber {
 /**
  * The view class.

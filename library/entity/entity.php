@@ -1,4 +1,10 @@
 <?php
+/**
+ * Entity class.
+ * @version 	1.0
+ * @author 	Housseyn Guettaf <ghoucine@gmail.com>
+ * @package 	Phiber
+ */
 namespace Phiber\entity;
 
 use Phiber\oosql\oosql;
@@ -26,7 +32,7 @@ abstract class entity
    */
   public static function getInstance()
   {
-    return self::getooSQL(get_class(new static()));
+    return self::getooSQL(get_class($this));
   }
 
   protected static function getooSQL($class)
@@ -89,7 +95,6 @@ abstract class entity
                 $instances[$hash] = $instance;
 
                 unset($instance);
-                break;
               }
 
             }
@@ -103,8 +108,6 @@ abstract class entity
     }
 
     if($saveRelated && count($instances)){
-
-      $oosql = self::$oosql_obj;
 
         try{
           foreach($instances as $inst){
