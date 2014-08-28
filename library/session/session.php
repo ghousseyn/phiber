@@ -1,6 +1,11 @@
 <?php
+/**
+ * Session class.
+ * @version 	1.0
+ * @author 	Housseyn Guettaf <ghoucine@gmail.com>
+ * @package 	Phiber
+ */
 namespace Phiber\Session;
-
 
 class session
 {
@@ -30,14 +35,14 @@ class session
   public function check()
   {
 
-      if(isset($_SESSION[self::$namespace]['user']['activity']) && (time() - $_SESSION[self::$namespace]['user']['activity'] > \tools::orDefault((int) \config::getInstance()->PHIBER_SESSION_INACTIVE, 1800))){
+      if(isset($_SESSION[self::$namespace]['user']['activity']) && (time() - $_SESSION[self::$namespace]['user']['activity'] > \Phiber\tools::orDefault((int) \Phiber\config::getInstance()->PHIBER_SESSION_INACTIVE, 1800))){
 
         $this->destroy();
 
       }
 
 
-      if(isset($_SESSION[self::$namespace]['user']['created']) && (time() - $_SESSION[self::$namespace]['user']['created'] > \tools::orDefault((int) \config::getInstance()->PHIBER_SESSION_REGENERATE, 1800))){
+      if(isset($_SESSION[self::$namespace]['user']['created']) && (time() - $_SESSION[self::$namespace]['user']['created'] > \Phiber\tools::orDefault((int) \Phiber\config::getInstance()->PHIBER_SESSION_REGENERATE, 1800))){
 
         $this->regenerate();
 

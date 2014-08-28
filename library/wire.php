@@ -1,4 +1,10 @@
 <?php
+/**
+ * Wire class.
+ * @version 	1.0
+ * @author 	Housseyn Guettaf <ghoucine@gmail.com>
+ * @package 	Phiber
+ */
 namespace Phiber;
 
 class wire
@@ -98,20 +104,6 @@ class wire
     return $this->phiber->ajax;
   }
 
-
-  protected function contextSwitch($context)
-  {
-    if($context === 'html' || $context === 'json'){
-
-      $this->register('context', $context);
-      $this->register('layoutEnabled', false);
-
-    }
-    if($context === 'json'){
-      $this->view->viewPath = null;
-    }
-
-  }
   protected function _requestParam($var, $default = null)
   {
     $vars = $this->phiber->request;
