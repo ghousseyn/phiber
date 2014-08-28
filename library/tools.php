@@ -1,5 +1,5 @@
 <?php
-
+namespace Phiber;
 /**
  * Tools class.
  * @version 	1.0

@@ -13,7 +13,7 @@ class file extends logger
     $this->level = $globalLevel;
     $date = new \DateTime($this->config->PHIBER_TIMEZONE);
     $dateTime = (array) $date;
-    $this->prepend = $dateTime['date'].' ['.\tools::getIp().'] ['.$_SERVER['REQUEST_URI'].'] ';
+    $this->prepend = $dateTime['date'].' ['.\Phiber\tools::getIp().'] ['.$_SERVER['REQUEST_URI'].'] ';
   }
 
   /**
@@ -40,7 +40,7 @@ class file extends logger
       }else{
         $object = (count($context))?$context:$message;
       }
-      \tools::wtf($object);
+      \Phiber\tools::wtf($object);
     }
     error_log($message.PHP_EOL,3,$this->file);
 

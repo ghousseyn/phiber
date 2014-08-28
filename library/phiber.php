@@ -83,7 +83,7 @@ class phiber extends wire
     }
 
     if(count(array_diff($pluginsList,$this->plugins)) !== 0 || count(array_diff($this->plugins,$pluginsList)) !== 0 || isset($pluginsList['g5475ff2f44a9102d8b7'])){
-      $code = '<?php return '.\tools::transcribe($this->plugins).'; ?>';
+      $code = '<?php return '.tools::transcribe($this->plugins).'; ?>';
       file_put_contents($plugins, $code);
 
     }

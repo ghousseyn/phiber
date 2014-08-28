@@ -245,7 +245,7 @@ class wire
   public function autoload($class)
   {
 
-    if('config' === $class && null !== $this->confFile){
+    if('Phiber\\config' === $class && null !== $this->confFile){
 
       if(stream_resolve_include_path($this->confFile)){
         require $this->confFile;
@@ -258,9 +258,9 @@ class wire
     $path = $this->config->library . DIRECTORY_SEPARATOR;
     if(strpos($class, '\\') === false){
 
-      if(stream_resolve_include_path($path . $class . '.php')){
+      if(stream_resolve_include_path($this->config->application.DIRECTORY_SEPARATOR  . $class . '.php')){
 
-        require_once $path . $class . '.php';
+        require $this->config->application.DIRECTORY_SEPARATOR . $class . '.php';
         return;
       }
 
@@ -324,13 +324,13 @@ class wire
     switch($var){
 
       case 'view':
-        return \view::getInstance();
+        return view::getInstance();
       case 'route':
         return $this->phiber->currentRoute;
       case 'phiber_content_view_path':
         return $this->viewPath;
       case 'config':
-        return \config::getInstance();
+        return config::getInstance();
       case 'session':
         return Session\session::getInstance();
       case 'phiber';
