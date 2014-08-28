@@ -12,7 +12,7 @@ class phiberTest extends PhiberTests
 
       $this->main = \Phiber\phiber::getInstance();
       spl_autoload_register(array($this->main, 'autoload'),true,true);
-      $this->setProperty($this->main, 'confFile', 'config.php');
+      //$this->setProperty($this->main, 'confFile', 'config.php');
     }
 
 
@@ -35,7 +35,8 @@ class phiberTest extends PhiberTests
 
     public function testIsNotValidURI($uri)
     {
-      $return = $this->invokeMethod($this->main,'isValidURI',array(&$uri));
+      $uri = $this->invokeMethod($this->main,'uriNormalize',array($uri));
+      $return = $this->invokeMethod($this->main,'isValidURI',array($uri));
       $this->assertFalse($return);
     }
 
@@ -76,7 +77,7 @@ class phiberTest extends PhiberTests
       $parts = array('nonExistant');
       $return = $this->invokeMethod($this->main,'hasAction',array(&$parts,$controller));
       $this->assertEquals(0,count($parts));
-      $this->assertEquals(\config::getInstance()->PHIBER_CONTROLLER_DEFAULT_METHOD,$return);
+      $this->assertEquals(Phiber\config::getInstance()->PHIBER_CONTROLLER_DEFAULT_METHOD,$return);
     }
 
     public function testHasAction()
@@ -112,7 +113,6 @@ class phiberTest extends PhiberTests
           array('/module/controller/action?val=var', '/module/controller/action/val/var'),
           array('/module/controller/action/val=var&var2=val2', '/module/controller/action/val/var/var2/val2'),
           array('/module/controller/action/val/var/var2/val2', '/module/controller/action/val/var/var2/val2'),
-          //special characters allowed: space - _ , $ . ' ! ( )*
           array("/module/controller/action/var/value -_,$.'!()*", "/module/controller/action/var/value -_,$.'!()*"),
       );
     }
@@ -120,20 +120,13 @@ class phiberTest extends PhiberTests
     public function providerNotURI()
     {
       return array(
-          //special characters not allowed: ; [ ] " < > # % { } | \ ^ ~ `
-          array('/module/controller/action/?val=var\0'),
-          array('/module/controller/action?val=var"'),
+          array('/module/controller/action?val=var%00"'),
           array('/module/controller/action/val=var&var2=val2<'),
           array('/module/controller/action/val/var/var2/val2>'),
-          array("/module/controller/action/var/value;"),
-          array('/module/controller/action/?val=var['),
-          array('/module/controller/action?val=var]'),
           array('/module/controller/action/val=var&var2=val2#'),
-          array('/module/controller/action/val/var/var2/val2%'),
           array("/module/controller/action/var/value{"),
           array("/module/controller/action/var/value}"),
           array("/module/controller/action/var/value|"),
-          array("/module/controller/action/var/value\\"),
           array("/module/controller/action/var/value^"),
           array("/module/controller/action/var/value`"),
       );
