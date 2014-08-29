@@ -1,5 +1,5 @@
 <?php
-namespace Phiber\interfaces;
+namespace Phiber\Interfaces;
 
 interface phiberEventSubject
 {
