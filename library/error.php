@@ -19,9 +19,9 @@ class error
 
   protected function __construct($config)
   {
-    set_error_handler('Phiber\error::error_handler');
-    set_exception_handler('Phiber\error::exception_handler');
-    register_shutdown_function('Phiber\error::fatal_error_handler');
+    set_error_handler('Phiber\error::errorHandler');
+    set_exception_handler('Phiber\error::exceptionHandler');
+    register_shutdown_function('Phiber\error::fatalErrorHandler');
 
     self::$config = $config;
     error_reporting(E_ALL);
@@ -49,7 +49,7 @@ class error
     $this->writer->handle($exception, $context,self::$config);
   }
 
-  public static function error_handler($errno, $errstr, $errfile, $errline, $errcontext)
+  public static function errorHandler($errno, $errstr, $errfile, $errline, $errcontext)
   {
 
     $l = error_reporting();
@@ -103,14 +103,14 @@ class error
 
       $exception = new \ErrorException($type . ': ' . $errstr, $errno, $sevirity, $errfile, $errline);
 
-      self::exception_handler($exception,$errcontext);
+      self::exceptionHandler($exception,$errcontext);
 
       return true;
     }
     return false;
   }
 
-  public static function exception_handler($exception,$context=array())
+  public static function exceptionHandler($exception,$context=array())
   {
     if(self::$stop){
        throw $exception;
@@ -128,11 +128,11 @@ class error
 
   }
 
-  public static function fatal_error_handler()
+  public static function fatalErrorHandler()
   {
     $error = error_get_last();
     if(isset($error['type']) ){
-      self::error_handler($error['type'], $error['message'], $error['file'], $error['line'], array());
+      self::errorHandler($error['type'], $error['message'], $error['file'], $error['line'], array());
     }
   }
 

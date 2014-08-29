@@ -1,5 +1,5 @@
 <?php
-namespace Phiber\cache;
+namespace Phiber\Cache;
 
 class item
 {

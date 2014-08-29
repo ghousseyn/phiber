@@ -1,6 +1,6 @@
 <?php
-namespace Phiber\cache;
-use Phiber\interfaces\cacheDriver;
+namespace Phiber\Cache;
+use Phiber\Interfaces\cacheDriver;
 
 class file implements cacheDriver
 {

@@ -138,7 +138,7 @@ class wire
     $this->session->set('phiber_flags', $flags);
   }
 
-  protected function setLog($logger = null,$params = null,$name = null)
+  public function setLog($logger = null,$params = null,$name = null)
   {
 
     if(null === $logger){
@@ -293,7 +293,9 @@ class wire
       require $path;
       return;
     }
-
+    //If we're here class could not be found let's see if composer can find it
+    include $this->config->application.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'autoload.php';
+    return;
   }
 
   public function __set($var, $val)

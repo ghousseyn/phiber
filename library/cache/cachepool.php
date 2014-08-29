@@ -1,6 +1,6 @@
 <?php
-namespace Phiber\cache;
-use Phiber\interfaces\cache;
+namespace Phiber\Cache;
+use Phiber\Interfaces\cache;
 use Phiber\interfaces\cacheDriver;
 
 class cachePool implements cache
