@@ -564,7 +564,7 @@ class="p">employee-&gt;first_name;</span></pre>
           After calling a related table in a lazy way the data is not loaded yet
           but we have the key value of the related row which allows us to
           manipulate the related row without loading its content i.e. without
-          issuing any SELECTs.<br>
+          issuing any SELECTs. <br>
           <pre class="prettyprint"><span class="p">$employee = $salary-&gt;employee();<br>$employee-&gt;last_name = 'Doe';<br>$employee-&gt;save();<br><br>//Zero SELECTs<br></span><span
 class="p"></span></pre>
           Another use for the <span style="font-weight: bold;">Primary ID
