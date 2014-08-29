@@ -9,18 +9,18 @@ Phiber Framewrok (PHP's EASY MVC)
 
 Features
 ===
-    - Very easy to learn (probably why you picked PHP in the first place)
-    - Very easy to develope and deploy with [Myo](https://github.com/ghousseyn/phiber-myo) and [Composer](https://getcomposer.org)
-    - Lightweight and very fast (100k uncompressed)
-    - One-file easy configuration
-    - Painless Routing (simple and RegEx/named params)
-    - Drop-in architecture for plugins, modules and even controllers
-    - True MVC (Models CAN communicate with views directly)
-    - Eventfull (trigger and listen to events if you want to)
-    - OOSQL ORM and Query builder (Zero configuration)
-    - Entity generator (Design your DB like a DBA)
-    - Use any library out there within your plugins, models or controllers
-    - Myo command line tool to speed up development and prototyping
+- Very easy to learn (probably why you picked PHP in the first place)
+- Very easy to develope and deploy with [Myo](https://github.com/ghousseyn/phiber-myo) and [Composer](https://getcomposer.org)
+- Lightweight and very fast (100k uncompressed)
+- One-file easy configuration
+- Painless Routing (simple and RegEx/named params)
+- Drop-in architecture for plugins, modules and even controllers
+- True MVC (Models CAN communicate with views directly)
+- Eventfull (trigger and listen to events if you want to)
+- OOSQL ORM and Query builder (Zero configuration)
+- Entity generator (Design your DB like a DBA)
+- Use any library out there within your plugins, models or controllers
+- Myo command line tool to speed up development and prototyping
 
 
 Documentation
