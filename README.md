@@ -10,7 +10,7 @@ Phiber Framewrok (PHP's EASY MVC)
 Features
 ===
     - Very easy to learn (probably why you picked PHP in the first place)
-    - Very easy to develope and deploy with Myo and Composer
+    - Very easy to develope and deploy with [Myo](https://github.com/ghousseyn/phiber-myo) and [Composer](https://getcomposer.org)
     - Lightweight and very fast (100k uncompressed)
     - One-file easy configuration
     - Painless Routing (simple and RegEx/named params)
@@ -26,5 +26,5 @@ Features
 Documentation
 ===
 
-Check [Phiber Framework Documentation!](http://ghousseyn.github.io/phiber)
+Check [Phiber Framework Documentation](http://ghousseyn.github.io/phiber)
 
