@@ -825,9 +825,9 @@ use Phiber\Session\session;<br><br>class examplePlugin extends Phiber\plugin
           <span style="font-weight: bold;" id="layouts">Layout &amp; views</span><br>
           Since PHP itself is an excellent templating langugae Phiber doesn't
           waste any effort/resources parsing a template language of its own but
-          you can use one if want to. (see using <a href="#external">external
-            libraries</a> in this doc). Actually Phiber allows you to use more
-          than one templating engine at the same time if you feel the need to.<br>
+          you can use one if want to. (see using external libraries in this
+          doc). Actually Phiber allows you to use more than one templating
+          engine at the same time if you feel the need to.<br>
           A layout is the main template file and all other partial templates
           (views) are merged into it before outputing. The layout file should be
           within the layouts folder of the application but the file name is
@@ -865,8 +865,7 @@ use Phiber\Session\session;<br><br>class examplePlugin extends Phiber\plugin
           only available driver untill now though is the file based caching.
           Don't panic not only that you can create your own cache solutions and
           use them very easily but you can also use composer to install and use
-          your favourite cache library (see <a href="#external">external
-            libraries</a> in this doc).<br>
+          your favourite cache library (see external libraries in this doc).<br>
           <pre class="prettyprint"><br> $driver = new Phiber\Cache\file;
 <br> $cache = new Phiber\Cache\cachepool($driver);<br><br> $key = sha1('employees');<br><br> $data = $cache-&gt;getItem($key);<br><br> if($cache-&gt;isHit()){ // Do we have a valid cahced version
 <br>    $employees = $data; // use it
