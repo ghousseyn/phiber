@@ -26,5 +26,5 @@ Features
 Documentation
 ===
 
-Check ![Phiber Framework Documentation](http://ghousseyn.github.io/phiber)
+Check [Phiber Framework Documentation!](http://ghousseyn.github.io/phiber)
 
