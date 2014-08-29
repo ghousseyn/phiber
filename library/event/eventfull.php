@@ -41,10 +41,15 @@ class eventfull
 
       \Phiber\phiber::getInstance()->addObserver($event,array($hash => array('object'=> $observer,'method' => $method)));
 
+      return $hash;
+
   }
   public static function detach($observer = null, $event,$hash = null)
   {
     if(null === $hash){
+      if(null === $observer){
+        return false;
+      }
       $hash = self::getHash($observer);
     }
 

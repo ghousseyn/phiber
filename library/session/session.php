@@ -6,6 +6,8 @@
  * @package 	Phiber
  */
 namespace Phiber\Session;
+use \Phiber\Event\eventfull;
+use \Phiber\Event\event;
 
 class session
 {
@@ -59,7 +61,7 @@ class session
     if(null === $authority){
       $authority = __METHOD__;
     }
-    \Phiber\Event\eventfull::notify(new \Phiber\Event\event(self::EVENT_DESTR,  $authority));
+    eventfull::notify(new event(self::EVENT_DESTR,  $authority));
     return true;
   }
   public function regenerate()
@@ -72,7 +74,7 @@ class session
 
     $_SESSION[self::$namespace]['user']['created'] = time();
 
-    \Phiber\Event\eventfull::notify(new \Phiber\Event\event(self::EVENT_REGEN,  __METHOD__));
+    eventfull::notify(new event(self::EVENT_REGEN,  __METHOD__));
     return true;
   }
   public function isStarted()
