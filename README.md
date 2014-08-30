@@ -4,7 +4,7 @@
 ![Phiber Framework](logo.png)
 
 
-Phiber Framewrok (PHP's EASY MVC)
+Phiber Framework (PHP's EASY MVC)
 ===
 
 Features
