@@ -32,7 +32,7 @@ abstract class entity
    */
   public static function getInstance()
   {
-    return self::getooSQL(get_class($this));
+    return self::getooSQL(get_class(new static));
   }
 
   protected static function getooSQL($class)
