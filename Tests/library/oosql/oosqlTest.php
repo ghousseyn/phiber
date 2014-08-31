@@ -302,7 +302,7 @@ class oosqlTest extends PhiberTests
     $return = $this->invokeMethod($this->oosql, 'orderBy',array('column'));
     $order = $this->getProperty($this->oosql, 'oosql_order');
 
-    $this->assertEquals(' ORDER BY column', $order);
+    $this->assertEquals(' ORDER BY column ASC', $order);
     $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
   }
   public function testOrderByMulti()
