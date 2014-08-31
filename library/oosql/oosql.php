@@ -1,6 +1,8 @@
 <?php
 namespace Phiber\oosql;
 
+use Phiber\entity\entity;
+
 class oosql extends \PDO
 {
 /**
@@ -35,53 +37,144 @@ class oosql extends \PDO
    * @access private
    */
   private $oosql_limit = null;
-
+  /**
+   * $oosql_order
+   * @var string Order clause
+   * @access private
+   */
   private $oosql_order = null;
-
+  /**
+   * $oosql_where
+   * @var string Where clause
+   * @access private
+   */
   private $oosql_where = null;
-
+  /**
+   * $oosql_join
+   * @var string Join clause
+   * @access private
+   */
   private $oosql_join = null;
-
+  /**
+   * $oosql_stmt
+   * @var Object PDO Statement object
+   * @access private
+   */
   private $oosql_stmt;
-
+  /**
+   * $oosql_conValues
+   * @var array Parameterized values
+   * @access private
+   */
   private $oosql_conValues = array();
-
+  /**
+   * $oosql_numargs
+   * @var integer Number of arguments
+   * @access private
+   */
   private $oosql_numargs;
-
+  /**
+   * $oosql_fromFlag
+   * @var boolean A flag indicating whether From() was executed or not
+   * @access private
+   */
   private $oosql_fromFlag = false;
-
+  /**
+   * $oosql_multiFlag
+   * @var boolean A flag indicating whether it a mutiple tables query or not
+   * @access private
+   */
   private $oosql_multiFlag = false;
-
+  /**
+   * $oosql_del_multiFlag
+   * @var boolean A flag indicating whether it is a multiple tables delete or not
+   * @access private
+   */
   private $oosql_del_multiFlag = false;
-
+  /**
+   * $oosql_multi
+   * @var array Holds the list of tables on multiple table updates
+   * @access private
+   */
   private $oosql_multi = array();
-
+  /**
+   * $oosql_del_numargs
+   * @var integer Number of arguments (tables) on multi table delete queries
+   * @access private
+   */
   private $oosql_del_numargs;
-
+  /**
+   * $oosql_sql
+   * @var string The SQL query (never accessed directly)
+   * @access private
+   */
   private $oosql_sql;
-
+  /**
+   * $oosql_select
+   * @var Object Holds a PDO Statement on SELECTs
+   * @access private
+   */
   private $oosql_select;
-
+  /**
+   * $oosql_distinct
+   * @var boolean Is the DISTINCT keyword set
+   * @access private
+   */
   private $oosql_distinct = false;
-
+  /**
+   * $oosql_insert
+   * @var boolean Is it an INSERT
+   * @access private
+   */
   private $oosql_insert = false;
-
+  /**
+   * $oosql_sub
+   * @var boolean Is this query a sub-query
+   * @access private
+   */
   private $oosql_sub = false;
-
+  /**
+   * $oosql_table_alias
+   * @var string Table Alias
+   * @access private
+   */
   private $oosql_table_alias;
-
+  /**
+   * $oosql_fields
+   * @var array Current fields
+   * @access private
+   */
   private $oosql_fields;
-
+  /**
+   * $oosql_hashes
+   * @var array An array of hashes representing queries and there respective prepared PDOStatement objects
+   * @access private
+   */
   private $oosql_hashes = array();
-
-  private $oosql_exec_prep = false;
-
+  /**
+   * $oosql_driver
+   * @var string Driver name (set automatically)
+   * @access private
+   */
   private $oosql_driver;
-
+  /**
+   * $oosql_in
+   * @var string IN clause
+   * @access private
+   */
   private $oosql_in;
-
+  /**
+   * $oosql_between
+   * @var string BETWEEN clause
+   * @access private
+   */
   private $oosql_between;
-
+  /**
+   * $instance
+   * @var Object An instance of oosql\oosql
+   * @staticvar
+   * @access private
+   */
   private static $instance;
   /**
    * __construct()
@@ -95,7 +188,7 @@ class oosql extends \PDO
       throw new \Exception('Class or Table name not provided!',9805,null);
     }
     if(null === $config){
-      $config = \config::getInstance();
+      $config = \Phiber\config::getInstance();
     }
     $this->oosql_class = $oosql_class;
     $this->oosql_table = $oosql_table;
@@ -134,6 +227,10 @@ class oosql extends \PDO
     }
     return self::$instance = new self($oosql_table, $oosql_class,$config);
   }
+  /**
+   * Resets the class vars to their initial values for a new query
+   * @return oosql\oosql Instance
+   */
   public function reset()
   {
 
@@ -175,8 +272,6 @@ class oosql extends \PDO
 
     $this->oosql_fields = array();
 
-    $this->oosql_exec_prep = false;
-
     $this->oosql_entity_obj = null;
 
     $this->oosql_in = null;
@@ -185,16 +280,29 @@ class oosql extends \PDO
 
     return $this;
   }
+  /**
+   * Sets the class name for the current table
+   * @param string $class Class name of the object to be hydrated
+   * @return oosql\oosql Instance
+   */
   public function setClass($class)
   {
     $this->oosql_class = $class;
+    return $this;
   }
+  /**
+   * Sets the table name
+   * @param string $table Table name
+   * @return oosql\oosql Instance
+   */
   public function setTable($table)
   {
     $this->oosql_table = $table;
+    return $this;
   }
   /**
    * Returns an instance of the entity class used
+   * @return entity Instance
    */
   public function getEntityObject()
   {
@@ -205,6 +313,11 @@ class oosql extends \PDO
 
     }
   }
+  /**
+   * Append to the query string or return the current one
+   * @param mixed $sql SQL
+   * @param boolean $replace Replace current query or not
+   */
   private function sql($sql = null,$replace = false)
   {
     if(null !== $sql){
@@ -218,6 +331,10 @@ class oosql extends \PDO
     }
     return $this->oosql_sql[$this->oosql_table];
   }
+  /**
+   * Create a select statement
+   * @return oosql\oosql Instance
+   */
   public function select()
   {
     self::$instance->reset();
@@ -250,6 +367,11 @@ class oosql extends \PDO
     $this->oosql_where = null;
     return $this;
   }
+  /**
+   * Get an array of fields of the current or given table
+   * @param mixed $table table name
+   * @return array Table fields
+   */
   public function getFields($table = null)
   {
     if(null == $table){
@@ -261,10 +383,18 @@ class oosql extends \PDO
     }
     return $newFields;
   }
+  /**
+   * Return raw fields array
+   * @return array Table fields
+   */
   public function getPlainFields()
   {
     return $this->oosql_fields;
   }
+  /**
+   * Creates an INSERT query
+   * @return oosql\oosql Instance
+   */
   public function insert()
   {
     self::$instance->reset();
@@ -284,7 +414,10 @@ class oosql extends \PDO
     $this->oosql_insert = true;
     return $this;
   }
-
+  /**
+   * Creates an UPDATE query
+   * @return oosql\oosql Instance
+   */
   public function update()
   {
     self::$instance->reset();
@@ -313,7 +446,10 @@ class oosql extends \PDO
     $this->oosql_where = null;
     return $this;
   }
-
+  /**
+   * Creates a DELETE query
+   * @return oosql\oosql Instance
+   */
   public function delete()
   {
     self::$instance->reset();
@@ -347,7 +483,12 @@ class oosql extends \PDO
 
     return $this;
   }
-
+  /**
+   * Delete a record or more from a table
+   * @param mixed $oosql Optional oosql\oosql instance to run query on
+   * @param array $criteria Criteria of current opperation
+   * @return oosql\oosql Instance
+   */
   public function deleteRecord($oosql = null,array $criteria)
   {
     if(null == $oosql){
@@ -359,6 +500,7 @@ class oosql extends \PDO
   /**
    * Sets the column, value pairs in update queries
    * @param array $data An array of the fields with their corresponding values in a key => value format
+   * @return oosql\oosql Instance
    */
   public function set(array $data)
   {
@@ -378,6 +520,7 @@ class oosql extends \PDO
    * Decides if this is an insert or an update and what fields have changed if appropriate
    * @param mixed $object If null this is an insert if not than it's an update
    * @throws \Exception
+   * @return object An entity Instance
    */
   public function save($object = null)
   {
@@ -459,6 +602,7 @@ class oosql extends \PDO
    * Creates where clause(s) from an array of conditions
    * @param array $conditions An array of conditions in the format:
    *              <code>array("column" => $value)</code>
+   * @return oosql\oosql Instance
    */
   public function createWhere(array $conditions, $operator = '=', $condition = 'and')
   {
@@ -482,6 +626,7 @@ class oosql extends \PDO
   /**
    * Assembles values part of an insert
    * @throws \Exception
+   * @return oosql\oosql Instance
    */
   public function values()
   {
@@ -521,6 +666,7 @@ class oosql extends \PDO
   /**
    * Assembles the FROM part of the query
    * @throws \Exception
+   * @return oosql\oosql Instance
    */
   public function from()
   {
@@ -572,6 +718,13 @@ class oosql extends \PDO
 
     return $this;
   }
+  /**
+   * Creates a JOIN clause
+   * @param string $table
+   * @param string $criteria
+   * @param string $type LEFT|RIGHT|FULL OUTER
+   * @return \Phiber\oosql\oosql
+   */
 
   public function join($table, $criteria, $type = '')
   {
@@ -579,21 +732,43 @@ class oosql extends \PDO
     $this->oosql_join .= " $type JOIN $table ON $criteria";
     return $this;
   }
-
+  /**
+   * Syntactic suagr for LEFT JOINs
+   * @param string $table
+   * @param string $criteria
+   * @return \Phiber\oosql\oosql
+   */
   public function joinLeft($table, $criteria)
   {
     return $this->join($table, $criteria, 'LEFT');
   }
-
+  /**
+   * Syntactic suagr for RIGHT JOINs
+   * @param string $table
+   * @param string $criteria
+   * @return \Phiber\oosql\oosql
+   */
   public function joinRight($table, $criteria)
   {
     return $this->join($table, $criteria, 'RIGHT');
   }
-
+  /**
+   * Syntactic suagr for FULL JOINs
+   * @param string $table
+   * @param string $criteria
+   * @return \Phiber\oosql\oosql
+   */
   public function joinFull($table, $criteria)
   {
     return $this->join($table, $criteria, 'FULL OUTER');
   }
+  /**
+   * Assembles a WHERE clause
+   * @param string $condition
+   * @param string $value
+   * @param string $type
+   * @return \Phiber\oosql\oosql
+   */
 
   public function where($condition, $value=null, $type = null)
   {
@@ -624,6 +799,10 @@ class oosql extends \PDO
 
     return $this;
   }
+  /**
+   * Declares current query as a sub-query
+   * @return \Phiber\oosql\oosql
+   */
   public function sub(){
     $this->oosql_sub = true;
     $this->exe();
@@ -631,22 +810,42 @@ class oosql extends \PDO
 
     return $this;
   }
+  /**
+   * Syntactic sugar to create AND WHERE clause
+   * @param string $condition
+   * @param mixed $value
+   * @return \Phiber\oosql\oosql
+   */
   public function andWhere($condition, $value=null)
   {
     $this->where($condition, $value, 'and');
     return $this;
   }
-
+  /**
+   * Syntactic sugar to create OR WHERE clause
+   * @param string $condition
+   * @param mixed $value
+   * @return \Phiber\oosql\oosql
+   */
   public function orWhere($condition, $value)
   {
     $this->where($condition, $value, 'or');
     return $this;
   }
-
+  /**
+   * Validates integers
+   * @param mixed $val
+   * @return boolean
+   */
   public function validInt($val)
   {
     return ctype_digit(strval($val));
   }
+  /**
+   * Prepare a query statement
+   * @param array $values Vound values if any
+   * @return boolean|object \PDOStatement object or the boolean return of PDOStatement::execute
+   */
   public function prep($values = null)
   {
     $hash = $this->queryHash();
@@ -679,12 +878,22 @@ class oosql extends \PDO
 
     return $this->execBound($this->oosql_stmt,$values);
   }
+  /**
+   * Executes a prepared statement with parameterized values
+   * @param \PDOStatement $stmt
+   * @param array $values
+   * @return boolean True on success
+   */
   public function execBound($stmt,$values)
   {
     $ord = 1;
     foreach($values as $val){
 
-      if($this->validInt($val)){
+      if(is_bool($val)){
+
+        $stmt->bindValue($ord, $val, \PDO::PARAM_BOOL);
+
+      }elseif($this->validInt($val)){
 
         $stmt->bindValue($ord, $val, \PDO::PARAM_INT);
 
@@ -697,6 +906,11 @@ class oosql extends \PDO
 
     return  $stmt->execute();
   }
+  /**
+   * Checks flags and clauses then assemebles and executes the query
+   * @throws \Exception
+   * @return string|object
+   */
   public function exe()
   {
 
@@ -751,22 +965,14 @@ class oosql extends \PDO
       }
 
     }
-    /*
-     * $str = $this->oosql_sql." | "; $str .= implode(',
-     * ',$this->oosql_conValues)."\r\n"; $f = fopen("g:\log.txt","a+");
-     * fwrite($f, $str); fclose($f);
-     */
-    // echo $this->sql()."</br></br>";
-
 
     return $this->oosql_stmt;
   }
-
-
   /**
-   *
+   * Returns the results of a SELECT if any
    * @throws \InvalidArgumentException
    * @throws \Exception
+   * @return \Phiber\oosql\oosql|\Phiber\oosql\collection
    */
   public function fetch()
   {
@@ -801,20 +1007,24 @@ class oosql extends \PDO
       throw new \Exception($msg,9814,null);
     }
     $this->oosql_stmt->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $this->oosql_class);
+
     $result = $this->oosql_stmt->fetchAll();
 
     $collection = new collection();
 
-   // foreach($result as $res){
-      $collection->addBulck($result);
+    $collection->addBulck($result);
 
-    //}
     $collection->obj_name = $this->oosql_class;
+
     self::$oosql_result = clone $collection;
 
     return $collection;
   }
-
+  /**
+   * Creates a join automatically based on the relationships of current entity
+   * @param array $related
+   * @return \Phiber\oosql\oosql
+   */
   public function with(array $related)
   {
 
@@ -836,36 +1046,60 @@ class oosql extends \PDO
     }
     return $this;
   }
-
-  public function limit($from, $to)
+  /**
+   * Creates a limit clause for MySQL
+   * @param integer $from Offset tostart from
+   * @param integer $size Chunk size
+   * @return \Phiber\oosql\oosql
+   */
+  public function limit($from, $size)
   {
     if(!$this->oosql_multiFlag){
-      $this->oosql_limit = ' LIMIT ' . $from . ', ' . $to;
+      $this->oosql_limit = ' LIMIT ' . $from . ', ' . $size;
     }
     return $this;
   }
-  public function orderBy($field){
+  /**
+   * Creates an ORDER BY clause
+   * @param string $field Field name
+   * @param string DESC|ASC
+   * @return \Phiber\oosql\oosql
+   */
+  public function orderBy($field, $dir = 'ASC'){
     if(!$this->oosql_multiFlag){
-      $this->oosql_order = ' ORDER BY ' . $field;
+      $this->oosql_order = ' ORDER BY ' . $field.' '.$dir;
     }
     return $this;
   }
-
-  public function findOne($arg, $operator = null, $fields = array('*'))
+  /**
+   * Find first random value returned by the query
+   * @param string $arg
+   * @param string $operator
+   * @param array $fields
+   * @return \Phiber\oosql\oosql
+   */
+  public function findOne($arg, $operator = '=', $fields = array('*'))
   {
     return $this->find($arg, $operator, $fields)->limit(0, 1);
   }
-
-  public function findLimited($arg, $from, $to, $operator = null, $fields = array('*'))
+  /**
+   * Find with limit
+   * @param string $arg
+   * @param string $operator
+   * @param array $fields
+   * @return \Phiber\oosql\oosql
+   */
+  public function findLimited($arg, $from, $to, $operator = '=', $fields = array('*'))
   {
     return $this->find($arg, $operator, $fields)->limit($from, $to);
   }
-
-  public function findAll($arg, $operator = '=', $fields = array('*'))
-  {
-    return $this->find($arg, $operator = '=', $fields = array('*'));
-  }
-
+  /**
+   * Find records with a filtering condition
+   * @param string $arg
+   * @param string $operator
+   * @param array $fields
+   * @return \Phiber\oosql\oosql
+   */
   public function find($arg, $operator = '=', $fields = array('*'))
   {
     if($fields[0] == '*'){
@@ -901,12 +1135,11 @@ class oosql extends \PDO
 
     return $this;
   }
-
   /**
-   * @todo define these
+   * Creates or bind provided alias with the current loaded table class
+   * @param string $alias
+   * @return \Phiber\oosql\oosql
    */
-
-
   public function alias($alias = null)
   {
     if(null === $alias){
@@ -915,6 +1148,10 @@ class oosql extends \PDO
     $this->oosql_table_alias = $alias;
     return $this;
   }
+  /**
+   * Returns the alias for the current table (creates one if none was found)
+   * @return string
+   */
   public function getTableAlias()
   {
     if(null !== $this->oosql_table_alias){
@@ -924,31 +1161,71 @@ class oosql extends \PDO
     $this->oosql_table_alias = $hash;
     return $hash;
   }
+  /**
+   *Creates a one way hash for the current SQL query
+   * @return string
+   */
   public function queryHash()
   {
     return hash('adler32',$this->sql());
   }
+  /**
+   * Creates a GROUP BY clause
+   * @param string $field
+   * @return \Phiber\oosql\oosql
+   */
   public function groupBy($field)
   {
     $this->oosql_group = ' GROUP BY ' . $field;
 
     return $this;
   }
+  /**
+   *@todo implement having
+   */
   public function having()
   {
   }
+  /**
+   * Creates a NOT IN clause
+   * @param mixed $item Subject of comparison
+   * @param array $list A list of values
+   * @param string $cond OR|AND
+   * @param boolean $not
+   */
   public function notIn($item, array $list, $cond = null, $not=true)
   {
     return $this->in($item, $list, $cond, $not);
   }
+  /**
+   * Creates a OR IN clause
+   * @param mixed $item Subject of comparison
+   * @param array $list A list of values
+   * @param string $cond OR|AND
+   * @param boolean $not
+   */
   public function orIn($item, array $list, $cond = 'or', $not=false)
   {
     return $this->in($item, $list, $cond, $not);
   }
+  /**
+   * Creates an OR NOT IN clause
+   * @param mixed $item Subject of comparison
+   * @param array $list A list of values
+   * @param string $cond OR|AND
+   * @param boolean $not
+   */
   public function orNotIn($item, array $list, $cond = 'or', $not=true)
   {
     return $this->in($item, $list, $cond, $not);
   }
+  /**
+   * Creates an IN clause
+   * @param mixed $item Subject of comparison
+   * @param array $list A list of values
+   * @param string $cond OR|AND
+   * @param boolean $not
+   */
   public function in($item, array $list, $cond = null, $not=false)
   {
     $inClause = '';
@@ -982,6 +1259,15 @@ class oosql extends \PDO
 
     return $this;
   }
+  /**
+   * Creates a BETWEEN clause
+   * @param mixed $item
+   * @param mixed $low
+   * @param mixed $up
+   * @param string $cond OR|AND
+   * @param boolean $not
+   * @return \Phiber\oosql\oosql
+   */
   public function between($item, $low, $up, $cond = null, $not=false)
   {
     $bClause = '';
@@ -1010,18 +1296,35 @@ class oosql extends \PDO
 
     return $this;
   }
+  /**
+   * @todo implement union
+   */
   public function union()
   {
   }
+  /**
+   * Make a SELECT DISTINCT
+   * @return \Phiber\oosql\oosql
+   */
   public function distinct()
   {
     $this->oosql_distinct = true;
     return $this;
   }
+  /**
+   * Alias for \Phiber\oosql\oosql::transactional()
+   * @param callable $fn A Closure
+   */
   public  function transaction($fn)
   {
     return self::transactional($fn);
   }
+  /**
+   * Starts a transaction if current driver supports it
+   * @param callable $fn A Closure
+   * @throws \Exception
+   * @return mixed Whatever the Closure returns is passed to the higher scope variable if any
+   */
   public static function transactional($fn)
   {
     $oosql = self::getInstance('oosql','void');
@@ -1036,11 +1339,19 @@ class oosql extends \PDO
     $msg = 'Please pass a Lamda function as a parameter to this method!';
     throw new \Exception($msg,9816,null);
   }
-
+  /**
+   * Returns the currently assembled partial SQL query (complete query is vaialable only after oosql::exe())
+   * @return string SQL assemebled until now
+   */
   public function getSql()
   {
     return $this->sql();
   }
+  /**
+   * Magic setter that sets new values on an entity object
+   * @param string $var
+   * @param string $val
+   */
   public function __set($var, $val)
   {
 
