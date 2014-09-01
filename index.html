@@ -271,9 +271,9 @@ class="pln">name</span><span class="pln"></span></code></pre>
           To:
           <pre class="prettyprint">Array
 (
-    [module] =&gt; dev
-    [controller] =&gt; index
-    [action] =&gt; action
+    [module] =&gt; &lt;module&gt;
+    [controller] =&gt; &lt;controller&gt;
+    [action] =&gt; &lt;action&gt;
     [vars] =&gt; Array
         (
             [var1] =&gt; val1
@@ -282,7 +282,7 @@ class="pln">name</span><span class="pln"></span></code></pre>
         )
 
 )
-</pre> And expects to find a controller class "index" and a function
+</pre> And expects to find a controller class and a function
           "&lt;action&gt;()" in the path
           <pre class="prettyprint">modules/&lt;module&gt;/&lt;controller&gt;.php</pre>
           Of course that URL should not be what your links look like. This is a
