@@ -333,6 +333,7 @@ class oosql extends \PDO
   }
   /**
    * Create a select statement
+   * @variadic
    * @return oosql\oosql Instance
    */
   public function select()
@@ -1340,7 +1341,7 @@ class oosql extends \PDO
     throw new \Exception($msg,9816,null);
   }
   /**
-   * Returns the currently assembled partial SQL query (complete query is vaialable only after oosql::exe())
+   * Returns the currently assembled partial SQL query (complete query is available only after oosql::exe())
    * @return string SQL assemebled until now
    */
   public function getSql()

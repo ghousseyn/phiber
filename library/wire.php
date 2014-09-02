@@ -68,7 +68,7 @@ class wire
   }
   protected function isPost()
   {
-    return $this->isHttpMethod('post');
+    return count($_POST);
   }
 
   protected function isGet()
@@ -322,7 +322,7 @@ class wire
       case 'route':
         return $this->phiber->currentRoute;
       case 'phiber_content_view_path':
-        return $this->viewPath;
+        return $this->view->viewPath;
       case 'config':
         return config::getInstance();
       case 'session':

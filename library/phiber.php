@@ -185,6 +185,8 @@ class phiber extends wire
         $this->route = $routes[$current];
       }elseif(is_callable($routes[$current])){
         $fn = $routes[$current];
+        $this->view->disableLayout();
+        $this->view->disableView();
         $rt = $fn($this);
         if($rt === true){
           return false;
@@ -223,6 +225,8 @@ class phiber extends wire
            }
            $this->route = $route;
          }elseif(is_callable($route)){
+           $this->view->disableLayout();
+           $this->view->disableView();
            $rt = $route($this);
            if($rt === true){
              return false;
