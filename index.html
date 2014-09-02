@@ -518,7 +518,7 @@ namespace model;
 use Phiber;
 
 class myModel extends Phiber\model
-{<br>  public function getEmployees()<br>  {<br>      return \entity\employees::getInstance()-&gt;select()-&gt;fetch();<br>      //Query: SELECT * FROM employees<br>      //Return: A collection of hiderated objects of the type entity\employees<br>  }<br>}
+{<br>  public function getEmployees()<br>  {<br>      return \entity\employees::getInstance()-&gt;select()-&gt;fetch();<br>      //Query: SELECT * FROM employees<br>      //Return: A collection of hydrated objects of the type entity\employees<br>  }<br>}
 </pre> Pretty basic heh! This doesn't show the full potential of entities
           though. Still, the returned oosql\collection will give you more power
           and enable you to do a lot of things with the results without querying
