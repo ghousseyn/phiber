@@ -37,6 +37,8 @@ class phiber extends wire
 
   const EVENT_DISPATCH = 'phiber.dispatch';
 
+  const EVENT_URINOTFOUND = 'phiber.urinotfound';
+
   public static function getInstance()
   {
     if(null !== self::$instance){
@@ -350,9 +352,18 @@ class phiber extends wire
 
     $controller = $this->route['controller'];
     $action = $this->route['action'];
-
-    if(method_exists($this->controller,$action)){
-      $this->controller->{$action}();
+    try{
+      if(is_callable(array($this->controller,$action))){
+        $this->controller->{$action}();
+      }else{
+        throw new \Exception('Could not call specified action!',9001);
+      }
+    }catch(\Exception $ex){
+      $event = new Event\event(self::EVENT_URINOTFOUND, __class__);
+      $event->exception = $ex;
+      Event\eventfull::notify($event);
+      $this->logger()->info($ex->getMessage());
+      $this->controller->{$this->config->PHIBER_CONTROLLER_DEFAULT_METHOD};
     }
     Event\eventfull::notify(new Event\event(self::EVENT_DISPATCH, __class__));
   }
