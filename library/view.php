@@ -56,9 +56,12 @@ namespace Phiber {
    */
   protected function render()
   {
-    $this->getView();
+
     if($this->viewEnabled){
-      include $this->phiber_content_view_path;
+      if(null == $this->view->viewPath){
+        $this->getView();
+      }
+      include $this->view->viewPath;
     }
   }
   /**
@@ -68,7 +71,7 @@ namespace Phiber {
   protected function getView()
   {
 
-    $path = array_slice($this->route, 0,3,true);
+    $path = array_slice($this->phiber->route, 0,3,true);
 
     $path = $this->config->application . '/modules/' . array_shift($path) . '/views/' . implode('/', $path) . '.php';
 
@@ -146,7 +149,7 @@ namespace Phiber {
     $uri = (isset($this->route['module'])?$this->route['module'].'/':'').
            (isset($this->route['controller'])?$this->route['controller'].'/':'').
            (isset($this->route['action'])?$this->route['action'].'/':'');
-     return '/'.trim($this->phiber->getBase(),'/').'/'.$uri;
+     return $this->phiber->getBase().$uri;
   }
 
   public static function getInstance()
@@ -158,7 +161,9 @@ namespace Phiber {
   }
   public function __destruct()
   {
-    $this->showtime();
+    if($this->viewEnabled || $this->layoutEnabled){
+      $this->showtime();
+    }
   }
  }
 }

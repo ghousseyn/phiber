@@ -63,7 +63,7 @@ class config
   /**
    * Layout file
    */
-  public  $PHIBER_LAYOUT_FILE = 'lauyout.php';
+  public  $PHIBER_LAYOUT_FILE = 'layout.php';
   /**
    * Directory of the logs please set an absolute path. Must be writable by the server
    * @var string A Valid absolute path (directories will not be created for you)
