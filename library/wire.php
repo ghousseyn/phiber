@@ -29,7 +29,7 @@ class wire
     $base = '/'.trim($base,'/').'/';
     $part = ltrim($_SERVER['REQUEST_URI'],$base);
     $_SERVER['REQUEST_URI'] = '/'.$part;
-    $this->phiber->base = $base;
+    $this->phiber->setBase($base);
   }
   public static function getInstance()
   {
