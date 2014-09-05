@@ -362,7 +362,7 @@ class phiber extends wire
       $event = new Event\event(self::EVENT_URINOTFOUND, __class__);
       $event->exception = $ex;
       Event\eventfull::notify($event);
-      $this->logger()->info($ex->getMessage());
+      $this->logger()->notice($ex->getMessage());
       $this->controller->{$this->config->PHIBER_CONTROLLER_DEFAULT_METHOD};
     }
     Event\eventfull::notify(new Event\event(self::EVENT_DISPATCH, __class__));
@@ -379,7 +379,7 @@ class phiber extends wire
   }
   public static function getEvents()
   {
-    return array(self::EVENT_BOOT, self::EVENT_DISPATCH, self::EVENT_SHUTDOWN);
+    return array(self::EVENT_BOOT, self::EVENT_DISPATCH, self::EVENT_SHUTDOWN, self::EVENT_URINOTFOUND);
   }
 }
 ?>
