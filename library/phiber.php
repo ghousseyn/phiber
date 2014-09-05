@@ -19,8 +19,9 @@ class phiber extends wire
   private $_requestVars = array();
   private $plugins = array();
   private $stop = false;
-
   private $method;
+  private $base = '/';
+
   public $observers;
   public $libs = array();
   public $ajax = false;
@@ -50,6 +51,11 @@ class phiber extends wire
   public function addNewRoute($rule, $route)
   {
     $this->routes[$rule] = $route;
+  }
+
+  public function getBase()
+  {
+    return $this->base;
   }
   private function getPlugins()
   {
@@ -185,6 +191,8 @@ class phiber extends wire
         $this->route = $routes[$current];
       }elseif(is_callable($routes[$current])){
         $fn = $routes[$current];
+        $this->view->disableLayout();
+        $this->view->disableView();
         $rt = $fn($this);
         if($rt === true){
           return false;
@@ -223,6 +231,8 @@ class phiber extends wire
            }
            $this->route = $route;
          }elseif(is_callable($route)){
+           $this->view->disableLayout();
+           $this->view->disableView();
            $rt = $route($this);
            if($rt === true){
              return false;
