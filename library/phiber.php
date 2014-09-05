@@ -52,7 +52,10 @@ class phiber extends wire
   {
     $this->routes[$rule] = $route;
   }
-
+  public function setBase($base)
+  {
+    $this->base = $base;
+  }
   public function getBase()
   {
     return $this->base;
