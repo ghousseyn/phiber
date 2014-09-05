@@ -21,6 +21,16 @@ class wire
     spl_autoload_register(array($this, 'autoload'),true,true);
     $this->confFile = $confFile;
   }
+  public function baseUri($base)
+  {
+    if(null == $base || $base == '/'){
+      return;
+    }
+    $base = '/'.trim($base,'/').'/';
+    $part = ltrim($_SERVER['REQUEST_URI'],$base);
+    $_SERVER['REQUEST_URI'] = '/'.$part;
+    $this->phiber->base = $base;
+  }
   public static function getInstance()
   {
     return new static();
@@ -293,9 +303,7 @@ class wire
       require $path;
       return;
     }
-    //If we're here class could not be found let's see if composer can find it
-    include $this->config->application.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'autoload.php';
-    return;
+
   }
 
   public function __set($var, $val)
@@ -333,7 +341,9 @@ class wire
     if(isset($this->vars[$var])){
       return $this->vars[$var];
     }
-
+    if(isset($this->phiber->vars[$var])){
+      return $this->phiber->vars[$var];
+    }
   }
 }
 

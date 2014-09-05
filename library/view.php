@@ -149,7 +149,7 @@ namespace Phiber {
     $uri = (isset($this->route['module'])?$this->route['module'].'/':'').
            (isset($this->route['controller'])?$this->route['controller'].'/':'').
            (isset($this->route['action'])?$this->route['action'].'/':'');
-     return '/'.trim($this->phiber->getBase(),'/').'/'.$uri;
+     return $this->phiber->getBase().$uri;
   }
 
   public static function getInstance()
