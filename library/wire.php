@@ -37,9 +37,7 @@ class wire
   }
   public function boot()
   {
-
     phiber::getInstance()->run();
-
   }
   public function addRoute($rule, $route)
   {

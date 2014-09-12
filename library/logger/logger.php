@@ -3,6 +3,8 @@ namespace Phiber\Logger;
 
 abstract class logger extends \Phiber\phiber
 {
+  const EVENT_ERROR = 'phiber.error';
+
   const EMERGENCY = 'emergency';
   const ALERT     = 'alert';
   const CRITICAL  = 'critical';
@@ -141,6 +143,10 @@ abstract class logger extends \Phiber\phiber
   public function debug($message, array $context = array())
   {
     $this->log(self::DEBUG, $message, $context);
+  }
+  public static function getEvents()
+  {
+    return array(self::EVENT_ERROR);
   }
   /**
    * @param $level mixed
