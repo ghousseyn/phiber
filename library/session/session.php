@@ -92,17 +92,13 @@ class session
     }
 
   }
-  public function getNS($namespace)
+  public function getNS()
   {
-    if(isset($_SESSION[$namespace])){
-
-      return $_SESSION[$namespace];
-
-    }
+    return self::$namespace;
   }
-  public function setNS($namespace,$value)
+  public function setNS($namespace)
   {
-    $_SESSION[$namespace] = $value;
+    self::$namespace = $namespace;
   }
   public function set($index, $value, $namespace = null)
   {

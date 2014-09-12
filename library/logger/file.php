@@ -1,5 +1,7 @@
 <?php
 namespace Phiber\Logger;
+use Phiber\Event\event;
+use Phiber\Event\eventfull;
 
 class file extends logger
 {
@@ -25,6 +27,12 @@ class file extends logger
    */
   protected function log($level, $message, array $context = array())
   {
+    $event = new event(self::EVENT_ERROR, __class__);
+    $event->level = $level;
+    $event->message = $message;
+    $event->context = $context;
+    eventfull::notify($event);
+
     $message = '['.$level.'] '.$message;
     $exception = false;
     if(isset($context['exception']) && $context['exception'] instanceof \ErrorException){

@@ -107,7 +107,7 @@ class phiber extends wire
     $plugins = $this->getPlugins();
     if(count($plugins)){
       foreach($plugins as $plugin){
-        include $this->config->application.DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.$plugin .DIRECTORY_SEPARATOR.$plugin.'.php';
+        require $this->config->application.DIRECTORY_SEPARATOR.'plugins'.DIRECTORY_SEPARATOR.$plugin .DIRECTORY_SEPARATOR.$plugin.'.php';
         $plugin::getInstance()->run();
       }
     }
