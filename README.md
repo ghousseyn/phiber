@@ -7,6 +7,10 @@
 Phiber Framework (PHP's EASY MVC)
 ===
 
+Phiber Framework is the lightest full stack PHP MVC framework. Phiber ships with basic components providing a bare minimum of boiler plates and allow for extension and library integration to add functionality as needed. Main components include MVC layout, Modules, Plugins, ORM, Cache, Session, Events, Log and Error handling.
+
+Phiber framework applications are moduler with an easy drop-in architecture. A sample application is available on packagist as a template. Phiber also provides a command line tool called Myo to help create and maintain different parts of your application.  
+
 Features
 ===
 - Very easy to learn (probably why you picked PHP in the first place)
@@ -28,3 +32,6 @@ Documentation
 
 Check [Phiber Framework Documentation](http://ghousseyn.github.io/phiber)
 
+Newsletter
+==
+[Phiber Framework Group](https://groups.google.com/forum/#!forum/phiber)
