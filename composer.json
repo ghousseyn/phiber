@@ -2,7 +2,7 @@
     "name": "phiber/phiber",
     "type": "library",
     "description": "PHP's easy MVC",
-    "keywords": ["Framework","ORM","MVC"],
+    "keywords": ["Framework", "ORM", "MVC"],
     "homepage": "http://github.com/ghousseyn/phiber",
     "license": "MIT",
     "authors": [
@@ -12,7 +12,7 @@
             "role": "Developer"
         }
     ],
-    "minimum-stability":"dev",
+    "minimum-stability": "dev",
     "require": {
         "php": ">=5.3.0"
     }

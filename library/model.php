@@ -1,5 +1,7 @@
 <?php
 namespace Phiber;
-abstract class model extends wire{}
+abstract class model extends wire
+{
+}
 
 ?>
