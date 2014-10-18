@@ -6,11 +6,11 @@ use Phiber\Event\event;
 
 abstract class listener implements phiberEventObserver
 {
-  /**
-   * (non-PHPdoc)
-   * @see Phiber\Interfaces.phiberEventObserver::update()
-   */
-  abstract public function update(event $event);
+    /**
+     * (non-PHPdoc)
+     * @see Phiber\Interfaces.phiberEventObserver::update()
+     */
+    abstract public function update(event $event);
 
 }
 
