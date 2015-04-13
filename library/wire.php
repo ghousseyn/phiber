@@ -335,8 +335,10 @@ class wire
 
         switch ($var) {
 
+            case 'html':
+                return Ui\html::createElement();
             case 'ui':
-                return Ui\ui::createElement();
+                return Ui\ui::getInstance();
             case 'view':
                 return view::getInstance();
             case 'route':
