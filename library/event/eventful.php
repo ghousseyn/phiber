@@ -1,8 +1,6 @@
 <?php
 namespace Phiber\Event;
 
-use Phiber\Event\event;
-
 class eventful
 {
     public static function getEvents()

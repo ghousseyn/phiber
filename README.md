@@ -20,7 +20,7 @@ Features
 - Painless Routing (simple and RegEx/named params)
 - Drop-in architecture for plugins, modules and even controllers
 - True MVC (Models CAN communicate with views directly)
-- Eventfull (trigger and listen to events if you want to)
+- Eventful (trigger and listen to events if you want to)
 - OOSQL ORM and Query builder (Zero configuration)
 - Entity generator (Design your DB like a DBA)
 - Use any library out there within your plugins, models or controllers
