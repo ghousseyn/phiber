@@ -24,6 +24,8 @@ abstract class oogen extends \PDO
 
     abstract protected function analyze($tbls);
 
+    abstract protected function getMeta($tbls);
+
     abstract protected function createProps($fields, $tname, $cols);
 
     public function __construct($dsn, $user, $password)
@@ -53,10 +55,8 @@ abstract class oogen extends \PDO
         }
 
         $collection = new \Phiber\oosql\collection();
-        $counter = count($result);
-        for ($i = 0; $i < $counter; $i++) {
-            $collection->add($result[$i]);
-        }
+
+        $collection->addBulck($result);
 
         return $collection;
     }
@@ -93,9 +93,14 @@ abstract class oogen extends \PDO
     {
 
         $table = trim($table);
+        $primKey = '';
+        $primaryCount = 0;
         //print_r($this->foreign);
-        $primKey = $this->primary[$table];
-        $primaryCount = count($primKey);
+        if(isset($this->primary[$table])){
+            $primKey = $this->primary[$table];
+            $primaryCount = count($primKey);
+        }
+
 
 
         if ($this->ai !== false) {
@@ -157,7 +162,11 @@ abstract class oogen extends \PDO
         $h = 0;
         $this->text = '';
 
+
+
         foreach ($fields as $tname => $cols) {
+
+            $metas = $this->getMeta($tname);
 
             $cname = $tname;
 
@@ -169,17 +178,22 @@ abstract class oogen extends \PDO
             $this->ai = false;
 
 
+
+            foreach ($metas as $colName => $meta) {
+                $this->text .= '  const '.$colName.'_META = \''.json_encode($meta).'\';' . PHP_EOL;
+            }
+            $this->text .=  PHP_EOL;
+            foreach ($metas as $colName => $meta) {
+                $this->text .= '  public $' . $colName . ';' . PHP_EOL;
+            }
+
             foreach ($cols as $col) {
 
 
                 if (isset($col['Extra']) && $col['Extra'] == 'auto_increment') {
                     $this->ai = $col['Field'];
                 }
-                if (!isset($col['Field']) || strlen($col['Field']) == 0) {
-                    continue;
-                } else {
-                    $this->text .= '  public $' . $col['Field'] . ';' . PHP_EOL;
-                }
+
             }
 
 

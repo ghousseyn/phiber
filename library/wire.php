@@ -24,7 +24,7 @@ class wire
 
     public function baseUri($base)
     {
-        if (null == $base || $base == '/') {
+        if (null === $base || $base === '/') {
             return;
         }
         $base = '/' . trim($base, '/') . '/';
@@ -212,6 +212,7 @@ class wire
         if (isset($this->phiber->observers[$event])) {
             return $this->phiber->observers[$event];
         }
+        return array();
     }
 
     public function removeObserver($event, $name)
@@ -237,7 +238,7 @@ class wire
         if (null === $hash) {
             $hash = $this->hashObject();
         }
-        return Event\eventfull::attach($observer, $event, $hash, $runMethod);
+        return Event\eventful::attach($observer, $event, $hash, $runMethod);
     }
 
     protected function detach($event, $observer = null, $hash = null)
@@ -248,12 +249,12 @@ class wire
         if (null === $hash) {
             $hash = $this->hashObject();
         }
-        return Event\eventfull::detach($observer, $event, $hash);
+        return Event\eventful::detach($observer, $event, $hash);
     }
 
     protected function notify(Event\event $event)
     {
-        Event\eventfull::notify($event);
+        Event\eventful::notify($event);
     }
 
     public function autoload($class)
@@ -265,32 +266,30 @@ class wire
                 require $this->confFile;
                 return true;
             } else {
-                trigger_error("Could not find configuration file: " . $this->confFile, E_USER_ERROR);
+                trigger_error('Could not find configuration file: ' . $this->confFile, E_USER_ERROR);
             }
 
         }
         $path = $this->config->library . DIRECTORY_SEPARATOR;
+
         if (strpos($class, '\\') === false) {
 
-            if (stream_resolve_include_path($this->config->application . DIRECTORY_SEPARATOR . $class . '.php')) {
-
+            if (file_exists($this->config->application . DIRECTORY_SEPARATOR . $class . '.php')) {
                 require $this->config->application . DIRECTORY_SEPARATOR . $class . '.php';
                 return;
             }
 
             $module = $this->config->application . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $this->route['module'] . DIRECTORY_SEPARATOR;
 
-            if (stream_resolve_include_path($module . $class . '.php')) {
+            if (file_exists($module . $class . '.php')) {
 
                 require $module . $class . '.php';
 
             }
-            return true;
+
         }
 
-        $parts = explode('\\', $class);
-
-        $count = count($parts);
+        $parts = (strpos($class, '\\') != false)?explode('\\', $class):array($class);
 
         if ($parts[0] !== 'Phiber') {
 
@@ -298,8 +297,8 @@ class wire
 
             if (isset($libs[$parts[0]])) {
 
-                $path = $this->config->application . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . $libs[$parts[0]] . DIRECTORY_SEPARATOR;
-                unset($parts[0]);
+                $path = $this->config->application . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . $libs[$parts[0]] . DIRECTORY_SEPARATOR ;
+
             } else {
                 $path = $this->config->application . DIRECTORY_SEPARATOR;
 
@@ -310,7 +309,7 @@ class wire
         }
         $path .= strtolower(implode(DIRECTORY_SEPARATOR, $parts)) . '.php';
 
-        if (stream_resolve_include_path($path)) {
+        if (file_exists($path)) {
 
             require $path;
             return;
@@ -336,7 +335,8 @@ class wire
     {
 
         switch ($var) {
-
+            case 'ui':
+                return new Ui\ui;
             case 'view':
                 return view::getInstance();
             case 'route':

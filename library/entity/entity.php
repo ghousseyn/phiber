@@ -207,9 +207,26 @@ abstract class entity
 
     public function find()
     {
-        return $this->callFunc('find', func_get_args());
-    }
+        $args = func_get_args();
+        if(!$args){
+            foreach (get_object_vars($this) as $property => $val) {
+                if (null !== $val) {
+                    $filter[$property] = $val;
+                }
+            }
+            $args[] = $filter;
+        }
 
+        return $this->callFunc('find', $args)->fetch();
+    }
+    public function findOne()
+    {
+        return $this->callFunc('findOne', func_get_args())->fetch();
+    }
+    public function findLimited()
+    {
+        return $this->callFunc('findLimited', func_get_args())->fetch();
+    }
     public function delete()
     {
         $class = get_class($this);
@@ -249,6 +266,49 @@ abstract class entity
     public function hasMany()
     {
         return array();
+    }
+    public function typeOf($field)
+    {
+        $const = $this->getFieldMeta($field);
+        return $const[0];
+    }
+    public function getFieldTypes($fields = null)
+    {
+        $types= array();
+
+        $constants = $this->getMeta();
+        if($fields && is_array($fields)){
+            foreach ($fields as $field){
+                $key = $field.'_META';
+                if(array_key_exists($key, $constants)){
+                    $meta = json_decode($constants[$key]);
+                    $types[$field] = $meta[0];
+                }
+            }
+            return $types;
+        }
+        foreach ($constants as $field => $meta){
+            $meta = json_decode($meta);
+            $field = preg_replace('/_META$/', '', $field);
+            $types[$field] = $meta[0];
+        }
+
+        return $types;
+    }
+    public function lengthOf($field)
+    {
+        $const = $this->getFieldMeta($field);
+        return $const[1];
+    }
+    public function getFieldMeta($field)
+    {
+        $const = $field.'_META';
+        return json_decode(constant("static::$const"));
+    }
+    public function getMeta()
+    {
+        $obj = new \ReflectionClass(get_called_class());
+        return $obj->getConstants();
     }
 }
 
