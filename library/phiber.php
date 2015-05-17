@@ -378,22 +378,14 @@ class phiber extends wire
 
     private function dispatch()
     {
-
-        $controller = $this->route['controller'];
         $action = $this->route['action'];
-        try {
             if (is_callable(array($this->controller, $action))) {
                 $this->controller->{$action}();
             } else {
-                throw new \Exception('Could not call specified action!', 9001);
+                $event = new Event\event(self::EVENT_URINOTFOUND, __class__, 'Could not call specified action!', 'error');
+                Event\eventful::notify($event);
+                $this->controller->{$this->config->PHIBER_CONTROLLER_DEFAULT_METHOD};
             }
-        } catch (\Exception $ex) {
-            $event = new Event\event(self::EVENT_URINOTFOUND, __class__);
-            $event->exception = $ex;
-            Event\eventful::notify($event);
-            $this->logger()->notice($ex->getMessage());
-            $this->controller->{$this->config->PHIBER_CONTROLLER_DEFAULT_METHOD};
-        }
         Event\eventful::notify(new Event\event(self::EVENT_DISPATCH, __class__));
     }
 
