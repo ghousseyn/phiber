@@ -348,8 +348,10 @@ class wire
                 return config::getInstance();
             case 'session':
                 return Session\session::getInstance();
-            case 'phiber';
+            case 'phiber':
                 return phiber::getInstance();
+            case 'validator':
+                return new Validator\validator;
         }
         if (isset($this->vars[$var])) {
             return $this->vars[$var];

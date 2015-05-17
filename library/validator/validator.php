@@ -3,8 +3,14 @@
 
 namespace Phiber\Validator;
 
+use Phiber\Event as Events;
+
 class validator
 {
+
+    const EVENT_NOT_OBJECT = 'validator.notobject';
+    const EVENT_FILE_NOTFOUND = 'validator.filenotfound';
+    const EVENT_NOTVALID = 'validator.notvalid';
 
     public static $callbacks = array();
     public $subject = array();
@@ -15,14 +21,17 @@ class validator
 
     public function __construct(array $subject = array(), $msg = null)
     {
-        static::addDefaultValidators();
+        self::addDefaultValidators();
         if (!is_array($subject)) {
             $subject = array($subject);
         }
         $this->subject = $subject;
         $this->error_msg = $msg;
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
     public function is($key, $error_msg = null)
     {
         if (array_key_exists($key, $this->subject)) {
@@ -33,22 +42,41 @@ class validator
 
         return $this;
     }
-
     public static function addValidator($method, $callback)
     {
-        static::$callbacks[strtolower($method)] = $callback;
+        if (!is_object($callback)) {
+            Events\eventful::notify(new Events\event(self::EVENT_NOT_OBJECT, 'validator', 'error'));
+            return false;
+        }
+        self::$callbacks[strtolower($method)] = $callback;
+        return true;
     }
-
+    public static function addValidatorsArray(array $validators)
+    {
+        foreach ($validators as $name => $callback) {
+            if (!self::addValidator($name, $callback)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    public static function addValidatorFile($file)
+    {
+        if (file_exists($file)) {
+            $validators = include $file;
+            return self::addValidatorsArray($validators);
+        }
+        Events\eventful::notify(new Events\event(self::EVENT_FILE_NOTFOUND, 'validator', 'error'));
+        return false;
+    }
     public function hasErrors()
     {
         return count($this->errors);
     }
-
     public function getErrors()
     {
         return $this->errors;
     }
-
     public function valid()
     {
         if ($this->hasErrors()) {
@@ -56,7 +84,6 @@ class validator
         }
         return true;
     }
-
     public function __call($method, $args)
     {
         if (!$this->error_msg = end($args)) {
@@ -64,6 +91,20 @@ class validator
         }
         $validator_name = strtolower($method);
 
+        if (!array_key_exists($validator_name, self::$callbacks)) {
+            throw new \BadMethodCallException("Unknown validator method $method()");
+        }
+
+        $validator = self::$callbacks[$validator_name];
+        array_unshift($args, $this->candidate);
+        $result = (bool)call_user_func_array($validator, $args);
+
+        if ($result === false) {
+            $this->errors[$this->key][] = $this->error_msg;
+            Events\eventful::notify(new Events\event(self::EVENT_NOTVALID, 'validator', $this->error_msg, 'error'));
+        }
+        return $this;
+    }
         if (!array_key_exists($validator_name, static::$callbacks)) {
             throw new \BadMethodCallException("Unknown validator method $method()");
         }
