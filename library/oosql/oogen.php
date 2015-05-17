@@ -19,6 +19,7 @@ abstract class oogen extends \PDO
     protected $hasOne = array();
     protected $hasMany = array();
     protected $belongsTo = array();
+    protected $manyThrough = array();
 
     public $path = './entity/';
 
