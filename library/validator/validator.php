@@ -28,10 +28,7 @@ class validator
         $this->subject = $subject;
         $this->error_msg = $msg;
     }
-<<<<<<< HEAD
 
-=======
->>>>>>> master
     public function is($key, $error_msg = null)
     {
         if (array_key_exists($key, $this->subject)) {
@@ -105,22 +102,7 @@ class validator
         }
         return $this;
     }
-        if (!array_key_exists($validator_name, static::$callbacks)) {
-            throw new \BadMethodCallException("Unknown validator method $method()");
-        }
-
-        $validator = static::$callbacks[$validator_name];
-        array_unshift($args, $this->candidate);
-        $result = (bool)call_user_func_array($validator, $args);
-
-
-        if ($result === false) {
-            $this->errors[$this->key][] = $this->error_msg;
-        }
-
-        return $this;
-    }
-
+       
     protected function fill($key, $error_msg)
     {
         if (null === $error_msg) {
