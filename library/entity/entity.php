@@ -252,7 +252,10 @@ abstract class entity
     {
         return array();
     }
-
+    public function getRelationsThrough()
+    {
+        return array();
+    }
     public function belongsTo()
     {
         return array();

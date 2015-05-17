@@ -37,36 +37,8 @@ class mysql extends oogen
     }
     protected function createProps($fields, $tname, $cols)
     {
-        $count = 0;
-        $rel = false;
-
-        foreach ($cols as $col) {
-
-            if (isset($col['constraints'])) {
-
-                $cnt = count($fields[$tname]);
-                for ($i = 0; $i < $cnt; $i++) {
-                    foreach ($fields[$tname][$i] as $key => $val) {
-
-                        if (!empty($val) && is_string($val) && isset($col['constraints'][$val])) {
-                            $this->foreign[$tname][$val] = $col['constraints'][$val];
-
-                            $this->belongsTo[$tname][] = $col['constraints'][$val][1];
-
-                            $this->hasMany[$col['constraints'][$val][1]][] = trim($col['constraints'][$val][0]) . '.' . $tname . '.' . $val;
-
-
-                        }
-                    }
-                }
-            }
-
-            if (isset($col['Key']) && $col['Key'] == 'PRI') {
-                $this->primary[$tname][] = $col['Field'];
-            }
-
-
-        }
+        $this->prepareKeys($fields, $tname, $cols);
+        
         foreach ($cols as $col) {
 
             if (isset($col['Key'])) {
@@ -87,6 +59,45 @@ class mysql extends oogen
 
     }
 
+    protected function getManyToMany()
+    {
+        foreach ($this->belongsTo as $table => $refTables) {
+            if (count($refTables) > 1) {
+                foreach ($refTables as $tbl) {
+                    $this->manyThrough[$tbl] = array($table => $refTables);
+                }
+            }
+        }
+
+    }
+    protected function prepareKeys($fields, $tname, $cols)
+    {
+        foreach ($cols as $col) {
+
+            if (isset($col['constraints'])) {
+
+                $cnt = count($fields[$tname]);
+                for ($i = 0; $i < $cnt; $i++) {
+                    foreach ($fields[$tname][$i] as $key => $val) {
+
+                        if (!empty($val) && is_string($val) && isset($col['constraints'][$val])) {
+                            $this->foreign[$tname][$val] = $col['constraints'][$val];
+
+                            $this->belongsTo[$tname][] = $col['constraints'][$val][1];
+
+                            $this->hasMany[$col['constraints'][$val][1]][] = trim($col['constraints'][$val][0]) . '.' . $tname . '.' . $val;
+
+                        }
+                    }
+                }
+            }
+
+            if (isset($col['Key']) && $col['Key'] == 'PRI') {
+                $this->primary[$tname][] = $col['Field'];
+            }
+
+        }
+    }
     protected function analyze($tbls)
     {
         foreach ($tbls as &$tbl) {
@@ -132,7 +143,6 @@ class mysql extends oogen
             $keys = explode(',', $create);
             $kcount = count($keys);
             while (substr(trim($keys[$kcount - 1]), 0, 10) === 'CONSTRAINT') {
-                // @Todo Composite key constraints are not handled correctly
                 $key = array_pop($keys);
                 $parts = explode(' ', trim($key));
                 $constraint = trim($parts[1], '`');
