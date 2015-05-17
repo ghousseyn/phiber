@@ -1119,7 +1119,7 @@ class oosql extends \PDO
      * @param array $fields
      * @return \Phiber\oosql\oosql
      */
-    public function findOne($arg, $operator = '=', $fields = array('*'))
+    public function findOne($arg = null, $operator = '=', $fields = array('*'))
     {
         return $this->find($arg, $operator, $fields)->limit(0, 1);
     }
@@ -1133,7 +1133,7 @@ class oosql extends \PDO
      * @param array $fields
      * @return \Phiber\oosql\oosql
      */
-    public function findLimited($arg, $from, $to, $operator = '=', $fields = array('*'))
+    public function findLimited($from, $to, $arg = null, $operator = '=', $fields = array('*'))
     {
         return $this->find($arg, $operator, $fields)->limit($from, $to);
     }
@@ -1145,7 +1145,7 @@ class oosql extends \PDO
      * @param array $fields
      * @return \Phiber\oosql\oosql
      */
-    public function find($arg, $operator = '=', $fields = array('*'))
+    public function find($arg = null, $operator = '=', $fields = array('*'))
     {
         if ($fields[0] == '*') {
             $this->select();
@@ -1166,7 +1166,10 @@ class oosql extends \PDO
         if (!is_array($arg)) {
             $obj = $this->getEntityObject();
             $pri = $obj->getPrimary();
-            $arg = array($pri[0] => $arg);
+            if (null !== $arg) {
+                $arg = array($pri[0] => $arg);
+            }
+
         }
         $i = 0;
         $flag = '';
@@ -1177,6 +1180,7 @@ class oosql extends \PDO
             $this->where("$this->oosql_table.$col $operator ?", $val, $flag);
             $i++;
         }
+
 
         return $this;
     }
@@ -1424,7 +1428,7 @@ class oosql extends \PDO
             $this->oosql_entity_obj = $this->getEntityObject();
             $this->oosql_entity_obj->{$var} = $val;
         }
-        return $this->oosql_entity_obj;
+
     }
 
 
