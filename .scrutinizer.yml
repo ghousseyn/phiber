@@ -5,7 +5,7 @@ filter:
     excluded_paths:
         - Tests
 tools:
-    external_code_coverage: true
+    external_code_coverage: false
     php_mess_detector:
         config:
             design_rules: { number_of_class_children: true, depth_of_inheritance: true, coupling_between_objects: true }
