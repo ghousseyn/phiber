@@ -322,7 +322,7 @@ class phiber extends wire
     public function removeEvent(Event\event $event)
     {
         $eventIndex = array_search($event, $this->events[$event->getName()]);
-        if ($event !== false) {
+        if ($eventIndex !== false) {
             unset($this->events[$event->getName()][$eventIndex]);
             return true;
         }
