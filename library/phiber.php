@@ -29,6 +29,7 @@ class phiber extends wire
     private $stop = false;
     private $method;
     private $base = '/';
+    private $events = array();
 
 
     const EVENT_BOOT = 'phiber.boot';
@@ -314,7 +315,23 @@ class phiber extends wire
         Event\eventful::notify(new Event\event(self::EVENT_SHUTDOWN, __class__));
 
     }
-
+    public function pushEvent(Event\event $event)
+    {
+        $this->events[$event->getName()][] = $event;
+    }
+    public function removeEvent(Event\event $event)
+    {
+        $eventIndex = array_search($event, $this->events[$event->getName()]);
+        if ($event !== false) {
+            unset($this->events[$event->getName()][$eventIndex]);
+            return true;
+        }
+        return false;
+    }
+    public function getCurrentEvents()
+    {
+        return $this->events;
+    }
     private function setVars($parts)
     {
         foreach ($parts as $k => $val) {
