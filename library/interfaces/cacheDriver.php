@@ -11,7 +11,7 @@ interface cacheDriver
 
     public function getBag();
 
-    public function getMulti($keys);
+    public function getMulti(array $keys);
 
     public function deleteAll();
 
