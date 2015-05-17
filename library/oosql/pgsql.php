@@ -25,7 +25,10 @@ FROM information_schema.columns where table_schema = 'public' and table_name='<t
 
     protected $seq = array();
 
-
+    protected function getMeta($table)
+    {
+        //Get columns meta data
+    }
     protected function createProps($fields, $tname, $cols)
     {
         $count = 0;
@@ -88,9 +91,6 @@ FROM information_schema.columns where table_schema = 'public' and table_name='<t
 
             $constraints = $this->getCollection(str_replace('<table>', $table, $this->queries['constraint']));
 
-//var_dump($constraints);
-
-            $ks = array();
             if ($constraints) {
                 foreach ($constraints as $ex) {
 
@@ -119,7 +119,6 @@ FROM information_schema.columns where table_schema = 'public' and table_name='<t
 
         }
 
-        var_dump($this->getLinkingKeys($tables));
         return $fields;
     }
 

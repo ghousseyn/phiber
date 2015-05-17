@@ -65,16 +65,18 @@ class file implements cacheDriver
         return new item;
     }
 
-    public function getMulti($keys)
+    public function getMulti(array $keys)
     {
+        $items = array();
         foreach ($keys as $key) {
             $items[$key] = $this->get($key);
         }
         return $items;
     }
 
-    public function deleteMulti($keys)
+    public function deleteMulti(array $keys)
     {
+        $return = array();
         foreach ($keys as $key) {
             $return[] = $this->delete($key);
         }

@@ -9,121 +9,128 @@ namespace Phiber\Ui;
 class html
 {
 
-    private static $instance = null;
+    private static $instance;
 
-    private $top = null;
+    private $top;
 
-    private $tag = null;
+    private $tag;
     private $attributes = array();
-    private $class = null;
+    private $class;
     private $text = '';
 
-    private $content = null;
+    private $content;
 
     private $autoclosed = true;
     private $textFirst = false;
 
-    public function __construct($tag, $top = null){
+    public function __construct($tag, $top = null)
+    {
         $this->tag = $tag;
         $this->top =& $top;
     }
 
-    public static function createElement($tag = ''){
+    public static function createElement($tag = '')
+    {
         self::$instance = new html($tag);
         return self::$instance;
     }
 
-    public function addElement($tag){
-        $htmlTag = null;
-        if(is_null($this->content)){
+    public function addElement($tag)
+    {
+
+        if (null === $this->content) {
             $this->content = array();
             $this->autoclosed = false;
         }
-        if(is_object($tag) && get_class($tag) == get_class($this)){
+        if ($tag instanceof html) {
             $htmlTag = $tag;
             $htmlTag->top = $this->top;
             $this->content[] = $htmlTag;
-        }
-        else{
-            $htmlTag = new html($tag, (is_null($this->top) ? $this : $this->top ));
+        } else {
+            $htmlTag = new html($tag, (null === $this->top ? $this : $this->top));
             $this->content[] = $htmlTag;
         }
         return $htmlTag;
     }
 
-    public function set($name,$value){
-        if(is_null($this->attributes)) $this->attributes = array();
+    public function set($name, $value)
+    {
+        if (null === $this->attributes) $this->attributes = array();
         $this->attributes[$name] = $value;
         return $this;
     }
 
-    public function id($value){
-        return $this->set('id',$value);
+    public function id($value)
+    {
+        return $this->set('id', $value);
     }
 
-    public function addClass($value){
-        if(is_null($this->class))
+    public function addClass($value)
+    {
+        if (null === $this->class)
             $this->class = array();
         $this->class[] = $value;
         return $this;
     }
 
-    public function removeClass($class){
-        if(!is_null($this->class)){
+    public function removeClass($class)
+    {
+        if (null !== $this->class) {
             unset($this->class[array_search($class, $this->class)]);
-            // foreach($this->class as $key=>$value){
-            // if($class == $value)
-            // $this->class[$key] = '';
-            // }
         }
         return $this;
     }
 
-    public function setText($value){
+    public function setText($value)
+    {
         $this->text = $value;
         return $this;
     }
 
-    public function showTextBeforeContent($bool){
+    public function showTextBeforeContent($bool)
+    {
         $this->textFirst = $bool;
     }
 
-    public function __toString(){
-        return (is_null($this->top) ? $this->toString() : $this->top->toString() );
+    public function __toString()
+    {
+        return (null === $this->top ? $this->toString() : $this->top->toString());
     }
 
-    public function toString(){
+    public function toString()
+    {
         $string = '';
-        if(!empty($this->tag)){
-            $string .=  '<' . $this->tag;
+        if (!empty($this->tag)) {
+            $string .= '<' . $this->tag;
             $string .= $this->attributesToString();
-            if($this->autoclosed && empty($this->text)) $string .= '/>' . CHR(13) . CHR(10) . CHR(9);
-            else $string .= '>' . ($this->textFirst ?  $this->text.$this->contentToString() : $this->contentToString().$this->text ). '</' . $this->tag . '>';
-        }
-        else{
+            if ($this->autoclosed && $this->text === '') $string .= '/>' . CHR(13) . CHR(10) . CHR(9);
+            else $string .= '>' . ($this->textFirst ? $this->text . $this->contentToString() : $this->contentToString() . $this->text) . '</' . $this->tag . '>';
+        } else {
             $string .= $this->contentToString();
         }
         return $string;
     }
 
-    private function attributesToString(){
+    private function attributesToString()
+    {
         $string = '';
-        if(!is_null($this->attributes)){
-            foreach($this->attributes as $key => $value){
-                if(!empty($value))
+        if (null !== $this->attributes) {
+            foreach ($this->attributes as $key => $value) {
+                if (!empty($value))
                     $string .= ' ' . $key . '="' . $value . '"';
             }
         }
-        if(!is_null($this->class) && count($this->class) > 0 ){
-            $string .= ' class="' . implode(' ',$this->class) . '"';
+        if (null !== $this->class && count($this->class) > 0) {
+            $string .= ' class="' . implode(' ', $this->class) . '"';
         }
         return $string;
     }
 
-    private function contentToString(){
+    private function contentToString()
+    {
         $string = '';
-        if(!is_null($this->content)){
-            foreach($this->content as $c){
+        if (null !== $this->content) {
+            foreach ($this->content as $c) {
                 $string .= CHR(13) . CHR(10) . CHR(9) . $c->toString();
             }
         }
