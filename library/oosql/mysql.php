@@ -5,11 +5,36 @@ require 'oogen.php';
 class mysql extends oogen
 {
 
-    protected $queries = array('tables' => 'SHOW TABLES',
+    protected $queries = array(
+        'tables' => 'SHOW TABLES',
         'columns' => 'SHOW COLUMNS FROM',
-        'create' => 'show create table');
+        'create' => 'show create table',
+        'meta' => 'SELECT column_name, data_type, character_maximum_length FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = "<tbl_name>";',
+        );
 
 
+    protected function getMeta($table)
+    {
+
+        $query = $this->queries['meta'];
+
+        $query = str_replace('<tbl_name>', $table, $query);
+
+        $collection = $this->getCollection($query);
+
+        if (!$collection) {
+
+            foreach ($this->errors as $error) {
+                print implode('|', $error) . PHP_EOL;
+            }
+            return false;
+        }
+        foreach ($collection as $meta) {
+            $meta = (array)$meta;
+            $fields[array_shift($meta)] = array_values($meta);
+        }
+        return $fields;
+    }
     protected function createProps($fields, $tname, $cols)
     {
         $count = 0;
