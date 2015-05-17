@@ -218,8 +218,9 @@ class wire
     {
         if (isset($this->phiber->observers[$event][$name])) {
             unset($this->phiber->observers[$event][$name]);
+            return true;
         }
-
+        return false;
     }
 
     protected function hashObject()
