@@ -183,7 +183,7 @@ class oosql extends \PDO
      * @param \Phiber\config $config
      * @throws \Exception
      */
-    function __construct($oosql_table = null, $oosql_class = null, $config = null)
+    public function __construct($oosql_table = null, $oosql_class = null, $config = null)
     {
 
         if ($oosql_class === null || $oosql_table === null) {
@@ -701,7 +701,7 @@ class oosql extends \PDO
 
             if ($numargs < $this->oosql_del_numargs) {
                 $msg = 'Columns and passed data do not match! ' . $this->sql();
-                throw new \PDOException($msg, 9810, null);
+                throw new \Exception($msg, 9810, null);
             }
 
 

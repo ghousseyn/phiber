@@ -29,7 +29,8 @@ abstract class entity
 
     public function getTableName()
     {
-        return array_pop(explode('\\', get_called_class()));
+        $parts = explode('\\', get_called_class());
+        return array_pop($parts);
     }
 
     /*
@@ -70,7 +71,7 @@ abstract class entity
                 if (!array_key_exists($property, $originalProps)) {
 
                     if ($saveRelated) {
-                        $current = $this;
+
                         foreach ($this->getRelations() as $fk => $relation) {
 
                             $table = strstr($relation, '.', true);
@@ -118,7 +119,7 @@ abstract class entity
                 foreach ($instances as $inst) {
                     $inst->save();
                 }
-                return $current->save();
+                return $this->save();
             } catch (\Exception $e) {
                 throw $e;
             }
@@ -211,12 +212,10 @@ abstract class entity
         if(!$args){
             foreach (get_object_vars($this) as $property => $val) {
                 if (null !== $val) {
-                    $filter[$property] = $val;
+                    $args[][$property] = $val;
                 }
             }
-            $args[] = $filter;
         }
-
         return $this->callFunc('find', $args)->fetch();
     }
     public function findOne()

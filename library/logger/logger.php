@@ -159,7 +159,7 @@ abstract class logger extends \Phiber\phiber
      * @param $context array
      * @return null
      */
-    protected abstract function log($level, $message, array $context = array());
+    abstract protected function log($level, $message, array $context = array());
 }
 
 ?>

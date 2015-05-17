@@ -37,9 +37,6 @@ class mysql extends oogen
     }
     protected function createProps($fields, $tname, $cols)
     {
-        $count = 0;
-        $rel = false;
-
         foreach ($cols as $col) {
 
             if (isset($col['constraints'])) {
