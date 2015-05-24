@@ -28,7 +28,7 @@ class collection extends \ArrayObject
         $this->numObjects++;
     }
 
-    public function addBulck($objects)
+    public function addBulk($objects)
     {
         $this->objects = $objects + $this->objects;
         $this->numObjects = count($this->objects);
@@ -301,7 +301,10 @@ class collection extends \ArrayObject
         return $this->numObjects;
     }
 
-
+    public function __call($func, $args)
+    {
+        return call_user_func_array(array($this->Object(), $func), $args);
+    }
 }
 
 ?>

@@ -1036,7 +1036,6 @@ class oosql extends \PDO
         }
         $this->oosql_select->exe();
 
-
         if (!$this->oosql_stmt) {
 
             $msg = 'Query returned no results! ' . $this->sql();
@@ -1046,9 +1045,10 @@ class oosql extends \PDO
 
         $result = $this->oosql_stmt->fetchAll();
 
+
         $collection = new collection();
 
-        $collection->addBulck($result);
+        $collection->addBulk($result);
 
         $collection->obj_name = $this->oosql_class;
 
@@ -1169,17 +1169,19 @@ class oosql extends \PDO
             if (null !== $arg) {
                 $arg = array($pri[0] => $arg);
             }
-
         }
         $i = 0;
         $flag = '';
-        foreach ($arg as $col => $val) {
-            if ($i > 0) {
-                $flag = 'and';
+        if (is_array($arg)) {
+            foreach ($arg as $col => $val) {
+                if ($i > 0) {
+                    $flag = 'and';
+                }
+                $this->where("$this->oosql_table.$col $operator ?", $val, $flag);
+                $i++;
             }
-            $this->where("$this->oosql_table.$col $operator ?", $val, $flag);
-            $i++;
         }
+
 
 
         return $this;
@@ -1430,8 +1432,10 @@ class oosql extends \PDO
         }
 
     }
-
-
+    public function __call($func, $args)
+    {
+        return call_user_func_array(array($this->getEntityObject(), $func), $args);
+    }
 }
 
 ?>

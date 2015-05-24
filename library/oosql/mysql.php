@@ -38,7 +38,9 @@ class mysql extends oogen
     protected function createProps($fields, $tname, $cols)
     {
         $this->prepareKeys($fields, $tname, $cols);
-        
+        $this->getManyToMany();
+
+
         foreach ($cols as $col) {
 
             if (isset($col['Key'])) {
@@ -48,9 +50,9 @@ class mysql extends oogen
                     if (isset($this->foreign[$tname][trim($col['Field'])])) {
                         $l_field = trim($this->foreign[$tname][$col['Field']][0]);
                         $f_table = trim($this->foreign[$tname][$col['Field']][1]);
-                        $this->hasOne[$f_table][] = $l_field . '.' . $tname . '.' . $col['Field'];
-                        $tkey = array_search($l_field, $f_table);
-                        unset($this->hasMany[$f_table][$tkey]);
+                        $this->hasOne[$f_table][$l_field][] =  $tname . '.' . $col['Field'];
+
+                        $this->hasMany[$f_table][$l_field] = array_diff($this->hasMany[$f_table][$l_field], $this->hasOne[$f_table][$l_field]);
 
                     }
                 }
@@ -62,14 +64,32 @@ class mysql extends oogen
     protected function getManyToMany()
     {
         foreach ($this->belongsTo as $table => $refTables) {
-            if (count($refTables) > 1) {
+            if (count($refTables) > 1) {// If it belongs to more than one table those tables are related through this one
                 foreach ($refTables as $tbl) {
-                    $this->manyThrough[$tbl] = array($table => $refTables);
+                    $relatedTables = array_diff($refTables, array($tbl));
+                    if (count($relatedTables) && array_key_exists($tbl, $this->belongsTo)) {
+                        $relatedTables = array_diff($relatedTables, $this->belongsTo[$tbl]);
+                    }
+                    if (count($relatedTables) && array_key_exists($tbl, $this->hasMany)) {
+                        $tables = array();
+                        foreach ($this->hasMany[$tbl] as $key => $relation) {
+                            foreach ($relation as $relationStr) {
+                                $relationParts = explode('.', $relationStr);
+                                $tables[] = $relationParts[0];
+                            }
+                        }
+
+                        $relatedTables = array_diff($relatedTables, $tables);
+                    }
+                    $relatedTables = (null !== $relatedTables)?array_values($relatedTables):array();
+                    if (count($relatedTables)) {
+                        $this->manyThrough[$tbl] = array($table => $relatedTables);
+                    }
                 }
             }
         }
-
     }
+
     protected function prepareKeys($fields, $tname, $cols)
     {
         foreach ($cols as $col) {
@@ -85,7 +105,8 @@ class mysql extends oogen
 
                             $this->belongsTo[$tname][] = $col['constraints'][$val][1];
 
-                            $this->hasMany[$col['constraints'][$val][1]][] = trim($col['constraints'][$val][0]) . '.' . $tname . '.' . $val;
+                            $this->hasMany[$col['constraints'][$val][1]][trim($col['constraints'][$val][0])][] = $tname . '.' . $val;
+
 
                         }
                     }
@@ -106,7 +127,7 @@ class mysql extends oogen
 
             print "Analyzing $table physical columns ..." . PHP_EOL;
 
-            $query = $this->queries['columns'] . ' ' . $table;
+            $query = $this->queries['columns'] . ' ' . $this->database.'.`'.$table.'`';
 
             $collection = $this->getCollection($query);
 
