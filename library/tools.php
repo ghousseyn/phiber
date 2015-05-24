@@ -66,7 +66,7 @@ class tools
         $text = str_replace('<', '&lt;', $text);
         $text = str_replace('>', '&gt;', $text);
 
-        if ($var instanceof \ErrorException) {
+        if ($var instanceof \ErrorException || $var instanceof \Exception) {
             $text = $var->getMessage() . PHP_EOL;
             $text .= PHP_EOL . 'Code: ' . $var->getCode() . ' File: ' . $var->getFile() . ':' . $var->getLine() . PHP_EOL;
 

@@ -20,6 +20,7 @@ abstract class oogen extends \PDO
     protected $hasMany = array();
     protected $belongsTo = array();
     protected $manyThrough = array();
+    protected $database;
 
     public $path = './entity/';
 
@@ -34,7 +35,7 @@ abstract class oogen extends \PDO
         parent::__construct($dsn, $user, $password);
         $this->time = microtime(true);
         $this->mem = memory_get_usage();
-
+        $this->database = end(explode('dbname=',$dsn));
     }
 
     public function getErrors()
@@ -57,7 +58,7 @@ abstract class oogen extends \PDO
 
         $collection = new \Phiber\oosql\collection();
 
-        $collection->addBulck($result);
+        $collection->addBulk($result);
 
         return $collection;
     }
@@ -96,13 +97,11 @@ abstract class oogen extends \PDO
         $table = trim($table);
         $primKey = '';
         $primaryCount = 0;
-        //print_r($this->foreign);
+
         if(isset($this->primary[$table])){
             $primKey = $this->primary[$table];
             $primaryCount = count($primKey);
         }
-
-
 
         if ($this->ai !== false) {
             $this->text .= PHP_EOL . '  public function identity()' . PHP_EOL . '  {' . PHP_EOL;
@@ -153,7 +152,13 @@ abstract class oogen extends \PDO
             $this->text .= '  public function hasMany()' . PHP_EOL . '  {' . PHP_EOL . '    return ' . $hmany . ';' . PHP_EOL . '  }' . PHP_EOL;
         }
 
+        if (isset($this->manyThrough[$table])) {
+
+            $hmanyThrough = self::transcribe($this->manyThrough[$table]);
+            $this->text .= '  public function hasManyThrough()' . PHP_EOL . '  {' . PHP_EOL . '    return ' . $hmanyThrough . ';' . PHP_EOL . '  }' . PHP_EOL;
+        }
         $this->text .= '}' . PHP_EOL;
+
 
     }
 
@@ -214,9 +219,9 @@ abstract class oogen extends \PDO
 
     public static function transcribe(array $array)
     {
-        $json = json_encode($array);
+        $json = json_encode($array, JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
         $text = '';
-        $text .= str_replace(array('[', ']', '{', '}', ':'), array('array(', ')', 'array(', ')', '=>'), $json);
+        $text .= str_replace(array('[', ']', '{', '}', ':'), array('array(', ')', 'array(', ')', ' =>'), $json);
         return $text;
     }
 

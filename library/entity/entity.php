@@ -133,12 +133,11 @@ abstract class entity
         return self::$oosql_obj->reset();
     }
 
-    public function load($num = null)
+    public function load()
     {
-        $primary = $this->getPrimary();
-        if (isset($this->{$primary[0]})) {
-            return self::$oosql_obj->find($this->{$primary[0]})->fetch($num);
-        }
+
+            return $this->find();
+
     }
 
     public function __set($var, $val)
@@ -154,28 +153,97 @@ abstract class entity
         unset($this->properties[$property]);
     }
 
-    public function __call($tablename, $arg)
+    public function __call($tablename, $args)
     {
         $relations = $this->getRelations();
 
         foreach ($relations as $fk => $target) {
-            $objPath = explode('.', $target);
-            if ($objPath[0] == $tablename) {
-                $tablename = "entity\\$tablename";
-                $instance = $tablename::getInstance()->getEntityObject();
-                $instance->{$objPath[1]} = $this->{$fk};
-                if (isset($arg[0])) {
-                    if (is_integer($arg[0])) {
-                        return $instance->load($arg[0]);
-                    }
-                    return $instance->load();
+            $related = $this->execRelation($tablename, $fk, $target, $args);
+            if ($related instanceof entity || $related instanceof \Phiber\oosql\collection) {
+                return $related;
+            }
+        }
+
+        $relations = $this->hasOne();
+
+        foreach ($relations as $localKey => $related) {
+            foreach ($related as $relStr) {
+                $related = $this->execRelation($tablename, $localKey, $relStr, $args);
+                if ($related instanceof entity || $related instanceof \Phiber\oosql\collection) {
+                    return $related;
                 }
-                return $instance;
             }
 
         }
+
+        $relations = $this->hasMany();
+
+        foreach ($relations as $localKey => $related) {
+            foreach ($related as $relStr) {
+                $related = $this->execRelation($tablename, $localKey, $relStr, $args);
+                if ($related instanceof entity || $related instanceof \Phiber\oosql\collection) {
+                    return $related;
+                }
+            }
+
+        }
+
+        $relations = $this->hasManyThrough();
+
+        foreach ($relations as $table => $relatedTbls) {
+            if (in_array($tablename, $relatedTbls)) {
+                $collection = new \Phiber\oosql\collection();
+                if (!empty($args)) {
+                    $objCollection = $this->{$table}()->load();
+                    if (!$objCollection->isEmpty()) {
+                        foreach ($objCollection as $record) {
+                            $Recs[] = $record->{$tablename}()->load()->toArray();
+                        }
+                        $flattened = array();
+                        array_walk_recursive($Recs, function ($a) use (&$flattened) {
+                            $flattened[] = $a;
+                        });
+                        $collection->addBulk($flattened);
+                    }
+                } else {
+                    $objCollection = $this->{$table}()->load();
+                    if (!$objCollection->isEmpty()) {
+
+                        foreach ($objCollection as $res) {
+                            $objects[] = $res->{$tablename}();
+                        }
+
+                        $flattened = array();
+                        array_walk_recursive($objects, function($a) use (&$flattened) { $flattened[] = $a; });
+                        $collection->addBulk($flattened);
+
+                    }
+                }
+                return $collection;
+            }
+        }
+
+
+
     }
 
+    protected function execRelation($tablename, $key, $relationString, $args)
+    {
+        $objPath = explode('.', $relationString);
+        if ($objPath[0] == $tablename) {
+            if (null == $this->{$key}) {
+                throw new \Exception('The relation key "' . $key . '" is null!');
+            }
+            $tablename = "entity\\$tablename";
+            $instance = new $tablename;
+            $instance->{$objPath[1]} = $this->{$key};
+            if ($args) {
+                return $instance->load();
+            }
+            return $instance;
+        }
+        return false;
+    }
     public function __get($var)
     {
         if (array_key_exists($var, get_object_vars(new static))) {
@@ -208,6 +276,7 @@ abstract class entity
     public function find()
     {
         $args = func_get_args();
+        $filter = null;
         if(!$args){
             foreach (get_object_vars($this) as $property => $val) {
                 if (null !== $val) {
@@ -252,7 +321,7 @@ abstract class entity
     {
         return array();
     }
-    public function getRelationsThrough()
+    public function hasManyThrough()
     {
         return array();
     }
