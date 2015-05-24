@@ -285,7 +285,7 @@ abstract class entity
             }
             $args[] = $filter;
         }
-
+        
         return $this->callFunc('find', $args)->fetch();
     }
     public function findOne()
