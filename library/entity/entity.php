@@ -281,10 +281,12 @@ abstract class entity
         if(!$args){
             foreach (get_object_vars($this) as $property => $val) {
                 if (null !== $val) {
-                    $args[][$property] = $val;
+                    $filter[$property] = $val;
                 }
             }
+            $args[] = $filter;
         }
+
         return $this->callFunc('find', $args)->fetch();
     }
     public function findOne()
