@@ -1056,12 +1056,32 @@ class oosql extends \PDO
         }
 
     }
+
+    /**
+     * Allows changing fetch mode
+     *
+     * @author Housseyn Guettaf <ghoucine@gmail.com>
+     *
+     * @link   http://phiber.myjetbrains.com/youtrack/issue/core-35
+     *
+     * @return $this
+     */
     public function setFetchMode()
     {
         $this->oosql_fetchChanged = func_get_args();
         return $this;
     }
 
+    /**
+     * Acts as a fetchAll() but returns a collection
+     *
+     * @author Housseyn Guettaf <ghoucine@gmail.com>
+     *
+     * @link   http://phiber.myjetbrains.com/youtrack/issue/core-35
+     *
+     * @return collection
+     * @throws \Exception
+     */
     public function all()
     {
         $this->prepFetch();
@@ -1078,6 +1098,17 @@ class oosql extends \PDO
 
         return $collection;
     }
+
+    /**
+     * Enable the cursor and returns a statement object to allow using fetch() on it
+     *
+     * @author Housseyn Guettaf <ghoucine@gmail.com>
+     *
+     * @link   http://phiber.myjetbrains.com/youtrack/issue/core-35
+     *
+     * @return \PDOStatement
+     * @throws \Exception
+     */
     public function cursor()
     {
         static $stmt;
@@ -1088,6 +1119,17 @@ class oosql extends \PDO
         }
         return $stmt;
     }
+
+    /**
+     * Passes parameters to PDO::PREPARE()
+     *
+     * @author Housseyn Guettaf <ghoucine@gmail.com>
+     *
+     * @link   http://phiber.myjetbrains.com/youtrack/issue/core-35
+     *
+     * @param array $params
+     * @return $this
+     */
     public function setPrepareParams(array $params)
     {
         $this->oosql_prepParams = $params;
