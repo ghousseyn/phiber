@@ -61,7 +61,7 @@ abstract class entity
         self::$oosql_obj->setTable($this->getTableName());
         if (self::$oosql_model_extra) {
 
-            $originalProps = get_object_vars(new static);
+            $originalProps = get_object_vars($this);
 
             $mixedProps = array_keys(get_object_vars($this));
 
@@ -143,7 +143,7 @@ abstract class entity
 
     public function __set($var, $val)
     {
-        if (!array_key_exists($var, get_object_vars(new static))) {
+        if (!array_key_exists($var, get_object_vars($this))) {
             self::$oosql_model_extra = true;
         }
         $this->{$var} = $val;
@@ -247,7 +247,7 @@ abstract class entity
     }
     public function __get($var)
     {
-        if (array_key_exists($var, get_object_vars(new static))) {
+        if (array_key_exists($var, get_object_vars($this))) {
             return $this->{$var}();
         }
 
@@ -287,15 +287,15 @@ abstract class entity
             $args[] = $filter;
         }
 
-        return $this->callFunc('find', $args)->fetch();
+        return $this->callFunc('find', $args);
     }
     public function findOne()
     {
-        return $this->callFunc('findOne', func_get_args())->fetch();
+        return $this->callFunc('findOne', func_get_args())->all();
     }
     public function findLimited()
     {
-        return $this->callFunc('findLimited', func_get_args())->fetch();
+        return $this->callFunc('findLimited', func_get_args())->all();
     }
     public function delete()
     {

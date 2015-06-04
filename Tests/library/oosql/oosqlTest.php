@@ -278,29 +278,6 @@ class oosqlTest extends PhiberTests
         $this->assertInstanceOf('Phiber\\oosql\\oosql', $return);
     }
 
-    public function testValidInteger()
-    {
-        $return1 = $this->invokeMethod($this->oosql, 'validInt', array(1.2304e6));
-        $return2 = $this->invokeMethod($this->oosql, 'validInt', array(16));
-        $return3 = $this->invokeMethod($this->oosql, 'validInt', array('16'));
-        $return4 = $this->invokeMethod($this->oosql, 'validInt', array('1.2304e6'));
-        $return5 = $this->invokeMethod($this->oosql, 'validInt', array(16.2));
-
-        $this->assertTrue($return1);
-        $this->assertTrue($return2);
-        $this->assertTrue($return3);
-        $this->assertFalse($return4);
-        $this->assertFalse($return5);
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionCode 9812
-     */
-    public function testFetchWrongArgs()
-    {
-        $this->invokeMethod($this->oosql, 'fetch', array(0, 1, 2));
-    }
 
     public function testLimit()
     {
