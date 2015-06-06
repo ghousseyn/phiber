@@ -1117,6 +1117,7 @@ class oosql extends \PDO
             $this->prepFetch();
             $stmt = $this->oosql_stmt;
         }
+
         return $stmt;
     }
 
