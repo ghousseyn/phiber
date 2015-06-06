@@ -902,7 +902,6 @@ class oosql extends \PDO
             $prepOnly = false;
 
         }
-
         if (isset($this->oosql_hashes[$hash])) {
 
             $this->oosql_stmt = $this->oosql_hashes[$hash];
