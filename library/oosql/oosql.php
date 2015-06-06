@@ -28,154 +28,171 @@ class oosql extends \PDO
     /**
      * $oosql_entity_obj An instance of the entity class
      * @var mixed
-     * @access private
+     * @access protected
      */
-    private $oosql_entity_obj = null;
+    protected $oosql_entity_obj = null;
     /**
      * $oosql_limit
      * @var string Limit clause
-     * @access private
+     * @access protected
      */
-    private $oosql_limit = null;
+    protected $oosql_limit = null;
     /**
      * $oosql_order
      * @var string Order clause
-     * @access private
+     * @access protected
      */
-    private $oosql_order = null;
+    protected $oosql_order = null;
     /**
      * $oosql_where
      * @var string Where clause
      * @access private
      */
-    private $oosql_where = null;
+    protected $oosql_where = null;
     /**
      * $oosql_join
      * @var string Join clause
-     * @access private
+     * @access protected
      */
-    private $oosql_join = null;
+    protected $oosql_join = null;
     /**
      * $oosql_stmt
      * @var Object PDO Statement object
-     * @access private
+     * @access protected
      */
-    private $oosql_stmt;
+    protected $oosql_stmt;
     /**
      * $oosql_conValues
      * @var array Parameterized values
-     * @access private
+     * @access protected
      */
-    private $oosql_conValues = array();
+    protected $oosql_conValues = array();
     /**
      * $oosql_numargs
      * @var integer Number of arguments
-     * @access private
+     * @access protected
      */
-    private $oosql_numargs;
+    protected $oosql_numargs;
     /**
      * $oosql_fromFlag
      * @var boolean A flag indicating whether From() was executed or not
-     * @access private
+     * @access protected
      */
-    private $oosql_fromFlag = false;
+    protected $oosql_fromFlag = false;
     /**
      * $oosql_multiFlag
      * @var boolean A flag indicating whether it a mutiple tables query or not
-     * @access private
+     * @access protected
      */
-    private $oosql_multiFlag = false;
+    protected $oosql_multiFlag = false;
     /**
      * $oosql_del_multiFlag
      * @var boolean A flag indicating whether it is a multiple tables delete or not
-     * @access private
+     * @access protected
      */
-    private $oosql_del_multiFlag = false;
+    protected $oosql_del_multiFlag = false;
     /**
      * $oosql_multi
      * @var array Holds the list of tables on multiple table updates
-     * @access private
+     * @access protected
      */
-    private $oosql_multi = array();
+    protected $oosql_multi = array();
     /**
      * $oosql_del_numargs
      * @var integer Number of arguments (tables) on multi table delete queries
-     * @access private
+     * @access protected
      */
-    private $oosql_del_numargs;
+    protected $oosql_del_numargs;
     /**
      * $oosql_sql
      * @var string The SQL query (never accessed directly)
-     * @access private
+     * @access protected
      */
-    private $oosql_sql;
+    protected $oosql_sql;
     /**
      * $oosql_select
      * @var Object Holds a PDO Statement on SELECTs
-     * @access private
+     * @access protected
      */
-    private $oosql_select;
+    protected $oosql_select;
     /**
      * $oosql_distinct
      * @var boolean Is the DISTINCT keyword set
-     * @access private
+     * @access protected
      */
-    private $oosql_distinct = false;
+    protected $oosql_distinct = false;
     /**
      * $oosql_insert
      * @var boolean Is it an INSERT
-     * @access private
+     * @access protected
      */
-    private $oosql_insert = false;
+    protected $oosql_insert = false;
     /**
      * $oosql_sub
      * @var boolean Is this query a sub-query
-     * @access private
+     * @access protected
      */
-    private $oosql_sub = false;
+    protected $oosql_sub = false;
     /**
      * $oosql_table_alias
      * @var string Table Alias
-     * @access private
+     * @access protected
      */
-    private $oosql_table_alias;
+    protected $oosql_table_alias;
     /**
      * $oosql_fields
      * @var array Current fields
-     * @access private
+     * @access protected
      */
-    private $oosql_fields;
+    protected $oosql_fields;
     /**
      * $oosql_hashes
      * @var array An array of hashes representing queries and there respective prepared PDOStatement objects
-     * @access private
+     * @access protected
      */
-    private $oosql_hashes = array();
+    protected $oosql_hashes = array();
     /**
      * $oosql_driver
      * @var string Driver name (set automatically)
-     * @access private
+     * @access protected
      */
-    private $oosql_driver;
+    protected $oosql_driver;
     /**
      * $oosql_in
      * @var string IN clause
-     * @access private
+     * @access protected
      */
-    private $oosql_in;
+    protected $oosql_in;
     /**
      * $oosql_between
      * @var string BETWEEN clause
-     * @access private
+     * @access protected
      */
-    private $oosql_between;
+    protected $oosql_between;
     /**
      * $instance
      * @var Object An instance of oosql\oosql
-     * @access private
+     * @access protected
      */
-    private static $instance;
-
+    protected static $instance;
+    /**
+     * $oosql_fetchChanged
+     * @var bool Flag to check changes in fetch mmode
+     * @access protected
+     */
+    protected $oosql_fetchChanged = false;
+    /**
+     * group
+     * @var string group by clause
+     * @access protected
+     */
+    protected $oosql_group;
+    /**
+     * Parameters to be passed to parent::prepare()
+     * @var array
+     * @access protected
+     */
+    protected $oosql_prepParams = array();
     /**
      * constructor
      * @param string $oosql_table The table we are querying
@@ -183,7 +200,7 @@ class oosql extends \PDO
      * @param \Phiber\config $config
      * @throws \Exception
      */
-    public function __construct($oosql_table = null, $oosql_class = null, $config = null)
+    public function __construct($oosql_table = null, $oosql_class = null, $config = null, $options = null)
     {
 
         if ($oosql_class === null || $oosql_table === null) {
@@ -195,11 +212,11 @@ class oosql extends \PDO
         $this->oosql_class = $oosql_class;
         $this->oosql_table = $oosql_table;
 
-        parent::__construct($config->PHIBER_DB_DSN, $config->PHIBER_DB_USER, $config->PHIBER_DB_PASS);
+        parent::__construct($config->PHIBER_DB_DSN, $config->PHIBER_DB_USER, $config->PHIBER_DB_PASS, $options);
         $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $this->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
-        $dsn = explode(':', $config->PHIBER_DB_DSN);
-        $this->oosql_driver = $dsn[0];
+        $this->setAttribute(\PDO::ATTR_CASE, \PDO::CASE_NATURAL);
+        $this->oosql_driver = $this->getAttribute(\PDO::ATTR_DRIVER_NAME) ;
     }
 
     /**
@@ -284,6 +301,12 @@ class oosql extends \PDO
 
         $this->oosql_between = null;
 
+        $this->oosql_fetchChanged = null;
+
+        $this->oosql_group = null;
+
+        $this->oosql_prepParams = null;
+
         return $this;
     }
 
@@ -328,7 +351,7 @@ class oosql extends \PDO
      * @param mixed $sql       SQL
      * @param boolean $replace Replace current query or not
      */
-    private function sql($sql = null, $replace = false)
+    protected function sql($sql = null, $replace = false)
     {
         if (null !== $sql) {
             if (!isset($this->oosql_sql[$this->oosql_table]) || $replace) {
@@ -648,7 +671,6 @@ class oosql extends \PDO
      * Assembles values part of an insert
      * @throws \Exception
      * @return \Phiber\oosql\oosql Instance
-     * @throws \Exception
      */
     public function values()
     {
@@ -865,16 +887,6 @@ class oosql extends \PDO
     }
 
     /**
-     * Validates integers
-     * @param mixed $val
-     * @return boolean
-     */
-    public function validInt($val)
-    {
-        return ctype_digit(strval($val));
-    }
-
-    /**
      * Prepare a query statement
      * @param array $values Bound values if any
      * @return mixed A \PDOStatement object or the boolean return of PDOStatement::execute
@@ -890,13 +902,17 @@ class oosql extends \PDO
             $prepOnly = false;
 
         }
-
         if (isset($this->oosql_hashes[$hash])) {
 
             $this->oosql_stmt = $this->oosql_hashes[$hash];
 
         } else {
-            $this->oosql_stmt = $this->prepare(trim($this->sql()));
+            if ($this->oosql_prepParams) {
+                $this->oosql_stmt = $this->prepare(trim($this->sql()), $this->oosql_prepParams);
+            } else {
+                $this->oosql_stmt = $this->prepare(trim($this->sql()));
+            }
+
             $this->oosql_hashes[$hash] = $this->oosql_stmt;
         }
 
@@ -916,7 +932,7 @@ class oosql extends \PDO
      * @param array $values
      * @return boolean True on success
      */
-    public function execBound($stmt, $values)
+    public function execBound(\PDOStatement $stmt, array $values)
     {
         $ord = 1;
         foreach ($values as $val) {
@@ -925,7 +941,11 @@ class oosql extends \PDO
 
                 $stmt->bindValue($ord, $val, \PDO::PARAM_BOOL);
 
-            } elseif ($this->validInt($val)) {
+            } elseif (is_resource($val)) {
+
+                $stmt->bindValue($ord, $val, \PDO::PARAM_LOB);
+
+            } elseif ((string)$val === ((string)(int)$val)) {
 
                 $stmt->bindValue($ord, $val, \PDO::PARAM_INT);
 
@@ -966,9 +986,13 @@ class oosql extends \PDO
         if (null != $this->oosql_limit) {
             $this->sql(' ' . $this->oosql_limit);
         }
+        if (null != $this->oosql_group) {
+            $this->sql(' ' . $this->oosql_group);
+        }
         if (null != $this->oosql_order) {
             $this->sql(' ' . $this->oosql_order);
         }
+
 
         if (count($this->oosql_conValues) !== 0) {
 
@@ -1009,28 +1033,11 @@ class oosql extends \PDO
      * @throws \Exception
      * @return \Phiber\oosql\oosql|\Phiber\oosql\collection
      */
-    public function fetch()
+    protected function prepFetch()
     {
         if ($this->oosql_sub) {
             return $this;
         }
-        $numargs = func_num_args();
-        if ($numargs !== 0) {
-            $argumants = func_get_args();
-            if ($argumants[0] !== null) {
-                switch ($numargs) {
-                    case 1:
-                        $this->limit(0, $argumants[0]);
-                        break;
-                    case 2:
-                        $this->limit($argumants[0], $argumants[1]);
-                        break;
-                    default:
-                        throw new \InvalidArgumentException('Fetch expects zero, one or two arguments as a query result limit', 9812, null);
-                }
-            }
-        }
-
         if (!$this->oosql_select instanceof oosql) {
             $this->select();
         }
@@ -1041,10 +1048,44 @@ class oosql extends \PDO
             $msg = 'Query returned no results! ' . $this->sql();
             throw new \Exception($msg, 9814, null);
         }
-        $this->oosql_stmt->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $this->oosql_class);
+        if (!is_array($this->oosql_fetchChanged)) {
+            $this->oosql_stmt->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $this->oosql_class);
+        } else {
+            call_user_func_array(array($this->oosql_stmt, 'setFetchMode'), $this->oosql_fetchChanged);
+        }
+
+    }
+
+    /**
+     * Allows changing fetch mode
+     *
+     * @author Housseyn Guettaf <ghoucine@gmail.com>
+     *
+     * @link   http://phiber.myjetbrains.com/youtrack/issue/core-35
+     *
+     * @return $this
+     */
+    public function setFetchMode()
+    {
+        $this->oosql_fetchChanged = func_get_args();
+        return $this;
+    }
+
+    /**
+     * Acts as a fetchAll() but returns a collection
+     *
+     * @author Housseyn Guettaf <ghoucine@gmail.com>
+     *
+     * @link   http://phiber.myjetbrains.com/youtrack/issue/core-35
+     *
+     * @return collection
+     * @throws \Exception
+     */
+    public function all()
+    {
+        $this->prepFetch();
 
         $result = $this->oosql_stmt->fetchAll();
-
 
         $collection = new collection();
 
@@ -1057,6 +1098,42 @@ class oosql extends \PDO
         return $collection;
     }
 
+    /**
+     * Enable the cursor and returns a statement object to allow using fetch() on it
+     *
+     * @author Housseyn Guettaf <ghoucine@gmail.com>
+     *
+     * @link   http://phiber.myjetbrains.com/youtrack/issue/core-35
+     *
+     * @return \PDOStatement
+     * @throws \Exception
+     */
+    public function cursor()
+    {
+        static $stmt;
+        if (!$stmt) {
+            $this->setPrepareParams(array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+            $this->prepFetch();
+            $stmt = $this->oosql_stmt;
+        }
+        return $stmt;
+    }
+
+    /**
+     * Passes parameters to PDO::PREPARE()
+     *
+     * @author Housseyn Guettaf <ghoucine@gmail.com>
+     *
+     * @link   http://phiber.myjetbrains.com/youtrack/issue/core-35
+     *
+     * @param array $params
+     * @return $this
+     */
+    public function setPrepareParams(array $params)
+    {
+        $this->oosql_prepParams = $params;
+        return $this;
+    }
     /**
      * Creates a join automatically based on the relationships of current entity
      * @param array $related

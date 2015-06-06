@@ -122,7 +122,7 @@ class error
             self::$instance->write($exception, $context);
         } elseif ($exception instanceof \Exception) {
 
-            self::$instance->write(new \ErrorException($exception->getMessage(), 0, $exception->getCode(), $exception->getFile(), $exception->getLine()), $context);
+            self::$instance->write(new \ErrorException($exception->getMessage(), 0, null, $exception->getFile(), $exception->getLine()), $context);
         }
 
         return true;
