@@ -1,4 +1,4 @@
-[![Codacy Badge](https://www.codacy.com/project/badge/ed985cff360d44d0a27fc4a4961cf9f1)](https://www.codacy.com/app/ghoucine/phiber) [![Build Status](https://travis-ci.org/ghousseyn/phiber.png?branch=alpha)](https://travis-ci.org/ghousseyn/phiber)
+[![Codacy Badge](https://www.codacy.com/project/badge/ed985cff360d44d0a27fc4a4961cf9f1)](https://www.codacy.com/app/ghoucine/phiber) [![Build Status](https://travis-ci.org/ghousseyn/phiber.png?branch=alpha)](https://travis-ci.org/ghousseyn/phiber) [![License](https://img.shields.io/github/license/ghousseyn/phiber.svg)](http://phibermit.mit-license.org/) [![Packagist](https://img.shields.io/packagist/v/phiber/phiber.svg)](https://packagist.org/packages/phiber/phiber) 
 
 
 ![Phiber Framework](logo.png)
