@@ -1112,10 +1112,11 @@ class oosql extends \PDO
     {
         static $stmt;
         if (!$stmt) {
-            $this->setPrepareParams(array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+            $this->setPrepareParams(array(\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL));
             $this->prepFetch();
             $stmt = $this->oosql_stmt;
         }
+
         return $stmt;
     }
 
