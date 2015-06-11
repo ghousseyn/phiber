@@ -27,11 +27,14 @@ Features
 - Myo command line tool to speed up development and prototyping
 
 
+Issue tracker
+==
+[Phiber Issue Tracker](http://phiber.myjetbrains.com/youtrack/)
+
 Documentation
 ===
-
 Check [Phiber Framework Documentation](http://ghousseyn.github.io/phiber)
 
-Newsletter
+Ask a question
 ==
 [Phiber Framework Group](https://groups.google.com/forum/#!forum/phiber)
