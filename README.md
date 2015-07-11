@@ -38,3 +38,7 @@ Check [Phiber Framework Documentation](http://ghousseyn.github.io/phiber)
 Ask a question
 ==
 [Phiber Framework Group](https://groups.google.com/forum/#!forum/phiber)
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/ghousseyn/phiber/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
