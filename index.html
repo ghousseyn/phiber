@@ -150,6 +150,32 @@ class="pln">name</span><span class="pln"></span></code></pre>
             <li>PHP &gt;=5.3</li>
             <li>Webserver (Apache, Nginx, IIS)</li>
           </ul>
+		  <h3>Front controller server config</h3>
+		  To be able to use Phiber you'll need to configure your server to route all requests through index.php. 
+		  There are multiple ways to make this happen, for example:
+		  <ul>
+		  <li>Apache .htaccess example
+		  <span>
+		  <pre class="prettyprint">  <code>
+		  RewriteEngine On
+		  RewriteCond %{REQUEST_FILENAME} -s [OR]
+		  RewriteCond %{REQUEST_FILENAME} -l [OR]
+		  RewriteCond %{REQUEST_FILENAME} -d
+		  RewriteRule ^.*$ - [NC,L]
+		  RewriteRule ^.*$ /index.php [NC,L]
+
+		  # if installed in a subfolder
+		  #RewriteRule ^.*$ /subfolder/index.php [NC,L]
+		  </code>
+          </pre>
+          </span>
+		  </li>
+		  <li>Nginx example config <span>
+		  <pre class="prettyprint">
+		  <code> try_files   $uri $uri/ /index.php?$args; </code>
+		  </pre>
+		  </span>
+		  </li>
           <h3 id="config">Configuration</h3>
           All configuration properties are located in one file that should be
           provided as a parameter to Phiber on the index.php file.<br>
