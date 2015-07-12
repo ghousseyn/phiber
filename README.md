@@ -15,7 +15,7 @@ Features
 ===
 - Very easy to learn (probably why you picked PHP in the first place)
 - Very easy to develope and deploy with [Myo](https://github.com/ghousseyn/phiber-myo) and [Composer](https://getcomposer.org)
-- Lightweight and very fast (100k uncompressed)
+- Lightweight and very fast (150k uncompressed)
 - One-file easy configuration
 - Painless Routing (simple and RegEx/named params)
 - Drop-in architecture for plugins, modules and even controllers
