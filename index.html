@@ -111,7 +111,7 @@
             <li>Painless Routing (simple and RegEx/named params)</li>
             <li>Drop-in architecture for plugins, modules and even controllers</li>
             <li>True MVC (Models CAN communicate with views directly)</li>
-            <li>Eventfull (trigger and listen to events if you want to)</li>
+            <li>eventful (trigger and listen to events if you want to)</li>
             <li>OOSQL ORM and Query builder (Zero configuration)</li>
             <li>Entity generator (Design your DB like a DBA)</li>
             <li>Use any library out there within your plugins, models or
@@ -317,7 +317,7 @@ class="pln">name</span><span class="pln"></span></code></pre>
           And route it internally to:<br>
           <pre class="prettyprint">/module/controller/action/cat/14/id/32</pre>
           Both types support Closure to handle the requests.<br>
-          <pre class="prettyprint"><br>$phiber-&gt;addRoute(<br><br> array('/info'=&gt;  <br><br>   function($phiberInstance) // an instance of Phiber is passed to your function automatically<br>    {<br>    // DB interactions<br>      $data = entity\myTable::getInstance()-&gt;select()-&gt;fetch();<br><br>    //Listen to an event<br><br>    Phiber\Event\eventfull::attach(<br><br>        function($event)<br>         { <br><br>            var_dump($event);<br><br>         }, <br>  <br>        Phiber\phiber::EVENT_SHUTDOWN<br>&nbsp;<br>     );<br><br>      echo "some text"; // print something directly<br>      $phiberInstance-&gt;view-&gt;setLayout('path/to/layout.php');
+          <pre class="prettyprint"><br>$phiber-&gt;addRoute(<br><br> array('/info'=&gt;  <br><br>   function($phiberInstance) // an instance of Phiber is passed to your function automatically<br>    {<br>    // DB interactions<br>      $data = entity\myTable::getInstance()-&gt;select()-&gt;fetch();<br><br>    //Listen to an event<br><br>    Phiber\Event\eventful::attach(<br><br>        function($event)<br>         { <br><br>            var_dump($event);<br><br>         }, <br>  <br>        Phiber\phiber::EVENT_SHUTDOWN<br>&nbsp;<br>     );<br><br>      echo "some text"; // print something directly<br>      $phiberInstance-&gt;view-&gt;setLayout('path/to/layout.php');
       $phiberInstance-&gt;view-&gt;setView('path/to/view.php');<br>      $phiberInstance-&gt;view-&gt;variable = 'assigned text';<br>      <br>     //Do a rewrite by setting a route and returning true<br><br>     $phiberInstance-&gt;currentRoute = array('module'=&gt;'mod',<br>                                           'controller'=&gt;'myController',<br>                                            'action' =&gt; 'myAction');<br>    <br>  //return (bool) true will tell Phiber to resume dispatching to a configured (or default) route
      <br>    return true; <br><br>  &nbsp; }<br>  );</pre>
           <br>
@@ -723,11 +723,11 @@ class auth extends \Phiber\plugin
           See <a href="#myo">Myo</a> for a better way to maintain your modules.<br>
           <br>
           <span style="font-weight: bold;" id="events">Events</span><br>
-          Phiber provides a way to trigger and listen to events using the <code><span>eventfull</span></code>
+          Phiber provides a way to trigger and listen to events using the <code><span>eventful</span></code>
           class or by implementing the appropriate interfaces to further
           customize the way events are handled. A class must<code><span></span></code>
           expose the events that could be expected from it to become
-          "eventfull". Event names are namespaced to avoid collision and to
+          "eventful". Event names are namespaced to avoid collision and to
           provide an easy way to organize them. For example the built-in <code><span>session</span></code>
           class fires two events one for session regenration and the other for
           session destruction.<br>
@@ -743,12 +743,12 @@ class auth extends \Phiber\plugin
           <pre class="prettyprint">    $authority = __METHOD__;
 
     $event = new Phiber\Event\event(self::EVENT_DESTR,  $authority);</pre>
-          The<code> <span style="font-family: &quot;Raleway&quot;,Helvetica,Arial,&quot;Lucida Grande&quot;,sans-serif;">eventfull</span>
+          The<code> <span style="font-family: &quot;Raleway&quot;,Helvetica,Arial,&quot;Lucida Grande&quot;,sans-serif;">eventful</span>
           </code>class exposes also two methods.<br>
           <pre class="prettyprint">public static function attach($observer, $event, $hash = null, $m = null)</pre>
           Using <code>attach()</code> one can attach a listener object to one
           or all the events fired by <code>session</code>.<br>
-          <pre class="prettyprint">Phiber\Event\eventfull::attach($observer, Phiber\Session\session::EVENT_DESTR);</pre>
+          <pre class="prettyprint">Phiber\Event\eventful::attach($observer, Phiber\Session\session::EVENT_DESTR);</pre>
           Or register to all the events by specifying the root part of the event
           name.<br>
           <pre class="prettyprint">Phiber\Event\event::attach($observer, 'session');</pre>
@@ -758,13 +758,13 @@ class auth extends \Phiber\plugin
           &nbsp;<code>detach()</code> is used in a similar fashion where
           providing an already registered observer name with an event will
           unregister that observer and will no longer respond to that event:<br>
-          <pre class="prettyprint">Phiber\Event\eventfull::detach($observer, Phiber\Session\session::EVENT_DESTR);</pre>
+          <pre class="prettyprint">Phiber\Event\eventful::detach($observer, Phiber\Session\session::EVENT_DESTR);</pre>
           If you want to unregister from all events fired by <code>session</code>
           just provide the root part of the event <br>
-          <pre class="prettyprint">Phiber\Event\eventfull::detach($observer, 'session');</pre>
+          <pre class="prettyprint">Phiber\Event\eventful::detach($observer, 'session');</pre>
           The class <code>session</code> in this case must define the method<br>
           <pre class="prettyprint">public static function getEvents(){}</pre>
-          This method is used by <code>eventfull::attach()</code> and <code>eventfull::detach()</code>
+          This method is used by <code>eventful::attach()</code> and <code>eventful::detach()</code>
           to determine what events are available. It must return an <code>array</code>
           with the available events. <br>
           Defined in <code>session </code>like this:<br>
@@ -775,7 +775,7 @@ class auth extends \Phiber\plugin
           <code></code> <span style="font-weight: bold;">Fire an event</span><br>
           To fire an event all we need is to call <code>notify()</code>. This
           method takes our event object as a parameter.<br>
-          <pre class="prettyprint">Phiber\Event\eventfull::notify($event);</pre>
+          <pre class="prettyprint">Phiber\Event\eventful::notify($event);</pre>
           <br>
           A listner or an observer is an object that has an <code>update()</code>
           method (it could implement <code>phiberEventObserver</code> or extend
@@ -805,7 +805,7 @@ use Phiber\Session\session;<br><br>class examplePlugin extends Phiber\plugin
 {
   public function run()
   {
-    //Register our dummy library (see External Libraries in this doc)<br>    <br>    $this-&gt;addLib('event');<br><br>   //Attach our listener to the session<br>&nbsp; <br>    Phiber\Event\eventfull::attach('event\listen', session::EVENT_REGEN);
+    //Register our dummy library (see External Libraries in this doc)<br>    <br>    $this-&gt;addLib('event');<br><br>   //Attach our listener to the session<br>&nbsp; <br>    Phiber\Event\eventful::attach('event\listen', session::EVENT_REGEN);
   
   }
 
@@ -823,24 +823,24 @@ use Phiber\Session\session;<br><br>class examplePlugin extends Phiber\plugin
           Closures are a quick way to listen for events and act on them. They
           can be attached the same way other objects are and an Event object is
           passed to them as a parameter.<br>
-          <pre class="prettyprint"> Phiber\Event\eventfull::attach(  function($event)<br>                                  { <br>                                       var_dump($event);<br><br>                                  }, Phiber\phiber::EVENT_SHUTDOWN<br>&nbsp;<br>                               );</pre>
+          <pre class="prettyprint"> Phiber\Event\eventful::attach(  function($event)<br>                                  { <br>                                       var_dump($event);<br><br>                                  }, Phiber\phiber::EVENT_SHUTDOWN<br>&nbsp;<br>                               );</pre>
           The example above is the simplest way you can use Closures with events
           but if you want to be able to dettach them later in runtime you'll
           need to provide a hash to identify them. A hash can be any random
           string.<br>
           <pre class="prettyprint">  $hash = sha1('myshutdownclosureIdStr')
- <br>  Phiber\Event\eventfull::attach(<br><br>        function($event)<br>         { <br><br>            var_dump($event);<br><br>         }, <br>  <br>        Phiber\phiber::EVENT_SHUTDOWN, $hash<br>&nbsp;<br>     );<br><br> // You can use the same hash later to detach this listener<br> Phiber\Event\eventfull::detach(null, Phiber\phiber::EVENT_SHUTDOWN, $hash);</pre>
+ <br>  Phiber\Event\eventful::attach(<br><br>        function($event)<br>         { <br><br>            var_dump($event);<br><br>         }, <br>  <br>        Phiber\phiber::EVENT_SHUTDOWN, $hash<br>&nbsp;<br>     );<br><br> // You can use the same hash later to detach this listener<br> Phiber\Event\eventful::detach(null, Phiber\phiber::EVENT_SHUTDOWN, $hash);</pre>
           <span style="font-weight: bold;">Custom method<br>
           </span><span>The default method called on listener objects is <code>update()</code>
             but you can easily overide this behaviour by providing your own
             method name to the <code>attach()</code> method.</span><br>
-          <pre class="prettyprint">Phiber\Event\eventfull::attach($observer, Phiber\phiber::EVENT_SHUTDOWN, null, 'myMethod'); </pre>
+          <pre class="prettyprint">Phiber\Event\eventful::attach($observer, Phiber\phiber::EVENT_SHUTDOWN, null, 'myMethod'); </pre>
           <span>This way everytime '<code>phiber.shutdown</code>' is fired <code>$observer-&gt;myMethod(event
               $event)</code> will execute.<br>
             <span style="font-weight: bold;">Syntactic sugar</span><br>
             Controllers, Models and Plugins provide easier ways to register for
             events through the <code>attach()</code> builtin method. This
-            method is different than the one provided by <code>eventfull</code>.</span><br>
+            method is different than the one provided by <code>eventful</code>.</span><br>
           <pre class="prettyprint"> protected function attach($event, $observer = null, $hash = null, $runMethod = null)</pre>
           Use it like this:<br>
           <pre class="prettyprint"> //Plugin, Model or Controller<br> $this-&gt;attach(Phiber\phiber::EVENT_SHUTDOWN);<br><br> //this will hold a copy of this object and execute update() on it when event is fired</pre>
