@@ -564,24 +564,39 @@ class oosql extends \PDO
      * @throws \Exception
      * @return object An entity Instance
      */
-    public function save($object = null)
+    public function save(entity $object = null)
     {
+
         $data = null;
-        if (null === $object) {
-            if (null === $this->oosql_entity_obj) {
-                $msg = 'Nothing to save! ' . $this->sql();
-                throw new \Exception($msg, 9806, null);
+        $primaryValue = array();
+        if (null !== $object) {
+            $primaryValue = array_filter(array_values($object->getPrimaryValue()), 'strlen');
+        }
+
+        if (null === $object || empty($primaryValue)) {
+            $entity = $object;
+            if (null === $object) {
+                if ( null === $this->oosql_entity_obj) {
+                    $msg = 'Nothing to save! ' . $this->sql();
+                    throw new \Exception($msg, 9806, null);
+                }
+                // This is a brand new record let's insert;
+                $entity = $this->getEntityObject();
             }
-            // This is a brand new record let's insert;
-            $entity = $this->getEntityObject();
+
             $fields = (array)$entity;
 
             if ($identity = $entity->identity()) {
                 unset($fields[$identity]);
             }
-            $fieldnames = array_keys($fields);
-            $fvalues = array_values($fields);
-            $lastID = $this->insert(implode(',', $fieldnames))->values($fvalues)->exe();
+            $populated = array_filter($fields, 'strlen');
+
+            $fieldnames = array_keys($populated);
+            $fvalues = array_values($populated);
+
+            call_user_func_array(array($this, 'insert'), $fieldnames);
+
+            $lastID = call_user_func_array(array($this, 'values'), $fvalues)->exe();
             $entity->{$identity} = $lastID;
 
             return $entity;
