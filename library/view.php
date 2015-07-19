@@ -9,6 +9,7 @@ namespace Phiber {
 
     class view extends phiber
     {
+        public $idCount = array();
         /**
          * @var object Phiber\view instance
          */
@@ -29,11 +30,9 @@ namespace Phiber {
 
         /**
          * Constructor get/set defaults
-         * @return void
          */
         public function __construct()
         {
-
             $this->layoutEnabled = $this->config->layoutEnabled;
             $this->layout = $this->config->application . DIRECTORY_SEPARATOR . 'layouts' . DIRECTORY_SEPARATOR . $this->config->PHIBER_LAYOUT_FILE;
         }
