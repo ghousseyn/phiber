@@ -136,4 +136,8 @@ class html
         }
         return $string;
     }
+    public function getTag()
+    {
+        return $this->tag;
+    }
 }
