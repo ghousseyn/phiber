@@ -18,16 +18,14 @@ class ui extends phiber
 
     public function createScript($path, array $options = array(), $base = null)
     {
-        $element = html::createElement('script');
         if (isset($base)) {
             $path = $base.$path;
         }
         $options['src'] = $path;
-        return $this->createTag($element, $options, null);
+        return $this->createTag('script', $options, null);
     }
     public function createHeaderLink($path, array $options = array(), $base = null)
     {
-        $element = html::createElement('link');
         if (isset($base)) {
             $path = $base.$path;
         }
@@ -38,10 +36,11 @@ class ui extends phiber
         if (!array_key_exists('type', $options)) {
             $options['type'] = 'text/css';
         }
-        return $this->createTag($element, $options, '');
+        return $this->createTag('link', $options, '');
     }
-    public function createTag(html $element, array $options = array(), $content = ' ')
+    public function createTag($element, array $options = array(), $content = ' ')
     {
+        $element = html::createElement($element);
         $prefix = 'phi-header-';
         if (array_key_exists('prefix', $options)) {
             $prefix = $options['prefix'];

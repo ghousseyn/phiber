@@ -103,7 +103,7 @@ class html
         if (!empty($this->tag)) {
             $string .= '<' . $this->tag;
             $string .= $this->attributesToString();
-            if ($this->autoclosed && $this->text === '') $string .= '/>' . CHR(13) . CHR(10) . CHR(9);
+            if ($this->autoclosed && $this->text === '') $string .= ' />' . CHR(13) . CHR(10) . CHR(9);
             else $string .= '>' . ($this->textFirst ? $this->text . $this->contentToString() : $this->contentToString() . $this->text) . '</' . $this->tag . '>';
         } else {
             $string .= $this->contentToString();
