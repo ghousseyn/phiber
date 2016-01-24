@@ -62,7 +62,7 @@ class wire
 
     }
 
-    protected function _redirect($url, $replace = true, $code = 307)
+    public function _redirect($url, $replace = true, $code = 307)
     {
         header("Location: $url", $replace, $code);
     }
@@ -82,47 +82,47 @@ class wire
         return (strtoupper($method) === strtoupper($this->phiber->method));
     }
 
-    protected function isPost()
+    public function isPost()
     {
         return count($_POST);
     }
 
-    protected function isGet()
+    public function isGet()
     {
         return $this->isHttpMethod('get');
     }
 
-    protected function isPut()
+    public function isPut()
     {
         return $this->isHttpMethod('put');
     }
 
-    protected function isHead()
+    public function isHead()
     {
         return $this->isHttpMethod('head');
     }
 
-    protected function isDelete()
+    public function isDelete()
     {
         return $this->isHttpMethod('delete');
     }
 
-    protected function isOptions()
+    public function isOptions()
     {
         return $this->isHttpMethod('options');
     }
 
-    protected function isTrace()
+    public function isTrace()
     {
         return $this->isHttpMethod('trace');
     }
 
-    protected function isAjax()
+    public function isAjax()
     {
         return $this->phiber->ajax;
     }
 
-    protected function _requestParam($var, $default = null)
+    public function _requestParam($var, $default = null)
     {
         $vars = $this->phiber->request;
         if (is_array($vars) && isset($vars[$var])) {
@@ -132,22 +132,22 @@ class wire
 
     }
 
-    protected function register($name, $value)
+    public function register($name, $value)
     {
         $this->session->set($name, $value);
     }
 
-    protected function get($index)
+    public function get($index)
     {
         return $this->session->get($index);
     }
 
-    protected function isFlagSet($flag)
+    public function isFlagSet($flag)
     {
         return \Phiber\Flag\flag::_isset($flag, $this->get('phiber_flags'));
     }
 
-    protected function setFlag($flag, $value)
+    public function setFlag($flag, $value)
     {
         $flags = $this->session->get('phiber_flags');
         \Phiber\Flag\flag::_set($flag, $value, $flags);
@@ -195,7 +195,7 @@ class wire
         return $this->setLog();
     }
 
-    protected function sendJSON($data, $options = null)
+    public function sendJSON($data, $options = null)
     {
         $this->view->disableLayout();
         $this->view->disableView();
@@ -224,14 +224,14 @@ class wire
         return false;
     }
 
-    protected function hashObject()
+    public function hashObject()
     {
         $class = get_called_class();
         $reflect = new \ReflectionClass($class);
         return sha1($class . $reflect->getFileName());
     }
 
-    protected function attach($event, $observer = null, $hash = null, $runMethod = null)
+    public function attach($event, $observer = null, $hash = null, $runMethod = null)
     {
         if (null === $observer) {
             $observer = $this;
@@ -242,7 +242,7 @@ class wire
         return Event\eventful::attach($observer, $event, $hash, $runMethod);
     }
 
-    protected function detach($event, $observer = null, $hash = null)
+    public function detach($event, $observer = null, $hash = null)
     {
         if (null === $observer) {
             $observer = $this;
@@ -253,7 +253,7 @@ class wire
         return Event\eventful::detach($observer, $event, $hash);
     }
 
-    protected function notify(Event\event $event)
+    public function notify(Event\event $event)
     {
         Event\eventful::notify($event);
     }

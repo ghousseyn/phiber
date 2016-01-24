@@ -76,7 +76,7 @@ namespace Phiber {
 
             $path = array_slice($this->phiber->route, 0, 3, true);
 
-            $path = $this->config->application . '/modules/' . array_shift($path) . '/views/' . implode('/', $path) . '.php';
+            $path = $this->config->application . '/modules/' . $path['module'] . '/views/' .$path['controller'] . '/' .ltrim($path['action'], $this->actionPrefix) .  '.php';
 
             $this->view->viewPath = $path;
 

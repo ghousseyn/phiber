@@ -17,6 +17,7 @@ class phiber extends wire
     public $currentRoute;
     public $request;
     public $logger;
+    public $actionPrefix = 'action';
 
     private static $instance;
 
@@ -364,14 +365,14 @@ class phiber extends wire
     private function hasAction(&$parts, $controller)
     {
 
-        if (!empty($parts[0]) && method_exists($this->controller, $parts[0])) {
+        if (!empty($parts[0]) && method_exists($this->controller, $this->actionPrefix . $parts[0])) {
 
-            return array_shift($parts);
+            return $this->actionPrefix . ucfirst(array_shift($parts));
 
         }
 
         array_shift($parts);
-        return $this->config->PHIBER_CONTROLLER_DEFAULT_METHOD;
+        return $this->actionPrefix . ucfirst($this->config->PHIBER_CONTROLLER_DEFAULT_METHOD);
 
     }
 
@@ -384,7 +385,8 @@ class phiber extends wire
             } else {
                 $event = new Event\event(self::EVENT_URINOTFOUND, __class__, 'Could not call specified action!', 'error');
                 Event\eventful::notify($event);
-                $this->controller->{$this->config->PHIBER_CONTROLLER_DEFAULT_METHOD};
+                $action = $this->actionPrefix . $this->config->PHIBER_CONTROLLER_DEFAULT_METHOD;
+                $this->controller->{$action}();
             }
         Event\eventful::notify(new Event\event(self::EVENT_DISPATCH, __class__));
     }
@@ -392,7 +394,7 @@ class phiber extends wire
     private function loadController($controller)
     {
         require $this->path . $controller . '.php';
-        return $controller::getInstance();
+        return new $controller($this);
     }
 
     public function addObserver($name, $object)
