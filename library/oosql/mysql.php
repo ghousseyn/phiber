@@ -127,7 +127,7 @@ class mysql extends oogen
 
             print "Analyzing $table physical columns ..." . PHP_EOL;
 
-            $query = $this->queries['columns'] . ' ' . $this->database.'.`'.$table.'`';
+            $query = $this->queries['columns'] . ' ' .$table;
 
             $collection = $this->getCollection($query);
 
