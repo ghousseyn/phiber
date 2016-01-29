@@ -231,6 +231,9 @@ class collection extends \ArrayObject
 
     public function Object($offset = 0)
     {
+        if (empty($this->objects[$offset])) {
+            return false;
+        }
         return $this->objects[$offset];
     }
 
