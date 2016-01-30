@@ -78,7 +78,7 @@ class phiberTest extends PhiberTests
         $parts = array('nonExistant');
         $return = $this->invokeMethod($this->main, 'hasAction', array(&$parts, $controller));
         $this->assertEquals(0, count($parts));
-        $this->assertEquals(Phiber\config::getInstance()->PHIBER_CONTROLLER_DEFAULT_METHOD, $return);
+        $this->assertEquals('action' . ucfirst(Phiber\config::getInstance()->PHIBER_CONTROLLER_DEFAULT_METHOD), $return);
     }
 
     public function testHasAction()
@@ -87,7 +87,7 @@ class phiberTest extends PhiberTests
         $parts = array('main');
         $return = $this->invokeMethod($this->main, 'hasAction', array(&$parts, $controller));
         $this->assertEquals(count($parts), 0);
-        $this->assertEquals('main', $return);
+        $this->assertEquals('actionMain', $return);
     }
 
     public function testSetVars()
