@@ -76,52 +76,6 @@ class wire
         $this->phiber->libs[$name] = $src;
 
     }
-
-    private function isHttpMethod($method)
-    {
-        return (strtoupper($method) === strtoupper($this->phiber->method));
-    }
-
-    public function isPost()
-    {
-        return count($_POST);
-    }
-
-    public function isGet()
-    {
-        return $this->isHttpMethod('get');
-    }
-
-    public function isPut()
-    {
-        return $this->isHttpMethod('put');
-    }
-
-    public function isHead()
-    {
-        return $this->isHttpMethod('head');
-    }
-
-    public function isDelete()
-    {
-        return $this->isHttpMethod('delete');
-    }
-
-    public function isOptions()
-    {
-        return $this->isHttpMethod('options');
-    }
-
-    public function isTrace()
-    {
-        return $this->isHttpMethod('trace');
-    }
-
-    public function isAjax()
-    {
-        return $this->phiber->ajax;
-    }
-
     public function _requestParam($var, $default = null)
     {
         $vars = $this->phiber->request;

@@ -68,6 +68,50 @@ class phiber extends wire
     {
         return $this->base;
     }
+    private function isHttpMethod($method)
+    {
+        return (strtoupper($method) === strtoupper($this->method));
+    }
+
+    public function isPost()
+    {
+        return $this->isHttpMethod('post');
+    }
+
+    public function isGet()
+    {
+        return $this->isHttpMethod('get');
+    }
+
+    public function isPut()
+    {
+        return $this->isHttpMethod('put');
+    }
+
+    public function isHead()
+    {
+        return $this->isHttpMethod('head');
+    }
+
+    public function isDelete()
+    {
+        return $this->isHttpMethod('delete');
+    }
+
+    public function isOptions()
+    {
+        return $this->isHttpMethod('options');
+    }
+
+    public function isTrace()
+    {
+        return $this->isHttpMethod('trace');
+    }
+
+    public function isAjax()
+    {
+        return $this->ajax;
+    }
 
     private function getPlugins()
     {

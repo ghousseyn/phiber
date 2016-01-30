@@ -163,6 +163,7 @@ namespace Phiber {
             return $this->phiber->getBase() . $uri;
         }
 
+
         public static function getInstance()
         {
             if (null !== self::$instance) {
