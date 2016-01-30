@@ -15,7 +15,7 @@ class controller
     public function __call($name, $arguments)
     {
         if (method_exists($this->phiber, $name)) {
-            return call_user_func_array([$this->phiber, $name], $arguments);
+            return call_user_func_array(array($this->phiber, $name), $arguments);
         }
     }
     public function __get($name)
