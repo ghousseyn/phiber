@@ -613,8 +613,7 @@ class oosql extends \PDO
             if ($old) {
 
                 $identity = $this->getEntityObject()->identity();
-
-                foreach (array_diff((array)$object, (array)$old) as $key => $value) {
+                foreach (array_diff_assoc((array)$object, (array)$old) as $key => $value) {
                     if ($key == $identity) {
                         continue;
                     }
