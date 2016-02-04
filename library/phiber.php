@@ -222,7 +222,14 @@ class phiber extends wire
             }
 
             if ($this->isPost()) {
-                $this->_requestVars = $_POST;
+
+                if (empty($_POST) && stripos($_SERVER["CONTENT_TYPE"], "json") !== false) {
+                    $json = file_get_contents('php://input');
+                    $fields = json_decode($json, true);
+                    $this->_requestVars = $fields;
+                } else {
+                    $this->_requestVars = $_POST;
+                }
             }
 
             $route = array('module' => $module, 'controller' => $controller, 'action' => $action, 'vars' => $this->_requestVars);

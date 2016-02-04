@@ -1314,7 +1314,7 @@ class oosql extends \PDO
      */
     public function queryHash()
     {
-        return hash('adler32', $this->sql());
+        return hash('sha1', $this->sql());
     }
 
     /**
@@ -1500,6 +1500,37 @@ class oosql extends \PDO
         throw new \Exception($msg, 9816, null);
     }
 
+    /**
+     * Try to obtain a named lock
+     *
+     * @author Housseyn Guettaf
+     *
+     * @param string $name    - Lock name
+     * @param int    $timeout - Timeout
+     *
+     * @return mixed
+     */
+    public function getNamedLock($name, $timeout = 15)
+    {
+        $stmt = $this->query('SELECT GET_LOCK("' . $name . '", '.$timeout .')');
+        return $stmt->fetch(self::FETCH_COLUMN);
+
+    }
+    /**
+     * releases a named lock
+     *
+     * @author Housseyn Guettaf
+     *
+     * @param string $name    - Lock name
+     *
+     * @return mixed
+     */
+    public function releaseNamedLock($name)
+    {
+        $stmt = $this->query('SELECT RELEASE_LOCK("' . $name . '")');
+        return $stmt->fetch(self::FETCH_COLUMN);
+
+    }
     /**
      * Returns the currently assembled partial SQL query (complete query is available only after oosql::exe())
      * @return string SQL assemebled until now
