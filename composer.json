@@ -18,6 +18,7 @@
     "autoload": {
         "psr-0": {
             "Phiber": "library/"
-        }
+        },
+        "files" : ["vendor/phiber/phiber/library/wire.php"]
     }
 }
