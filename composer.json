@@ -19,6 +19,6 @@
         "psr-0": {
             "Phiber": "library/"
         },
-        "files" : ["vendor/phiber/phiber/library/wire.php"]
+        "files" : ["library/wire.php"]
     }
 }
