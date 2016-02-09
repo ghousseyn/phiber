@@ -35,7 +35,8 @@ abstract class oogen extends \PDO
         parent::__construct($dsn, $user, $password);
         $this->time = microtime(true);
         $this->mem = memory_get_usage();
-        $this->database = end(explode('dbname=',$dsn));
+        $dsnParts = explode('dbname=',str_replace(' ', '',$dsn));
+        $this->database = strstr($dsnParts[1], ';', true);
     }
 
     public function getErrors()

@@ -9,7 +9,7 @@ class mysql extends oogen
         'tables' => 'SHOW TABLES',
         'columns' => 'SHOW COLUMNS FROM',
         'create' => 'show create table',
-        'meta' => 'SELECT column_name, data_type, character_maximum_length FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = "<tbl_name>";',
+        'meta' => 'SELECT column_name, data_type, character_maximum_length FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = "<tbl_name>" AND TABLE_SCHEMA = "<db_name>";',
         );
 
 
@@ -19,6 +19,7 @@ class mysql extends oogen
         $query = $this->queries['meta'];
 
         $query = str_replace('<tbl_name>', $table, $query);
+        $query = str_replace('<db_name>', $this->database, $query);
 
         $collection = $this->getCollection($query);
 
@@ -127,7 +128,7 @@ class mysql extends oogen
 
             print "Analyzing $table physical columns ..." . PHP_EOL;
 
-            $query = $this->queries['columns'] . ' ' .$table;
+            $query = $this->queries['columns'] . ' ' .$this->database.'.'.$table;
 
             $collection = $this->getCollection($query);
 
@@ -144,7 +145,7 @@ class mysql extends oogen
 
             print "Analyzing $table DDL ..." . PHP_EOL;
 
-            $ddl = $this->getCollection($this->queries['create'] . ' `' . $table . '`');
+            $ddl = $this->getCollection($this->queries['create'] . ' ' . $this->database .'.' . $table);
 
             if (!$ddl) {
 
