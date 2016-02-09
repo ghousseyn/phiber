@@ -125,20 +125,13 @@ abstract class entity
             }
 
         } else {
-            return $this->reset()->save($this);
+            return self::$oosql_obj->save($this);
         }
-    }
-
-    public function reset()
-    {
-        return self::$oosql_obj->reset();
     }
 
     public function load()
     {
-
-            return $this->find();
-
+        return $this->find();
     }
 
     public function __set($var, $val)
