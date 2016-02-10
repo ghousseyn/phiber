@@ -233,7 +233,74 @@ class oosql extends \PDO
      */
     public static function getInstance($oosql_table = null, $oosql_class = null, $config = null)
     {
+        if (null !== self::$instance) {
+            self::$instance->reset();
+            self::$instance->setClass($oosql_class);
+            self::$instance->setTable($oosql_table);
+
+            return self::$instance;
+        }
         return self::$instance = new self($oosql_table, $oosql_class, $config);
+    }
+
+    /**
+     * Resets the class vars to their initial values for a new query
+     * @return \Phiber\oosql\oosql Instance
+     */
+    public function reset()
+    {
+
+        $this->oosql_limit = null;
+
+        $this->oosql_order = null;
+
+        $this->oosql_where = null;
+
+        $this->oosql_join = null;
+
+        $this->oosql_stmt = null;
+
+        $this->oosql_conValues = array();
+
+        $this->oosql_numargs = null;
+
+        $this->oosql_fromFlag = false;
+
+        $this->oosql_multiFlag = false;
+
+        $this->oosql_del_multiFlag = false;
+
+        $this->oosql_multi = array();
+
+        $this->oosql_del_numargs = null;
+
+        $this->oosql_sql = null;
+
+        $this->oosql_select = null;
+
+        $this->oosql_distinct = false;
+
+        $this->oosql_insert = false;
+
+        $this->oosql_sub = false;
+
+        $this->oosql_table_alias = null;
+
+        $this->oosql_fields = array();
+
+        $this->oosql_entity_obj = null;
+
+        $this->oosql_in = null;
+
+        $this->oosql_between = null;
+
+        $this->oosql_fetchChanged = null;
+
+        $this->oosql_group = null;
+
+        $this->oosql_prepParams = null;
+
+        return $this;
     }
 
     /**
@@ -298,6 +365,7 @@ class oosql extends \PDO
      */
     public function select()
     {
+        self::$instance->reset();
         $this->sql('SELECT ');
         if ($this->oosql_distinct) {
             $this->sql('DISTINCT ');
@@ -360,6 +428,7 @@ class oosql extends \PDO
      */
     public function insert()
     {
+        self::$instance->reset();
         $this->sql('INSERT INTO ' . $this->oosql_table);
 
         $arg_list = func_get_args();
@@ -383,6 +452,7 @@ class oosql extends \PDO
      */
     public function update()
     {
+        self::$instance->reset();
         $this->sql('UPDATE');
 
         $numargs = func_num_args();
@@ -415,6 +485,7 @@ class oosql extends \PDO
      */
     public function delete()
     {
+        self::$instance->reset();
         $this->sql('DELETE');
         $this->oosql_where = null;
         $numargs = func_num_args();
