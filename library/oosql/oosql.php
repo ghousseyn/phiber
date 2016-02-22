@@ -910,17 +910,12 @@ class oosql extends \PDO
 
         }
 
-        if ($this->oosql_stmt = stmtCache::getByHash($hash) === false) {
-
-            if ($this->oosql_prepParams) {
-                $this->oosql_stmt = $this->prepare(trim($this->sql()), $this->oosql_prepParams);
-            } else {
-                $this->oosql_stmt = $this->prepare(trim($this->sql()));
-            }
-
-            stmtCache::setHash($hash, $this->oosql_stmt);
-
+        if ($this->oosql_prepParams) {
+            $this->oosql_stmt = $this->prepare(trim($this->sql()), $this->oosql_prepParams);
+        } else {
+            $this->oosql_stmt = $this->prepare(trim($this->sql()));
         }
+
 
 
         if ($prepOnly) {

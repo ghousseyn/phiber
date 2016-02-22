@@ -100,7 +100,7 @@ class validator
             $this->errors[$this->key][] = $this->error_msg;
             Events\eventful::notify(new Events\event(self::EVENT_NOTVALID, 'validator', $this->error_msg, 'error'));
         }
-        return $this;
+        return $result;
     }
        
     protected function fill($key, $error_msg)
@@ -132,7 +132,15 @@ class validator
             return (string)$str === ((string)(float)$str);
         };
         static::$callbacks['email'] = function ($str) {
-            return filter_var($str, FILTER_VALIDATE_EMAIL) !== false;
+            if (filter_var($str, FILTER_VALIDATE_EMAIL)  !== false) {
+                $emailParts = explode("@", $str);
+                $mailDomain = end($emailParts);
+                if (checkdnsrr($mailDomain, "MX")) {
+                    return true;
+                }
+            }
+
+            return false;
         };
         static::$callbacks['url'] = function ($str) {
             return filter_var($str, FILTER_VALIDATE_URL) !== false;
